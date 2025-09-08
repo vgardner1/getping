@@ -205,7 +205,7 @@ const Profile = () => {
             <Button 
               variant="outline" 
               className="flex items-center gap-2 hover:scale-105 transition-transform duration-200"
-              onClick={() => setShowAnalytics(true)}
+              onClick={() => navigate('/profile/analytics')}
             >
               <BarChart3 className="w-4 h-4" />
             </Button>

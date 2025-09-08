@@ -9,6 +9,7 @@ import Onboarding from "./pages/Onboarding";
 import Checkout from "./pages/Checkout";
 import ProfileSetup from "./pages/ProfileSetup";
 import ProfileView from "./pages/ProfileView";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,7 +26,8 @@ const App = () => (
             <Route path="/signup" element={<Onboarding />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
-            <Route path="/profile" element={<ProfileView />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/analytics" element={<ProfileView />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
