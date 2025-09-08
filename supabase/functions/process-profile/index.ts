@@ -47,7 +47,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { userId, platforms } = await req.json();
+    const { userId, platforms, seedProfile } = await req.json();
     console.log('Processing profile for user:', userId, 'platforms:', platforms);
 
     // Create processing job
@@ -76,6 +76,21 @@ serve(async (req) => {
       console.error('Error fetching social data:', socialError);
     }
 
+    // Also fetch any existing profile seed data
+    const { data: profileRow } = await supabaseClient
+      .from('profiles')
+      .select('display_name, bio, linkedin_url, social_links')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    const seed = {
+      displayName: profileRow?.display_name,
+      bio: profileRow?.bio,
+      linkedin: profileRow?.linkedin_url,
+      social_links: profileRow?.social_links,
+      ...(seedProfile || {})
+    };
+
     // Update progress
     await supabaseClient
       .from('profile_processing_jobs')
@@ -83,7 +98,7 @@ serve(async (req) => {
       .eq('id', job.id);
 
     // Process data with AI
-    const profileData = await generateProfileWithAI(socialData || []);
+    const profileData = await generateProfileWithAI((socialData || []), seed);
 
     // Update progress
     await supabaseClient
@@ -143,14 +158,14 @@ serve(async (req) => {
   }
 });
 
-async function generateProfileWithAI(socialData: any[]): Promise<ProfileData> {
+async function generateProfileWithAI(socialData: any[], seed: any): Promise<ProfileData> {
   const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
   
   if (!openAIApiKey) {
     throw new Error('OpenAI API key not found');
   }
 
-  const prompt = buildPrompt(socialData);
+  const prompt = buildPrompt(socialData, seed);
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -190,20 +205,23 @@ async function generateProfileWithAI(socialData: any[]): Promise<ProfileData> {
   }
 }
 
-function buildPrompt(socialData: any[]): string {
+function buildPrompt(socialData: any[], seed: any): string {
   return `
-Analyze the following social media data and create a comprehensive networking profile:
+Analyze the following user-provided data and social media context to create a comprehensive networking profile:
 
-SOCIAL MEDIA DATA:
-${JSON.stringify(socialData, null, 2)}
+USER PROVIDED PROFILE DATA (may be partial):
+${JSON.stringify(seed || {}, null, 2)}
+
+SOCIAL MEDIA DATA (may be empty):
+${JSON.stringify(socialData || [], null, 2)}
 
 Generate a JSON response with this exact structure:
 {
   "profile": {
-    "name": "Full name from data",
-    "title": "Professional title/role",
-    "bio": "Engaging 2-3 sentence bio highlighting networking value",
-    "location": "City, State/Country"
+    "name": "Full name if available, otherwise derive a professional handle",
+    "title": "Professional title/role based on data",
+    "bio": "Engaging 2-3 sentence bio highlighting networking value (use provided bio as a base if present)",
+    "location": "City, State/Country if available or leave generic"
   },
   "experience": [
     {
@@ -225,18 +243,13 @@ Generate a JSON response with this exact structure:
     }
   ],
   "social_links": {
-    "linkedin": "LinkedIn URL",
-    "instagram": "Instagram URL",
-    "website": "Website URL"
+    "linkedin": "LinkedIn URL if provided",
+    "instagram": "Instagram URL if provided",
+    "website": "Website URL if provided"
   }
 }
 
-Focus on:
-1. Professional achievements and experience
-2. Personal interests and creativity
-3. Networking potential and conversation opportunities
-4. Unique value proposition for connections
-5. Authentic personality that encourages meaningful conversations
+If some fields are missing, intelligently infer reasonable values without fabricating specific false claims. Prioritize clarity and networking usefulness.
 `;
 }
 

@@ -101,6 +101,7 @@ const ProfileSetup = () => {
           display_name: profileData.name || user.user_metadata.display_name,
           bio: profileData.bio,
           avatar_url: profileData.avatarUrl,
+          linkedin_url: profileData.linkedin,
           social_links: {
             linkedin: profileData.linkedin,
             instagram: profileData.instagram,
@@ -108,7 +109,7 @@ const ProfileSetup = () => {
             venmo: profileData.venmo
           },
           updated_at: new Date().toISOString()
-        });
+        }, { onConflict: 'user_id' });
 
       if (error) throw error;
       return true;
@@ -129,7 +130,31 @@ const ProfileSetup = () => {
     } else {
       setLoading(true);
       const success = await saveProfileData();
-      if (success) {
+      if (success && user) {
+        try {
+          // Kick off AI profile generation using provided info
+          await supabase.functions.invoke('process-profile', {
+            body: {
+              userId: user.id,
+              platforms: [],
+              seedProfile: {
+                displayName: profileData.name || user.user_metadata?.display_name,
+                bio: profileData.bio,
+                linkedin: profileData.linkedin,
+                instagram: profileData.instagram,
+                social_links: {
+                  linkedin: profileData.linkedin,
+                  instagram: profileData.instagram,
+                  twitter: profileData.twitter,
+                  venmo: profileData.venmo
+                }
+              }
+            }
+          });
+        } catch (e) {
+          console.error('AI generation failed, continuing with saved data', e);
+        }
+
         toast({
           title: 'Profile completed!',
           description: 'Your profile has been set up successfully.'
