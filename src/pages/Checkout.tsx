@@ -58,20 +58,20 @@ const Checkout = () => {
                   <h3 className="font-semibold iridescent-text">ping! </h3>
                   <p className="text-sm text-muted-foreground iridescent-text">Access your new network today</p>
                 </div>
-                <span className="font-semibold iridescent-text">Free Trial</span>
+                <span className="font-semibold iridescent-text">$9.99</span>
               </div>
               
               <div className="border-t border-border pt-2 mt-4">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="iridescent-text">7-Day Free Trial</span>
-                  <span className="iridescent-text">$0.00</span>
+                  <span className="iridescent-text">Upfront Cost</span>
+                  <span className="iridescent-text">$9.99</span>
                 </div>
                 <div className="flex justify-between items-center text-sm mt-1">
                   <span className="iridescent-text">Then $2.99/month</span>
                   <span className="text-xs text-muted-foreground iridescent-text">recurring</span>
                 </div>
                 <div className="flex justify-between items-center text-sm mt-1">
-                  <span className="iridescent-text text-primary">Refer 5 friends → First month free</span>
+                  <span className="iridescent-text text-primary">Refer 1 friend → First month free</span>
                   <span className="text-xs text-primary iridescent-text">bonus</span>
                 </div>
               </div>
@@ -79,7 +79,7 @@ const Checkout = () => {
               <div className="border-t border-border pt-4 mt-4">
                 <div className="flex justify-between items-center text-lg font-bold">
                   <span className="iridescent-text">Due Today</span>
-                  <span className="iridescent-text">$0.00</span>
+                  <span className="iridescent-text">$9.99</span>
                 </div>
               </div>
             </div>
