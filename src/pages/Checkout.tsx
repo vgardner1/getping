@@ -23,8 +23,10 @@ const Checkout = () => {
   };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock subscription success
-    alert("Free trial started! You'll be billed $2.99 monthly after 7 days. Refer 5 friends to get your first month free!");
+    // Simulate successful transaction
+    alert("Payment successful! Welcome to Ping!");
+    // Redirect to account setup
+    window.location.href = "/profile-setup";
   };
   return <div className="min-h-screen bg-background relative">
       <StarField />
@@ -169,12 +171,12 @@ const Checkout = () => {
               
               <div className="bg-secondary/10 border border-secondary/20 rounded-lg p-4 mb-4">
                 <p className="text-sm text-muted-foreground iridescent-text text-center">
-                  Start your 7-day free trial • No payment required today
+                  Get your Ping ring and access to your new network • Billed $2.99/month after first month
                 </p>
               </div>
               
               <Button type="submit" className="w-full shimmer bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105 transition-transform duration-200 py-4 text-lg font-semibold">
-                Start Free Trial
+                Get Ping Today - $9.99
               </Button>
             </form>
           </Card>
