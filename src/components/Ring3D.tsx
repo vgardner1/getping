@@ -35,30 +35,30 @@ const Ring3D = () => {
     directionalLight.position.set(1, 1, 1);
     scene.add(directionalLight);
 
-    const pointLight = new THREE.PointLight(0x6366f1, 0.8, 100);
+    const pointLight = new THREE.PointLight(0x10b981, 0.8, 100);
     pointLight.position.set(-1, -1, 2);
     scene.add(pointLight);
 
-    // Create ring geometry
-    const ringGeometry = new THREE.TorusGeometry(1, 0.1, 8, 100);
+    // Create ring geometry - make it bigger
+    const ringGeometry = new THREE.TorusGeometry(1.5, 0.15, 8, 100);
     const ringMaterial = new THREE.MeshPhongMaterial({ 
       color: 0x1a1a1a,
       shininess: 100,
-      specular: 0x6366f1
+      specular: 0x10b981
     });
     const ring = new THREE.Mesh(ringGeometry, ringMaterial);
     ringRef.current = ring;
     scene.add(ring);
 
     // Add a metallic chip on the ring
-    const chipGeometry = new THREE.BoxGeometry(0.3, 0.05, 0.1);
+    const chipGeometry = new THREE.BoxGeometry(0.4, 0.07, 0.15);
     const chipMaterial = new THREE.MeshPhongMaterial({ 
-      color: 0x6366f1,
+      color: 0x10b981,
       shininess: 150,
-      specular: 0xffffff
+      specular: 0x34d399
     });
     const chip = new THREE.Mesh(chipGeometry, chipMaterial);
-    chip.position.set(1, 0, 0);
+    chip.position.set(1.5, 0, 0);
     ring.add(chip);
 
     // Mouse interaction
