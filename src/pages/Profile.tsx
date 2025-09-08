@@ -76,28 +76,28 @@ const Profile = () => {
   const workItems = profile?.featured_work || [
     {
       id: 1,
-      title: "Dam Chair",
-      description: "AI-designed sustainable furniture piece",
+      title: "Creative Projects",
+      description: "Showcase of innovative design work",
       image: "/lovable-uploads/048c22a0-4b6c-4593-89ce-49d2f78449c2.png",
-      category: "Furniture Design"
+      category: "Design"
     },
     {
       id: 2,
-      title: "Republic 2.0",
-      description: "Digital art installation reimagining Plato's Republic",
+      title: "Digital Innovation",
+      description: "Modern digital art and technology projects",
       image: "/lovable-uploads/82b70768-a7f7-433b-aa7c-250bf6b72151.png",
       category: "Digital Art"
     },
     {
       id: 3,
-      title: "Roots Table",
-      description: "Biomimetic table design inspired by root systems",
+      title: "Sustainable Design",
+      description: "Eco-friendly and sustainable design solutions",
       image: "/lovable-uploads/9330d76c-abaf-4b58-a5d8-ef1efd49f1ba.png",
-      category: "Furniture Design"
+      category: "Sustainability"
     },
     {
       id: 4,
-      title: "Lucid Series",
+      title: "Professional Work",
       description: "Transparent design exploration project",
       image: "/lovable-uploads/1754b949-8d55-41e0-ae70-436edf9b7018.png",
       category: "Conceptual Design"
@@ -362,30 +362,55 @@ const Profile = () => {
           <h2 className="text-2xl font-bold iridescent-text mb-6 text-center">Connect & Learn More</h2>
           
           <div className="space-y-4">
-            {profile.social_links && Object.entries(profile.social_links).map(([platform, linkData]: [string, any]) => (
-              <Card key={platform} className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 flex items-center justify-center">
-                      {platform === 'linkedin' && <Building2 className="w-5 h-5 text-primary" />}
-                      {platform === 'instagram' && <span className="text-primary font-bold">IG</span>}
-                      {platform === 'website' && <ExternalLink className="w-5 h-5 text-primary" />}
+            {profile?.social_links && Object.entries(profile.social_links).map(([platform, linkData]: [string, any]) => {
+              // Skip empty values
+              if (!linkData || (typeof linkData === 'object' && !linkData.url) || (typeof linkData === 'string' && !linkData)) {
+                return null;
+              }
+              
+              return (
+                <Card key={platform} className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 flex items-center justify-center">
+                        {platform === 'linkedin' && <Building2 className="w-5 h-5 text-primary" />}
+                        {platform === 'instagram' && <span className="text-primary font-bold">IG</span>}
+                        {platform === 'twitter' && <span className="text-primary font-bold">X</span>}
+                        {platform === 'venmo' && <span className="text-primary font-bold">V</span>}
+                        {!['linkedin', 'instagram', 'twitter', 'venmo'].includes(platform) && <ExternalLink className="w-5 h-5 text-primary" />}
+                      </div>
+                      <div>
+                        <p className="font-medium iridescent-text capitalize">
+                          {platform === 'linkedin' && 'LinkedIn - Connect with me'}
+                          {platform === 'instagram' && 'Instagram - Behind the scenes'}
+                          {platform === 'twitter' && 'Twitter/X - Follow my updates'}
+                          {platform === 'venmo' && 'Venmo - Send payment'}
+                          {!['linkedin', 'instagram', 'twitter', 'venmo'].includes(platform) && `${platform} - Connect with me`}
+                        </p>
+                        <p className="text-sm text-muted-foreground iridescent-text truncate">
+                          {typeof linkData === 'string' ? linkData : linkData.url}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium iridescent-text">
-                        {platform === 'linkedin' && 'LinkedIn - Connect with me'}
-                        {platform === 'instagram' && 'Instagram - Behind the scenes'}
-                        {platform === 'website' && 'Website - Learn more'}
-                      </p>
-                      <p className="text-sm text-muted-foreground iridescent-text truncate">
-                        {typeof linkData === 'string' ? linkData : linkData.url}
-                      </p>
-                    </div>
+                    <ExternalLink className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <ExternalLink className="w-4 h-4 text-muted-foreground" />
-                </div>
+                </Card>
+              );
+            })}
+            
+            {(!profile?.social_links || Object.keys(profile.social_links).filter(key => profile.social_links[key]).length === 0) && (
+              <Card className="bg-card border-border p-6 text-center">
+                <p className="text-muted-foreground iridescent-text">
+                  No social links added yet. Complete your profile setup to add social connections.
+                </p>
+                <Button 
+                  onClick={() => setShowProfileSetup(true)}
+                  className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  Complete Profile Setup
+                </Button>
               </Card>
-            ))}
+            )}
           </div>
         </div>
 

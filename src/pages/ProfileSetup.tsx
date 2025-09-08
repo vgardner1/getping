@@ -1,24 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StarField } from "@/components/StarField";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 const ProfileSetup = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
+  const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: "John Doe", // From signup
-    email: "john@example.com", // From signup
-    phone: "+1 (555) 123-4567", // From signup
+    name: "",
+    email: "",
+    phone: "",
     bio: "",
     linkedin: "",
     instagram: "",
     twitter: "",
     venmo: "",
-    profilePhoto: null as File | null
+    profilePhoto: null as File | null,
+    avatarUrl: "" as string
   });
+  
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  // Populate form with user data on load
+  useEffect(() => {
+    if (user) {
+      setProfileData(prev => ({
+        ...prev,
+        name: user.user_metadata?.display_name || '',
+        email: user.email || ''
+      }));
+    }
+  }, [user]);
 
   const progress = (currentStep / totalSteps) * 100;
 
@@ -29,12 +48,95 @@ const ProfileSetup = () => {
     });
   };
 
-  const handleNext = () => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    setLoading(true);
+    try {
+      // Upload to Supabase storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/avatar.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      setProfileData({
+        ...profileData,
+        profilePhoto: file,
+        avatarUrl: publicUrl
+      });
+
+      toast({
+        title: 'Photo uploaded!',
+        description: 'Your profile photo has been uploaded successfully.'
+      });
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Upload failed',
+        description: 'Failed to upload photo. Please try again.'
+      });
+    }
+    setLoading(false);
+  };
+
+  const saveProfileData = async () => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          user_id: user.id,
+          display_name: profileData.name || user.user_metadata.display_name,
+          bio: profileData.bio,
+          avatar_url: profileData.avatarUrl,
+          social_links: {
+            linkedin: profileData.linkedin,
+            instagram: profileData.instagram,
+            twitter: profileData.twitter,
+            venmo: profileData.venmo
+          },
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Save failed',
+        description: 'Failed to save profile. Please try again.'
+      });
+      return false;
+    }
+  };
+
+  const handleNext = async () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Complete setup and redirect to profile
-      window.location.href = '/profile';
+      setLoading(true);
+      const success = await saveProfileData();
+      if (success) {
+        toast({
+          title: 'Profile completed!',
+          description: 'Your profile has been set up successfully.'
+        });
+        window.location.href = '/profile';
+      }
+      setLoading(false);
     }
   };
 
@@ -52,21 +154,28 @@ const ProfileSetup = () => {
               <p className="text-muted-foreground iridescent-text">Help people recognize you</p>
             </div>
             <div className="flex flex-col items-center space-y-4">
-              <div className="w-32 h-32 bg-secondary/20 rounded-full flex items-center justify-center border-2 border-dashed border-primary/50">
-                <span className="text-4xl">📷</span>
+              <div className="w-32 h-32 bg-secondary/20 rounded-full flex items-center justify-center border-2 border-dashed border-primary/50 overflow-hidden">
+                {profileData.avatarUrl ? (
+                  <img src={profileData.avatarUrl} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                ) : (
+                  <span className="text-4xl">📷</span>
+                )}
               </div>
               <input
                 type="file"
                 accept="image/*"
                 className="hidden"
                 id="photo-upload"
-                onChange={(e) => setProfileData({...profileData, profilePhoto: e.target.files?.[0] || null})}
+                onChange={handlePhotoUpload}
               />
               <label htmlFor="photo-upload">
                 <Button variant="outline" className="border-primary text-primary hover:bg-primary/10" asChild>
-                  <span>Upload Photo</span>
+                  <span>{profileData.profilePhoto ? 'Change Photo' : 'Upload Photo'}</span>
                 </Button>
               </label>
+              {profileData.profilePhoto && (
+                <p className="text-sm text-muted-foreground">{profileData.profilePhoto.name}</p>
+              )}
             </div>
           </div>
         );
@@ -201,11 +310,12 @@ const ProfileSetup = () => {
               Skip for Now
             </Button>
             
-            <Button 
+              <Button 
               onClick={handleNext}
+              disabled={loading}
               className="flex-1 shimmer bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              {currentStep === totalSteps ? 'Complete' : 'Next'}
+              {loading ? 'Saving...' : (currentStep === totalSteps ? 'Complete' : 'Next')}
             </Button>
           </div>
           

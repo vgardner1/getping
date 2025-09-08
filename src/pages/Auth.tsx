@@ -29,13 +29,11 @@ const Auth = () => {
 
   const handleSignUp = async () => {
     setLoading(true);
-    const redirectUrl = `${window.location.origin}/profile-setup`;
     
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
         data: {
           display_name: displayName
         }
@@ -48,22 +46,13 @@ const Auth = () => {
         title: 'Sign Up Error',
         description: error.message
       });
-    } else {
-      // If user is immediately confirmed (no email verification needed)
-      if (data.user && !data.user.email_confirmed_at) {
-        toast({
-          title: 'Check your email',
-          description: 'We sent you a confirmation link to complete your registration.'
-        });
-      } else if (data.user && data.user.email_confirmed_at) {
-        // User is immediately confirmed, redirect to profile setup
-        navigate('/profile-setup');
-      } else {
-        toast({
-          title: 'Check your email',
-          description: 'We sent you a confirmation link to complete your registration.'
-        });
-      }
+    } else if (data.user) {
+      toast({
+        title: 'Account created!',
+        description: 'Welcome to Ping! Setting up your profile...'
+      });
+      // Navigate directly to profile setup since email confirmation is disabled
+      navigate('/profile-setup');
     }
     setLoading(false);
   };
