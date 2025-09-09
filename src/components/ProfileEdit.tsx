@@ -31,6 +31,22 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
     avatar_url: profile?.avatar_url || ''
   });
 
+  // Update form data when profile prop changes
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        display_name: profile.display_name || '',
+        bio: profile.bio || '',
+        location: profile.location || '',
+        company: profile.company || '',
+        job_title: profile.job_title || '',
+        phone_number: profile.phone_number || '',
+        website_url: profile.website_url || '',
+        avatar_url: profile.avatar_url || ''
+      });
+    }
+  }, [profile]);
+
   const [socialLinks, setSocialLinks] = useState(() => {
     const defaultLinks = [
       { platform: 'linkedin', label: 'LinkedIn', value: profile?.linkedin_url || '', icon: 'linkedin' },
