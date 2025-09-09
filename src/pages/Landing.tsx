@@ -48,6 +48,13 @@ Your new network is waiting</p>
             <p className="text-sm text-muted-foreground mt-4 iridescent-text">
               7-day free trial • Get 1 month free when a friend orders
             </p>
+            <div className="mt-6">
+              <Link to="/auth">
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 text-lg">
+                  Sign In
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Features */}
