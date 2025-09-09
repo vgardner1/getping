@@ -176,7 +176,11 @@ const ProfileSetup = () => {
           title: 'Profile completed!',
           description: 'Your profile has been set up successfully.'
         });
-        window.location.href = '/profile';
+        
+        // Use navigate instead of window.location.href for better React Router integration
+        setTimeout(() => {
+          window.location.href = '/profile';
+        }, 500); // Small delay to ensure toast shows and data is saved
       }
       setLoading(false);
     }

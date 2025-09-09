@@ -20,10 +20,16 @@ const Profile = () => {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [currentWorkIndex, setCurrentWorkIndex] = useState(0);
   
-  // Redirect if not authenticated
+  // Redirect if not authenticated - but only after loading is complete and we're sure there's no user
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/auth');
+      // Add a small delay to ensure session is fully resolved
+      const timer = setTimeout(() => {
+        if (!user) {
+          navigate('/auth');
+        }
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [user, loading, navigate]);
 
