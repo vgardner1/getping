@@ -50,30 +50,43 @@ const ProfileSetup = () => {
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
+    if (!file || !user) {
+      console.log('No file selected or no user');
+      return;
+    }
 
+    console.log('Starting photo upload for file:', file.name);
     setLoading(true);
     try {
       // Upload to Supabase storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/avatar.${fileExt}`;
       
-      const { error: uploadError } = await supabase.storage
+      console.log('Uploading to path:', fileName);
+      
+      const { error: uploadError, data } = await supabase.storage
         .from('avatars')
         .upload(fileName, file, { upsert: true });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('Upload successful:', data);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName);
 
-      setProfileData({
-        ...profileData,
+      console.log('Public URL:', publicUrl);
+
+      setProfileData(prev => ({
+        ...prev,
         profilePhoto: file,
         avatarUrl: publicUrl
-      });
+      }));
 
       toast({
         title: 'Photo uploaded!',
@@ -84,7 +97,7 @@ const ProfileSetup = () => {
       toast({
         variant: 'destructive',
         title: 'Upload failed',
-        description: 'Failed to upload photo. Please try again.'
+        description: `Failed to upload photo: ${error.message || 'Please try again.'}`
       });
     }
     setLoading(false);
