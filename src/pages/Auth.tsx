@@ -22,7 +22,7 @@ const Auth = () => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate('/');
+        navigate('/profile');
       }
     };
     checkUser();
@@ -32,9 +32,10 @@ const handleSignUp = async () => {
   setLoading(true);
 
   const redirectUrl = `${window.location.origin}/profile-setup`;
+  const normalizedEmail = email.trim().toLowerCase();
 
   const { data, error } = await supabase.auth.signUp({
-    email,
+    email: normalizedEmail,
     password,
     options: {
       emailRedirectTo: redirectUrl,
@@ -64,8 +65,9 @@ const handleSignUp = async () => {
 
 const handleSignIn = async () => {
   setLoading(true);
+  const normalizedEmail = email.trim().toLowerCase();
   const { error } = await supabase.auth.signInWithPassword({
-    email,
+    email: normalizedEmail,
     password,
   });
 
@@ -86,7 +88,7 @@ const handleSignIn = async () => {
       });
     }
   } else {
-    navigate('/');
+    navigate('/profile');
   }
   setLoading(false);
 };
@@ -112,7 +114,8 @@ const handleSignIn = async () => {
 };
 
 const handleResend = async () => {
-  if (!email) {
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail) {
     toast({
       variant: 'destructive',
       title: 'Email required',
@@ -121,7 +124,7 @@ const handleResend = async () => {
     return;
   }
   setResending(true);
-  const { error } = await supabase.auth.resend({ type: 'signup', email });
+  const { error } = await supabase.auth.resend({ type: 'signup', email: normalizedEmail });
   if (error) {
     toast({
       variant: 'destructive',
@@ -185,6 +188,7 @@ const handleSubmit = (e: React.FormEvent) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
               />
             </div>
 
@@ -197,6 +201,7 @@ const handleSubmit = (e: React.FormEvent) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
               />
             </div>
 
