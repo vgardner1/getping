@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StarField } from "@/components/StarField";
-import { ArrowLeft, MapPin, Building2, Edit, BarChart3, ExternalLink } from "lucide-react";
+import { ArrowLeft, MapPin, Building2, Edit, BarChart3, ExternalLink, Mail, Phone } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
@@ -161,6 +161,8 @@ const Profile = () => {
     return null;
   }
 
+  const displayName = (profile.display_name?.toLowerCase() === 'vgardner') ? 'Vaness Gardner' : (profile.display_name || user.email);
+
   return (
     <div className="min-h-screen bg-background relative">
       <StarField />
@@ -208,10 +210,10 @@ const Profile = () => {
           </div>
           
           <h1 
-            className="text-3xl font-bold iridescent-text mb-2 cursor-pointer hover:text-primary transition-colors duration-200"
+            className="text-3xl font-bold iridescent-text mb-2 cursor-pointer hover:text-primary transition-colors duration-200 animate-fade-in hover-scale"
             onClick={() => navigate('/profile/details')}
           >
-            {profile.display_name || user.email}
+            {displayName}
           </h1>
           
           <p className="text-lg text-muted-foreground iridescent-text mb-4">
@@ -233,24 +235,9 @@ const Profile = () => {
             )}
           </div>
 
-          {/* Contact Information */}
-          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mb-6">
-            {profile.phone_number && (
-              <div className="flex items-center gap-1">
-                <span className="text-primary">📞</span>
-                <span className="iridescent-text">{profile.phone_number}</span>
-              </div>
-            )}
-            {user.email && (
-              <div className="flex items-center gap-1">
-                <span className="text-primary">✉️</span>
-                <span className="iridescent-text">{user.email}</span>
-              </div>
-            )}
-          </div>
           
           <Button className="w-full max-w-xs bg-primary hover:bg-primary/90 text-primary-foreground">
-            Ping {profile.display_name?.split(' ')[0] || 'User'}
+            Ping {displayName.split(' ')[0] || 'User'}
           </Button>
           
           <p className="text-sm text-muted-foreground mt-4 iridescent-text">
@@ -263,6 +250,32 @@ const Profile = () => {
           <h2 className="text-2xl font-bold iridescent-text mb-6 text-center">Connect & Learn More</h2>
           
           <div className="space-y-4">
+            {user.email && (
+              <Card className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Mail className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="font-medium iridescent-text">Email</p>
+                      <p className="text-sm text-muted-foreground iridescent-text truncate">{user.email}</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
+            {profile.phone_number && (
+              <Card className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Phone className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="font-medium iridescent-text">Phone</p>
+                      <p className="text-sm text-muted-foreground iridescent-text truncate">{profile.phone_number}</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
             {profile?.social_links && Object.entries(profile.social_links).map(([platform, linkData]: [string, any]) => {
               // Skip empty values
               if (!linkData || (typeof linkData === 'object' && !linkData.url) || (typeof linkData === 'string' && !linkData)) {

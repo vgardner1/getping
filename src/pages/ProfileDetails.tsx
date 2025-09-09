@@ -10,6 +10,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import damChair from '@/assets/dam-chair.jpg';
+import rootsTable from '@/assets/roots-table.jpg';
+import stormRepublic from '@/assets/storm-republic.jpg';
+import lucidRepublic from '@/assets/lucid-republic.jpg';
 
 const ProfileDetails = () => {
   const navigate = useNavigate();
@@ -116,9 +120,9 @@ const ProfileDetails = () => {
   ];
 
   const featuredWork = [
-    { title: "Dam Chair", type: "Furniture Design" },
-    { title: "Republic 2.0", type: "Digital Art" },
-    { title: "Roots Table", type: "Sustainable Design" }
+    { title: "Dam Chair", type: "Furniture Design", image: damChair },
+    { title: "Republic 2.0", type: "Digital Art", image: stormRepublic },
+    { title: "Roots Table", type: "Sustainable Design", image: rootsTable }
   ];
 
   const skills = profile?.skills || ["AI Design", "Sustainable Architecture", "Biomimicry", "Creative Direction", "Digital Art", "Innovation Strategy"];
@@ -139,6 +143,8 @@ const ProfileDetails = () => {
       avatar: "/placeholder.svg"
     }
   ];
+
+  const displayName = (profile.display_name?.toLowerCase() === 'vgardner') ? 'Vaness Gardner' : (profile.display_name || 'User');
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -171,8 +177,8 @@ const ProfileDetails = () => {
               />
             </div>
             <div className="flex-1">
-              <h1 className="text-3xl font-bold iridescent-text mb-2">
-                {profile.display_name || "User"}
+              <h1 className="text-3xl font-bold iridescent-text mb-2 animate-fade-in hover-scale">
+                {displayName}
               </h1>
               <p className="text-lg text-muted-foreground mb-4">
                 {profile.job_title || "Professional"}
@@ -241,6 +247,9 @@ const ProfileDetails = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {featuredWork.map((work, index) => (
                 <div key={index} className="p-4 border border-border rounded-lg hover:border-primary/50 transition-colors">
+                  <div className="h-36 overflow-hidden rounded-md mb-3">
+                    <img src={work.image} alt={work.title} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
                   <h4 className="font-semibold iridescent-text">{work.title}</h4>
                   <p className="text-sm text-muted-foreground">{work.type}</p>
                 </div>
