@@ -112,7 +112,7 @@ const Onboarding = () => {
             <div className="bg-secondary/10 border border-secondary/20 rounded-lg p-6 space-y-4">
               <div className="flex justify-between items-center">
                 <span className="iridescent-text font-medium">Ping Ring + Service</span>
-                <span className="iridescent-text font-bold">$9.99/month</span>
+                <span className="iridescent-text font-bold">$2.99/mo</span>
               </div>
               <div className="text-sm text-muted-foreground iridescent-text space-y-2">
                 <p>✓ Physical NFC ring shipped to you</p>
