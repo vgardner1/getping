@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Save, X, Camera, MapPin, Building2, Mail, Phone, ExternalLink, Plus, Trash2 } from 'lucide-react';
+import { Save, X, Camera, MapPin, Building2, Mail, Phone, ExternalLink, Plus, Trash2, Upload } from 'lucide-react';
+import { removeBackground, loadImage } from '@/lib/backgroundRemoval';
 
 interface ProfileEditProps {
   profile: any;
@@ -19,6 +20,7 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
   const { user } = useAuth();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   
   const [formData, setFormData] = useState({
     display_name: profile?.display_name || '',
@@ -83,6 +85,53 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
     const updated = [...socialLinks];
     updated[index].value = value;
     setSocialLinks(updated);
+  };
+
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    setUploadingPhoto(true);
+    try {
+      // Load the image
+      const imageElement = await loadImage(file);
+      
+      // Remove background
+      const processedBlob = await removeBackground(imageElement);
+      
+      // Upload to Supabase Storage
+      const fileExt = 'png'; // Always PNG for transparency
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, processedBlob);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update form data with new avatar URL
+      setFormData(prev => ({ ...prev, avatar_url: data.publicUrl }));
+
+      toast({
+        title: "Success",
+        description: "Profile photo uploaded and background removed!"
+      });
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload photo. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
 
   const addSocialLink = () => {
@@ -195,14 +244,30 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
               />
             </div>
             <div className="flex-1">
-              <Label htmlFor="avatar_url">Profile Picture URL</Label>
-              <Input
-                id="avatar_url"
-                value={formData.avatar_url}
-                onChange={(e) => updateFormData('avatar_url', e.target.value)}
-                placeholder="https://example.com/your-photo.jpg"
-                className="mt-1"
-              />
+              <Label htmlFor="photo-upload">Upload Photo</Label>
+              <div className="mt-2">
+                <input
+                  id="photo-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  disabled={uploadingPhoto}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById('photo-upload')?.click()}
+                  disabled={uploadingPhoto}
+                  className="w-full"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  {uploadingPhoto ? 'Processing...' : 'Choose Photo'}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Background will be automatically removed
+              </p>
             </div>
           </div>
         </CardContent>
