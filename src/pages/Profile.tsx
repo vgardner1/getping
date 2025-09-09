@@ -8,6 +8,7 @@ import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfileSetup } from "@/components/ProfileSetup";
+import { ProfileEdit } from "@/components/ProfileEdit";
 import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
@@ -18,6 +19,7 @@ const Profile = () => {
   const [profileLoading, setProfileLoading] = useState(true);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [currentWorkIndex, setCurrentWorkIndex] = useState(0);
   
   // Redirect if not authenticated - but only after loading is complete and we're sure there's no user
@@ -76,6 +78,15 @@ const Profile = () => {
   const handleProfileSetupComplete = () => {
     setShowProfileSetup(false);
     fetchProfile(); // Reload profile data
+  };
+
+  const handleProfileEditSave = () => {
+    setShowProfileEdit(false);
+    fetchProfile(); // Reload profile data
+  };
+
+  const handleProfileEditCancel = () => {
+    setShowProfileEdit(false);
   };
 
   // Default work items (can be made dynamic later)
@@ -156,6 +167,22 @@ const Profile = () => {
     );
   }
 
+  // Show profile edit if requested
+  if (showProfileEdit) {
+    return (
+      <div className="min-h-screen bg-background relative">
+        <StarField />
+        <div className="relative z-10">
+          <ProfileEdit 
+            profile={profile} 
+            onSave={handleProfileEditSave} 
+            onCancel={handleProfileEditCancel} 
+          />
+        </div>
+      </div>
+    );
+  }
+
   // Show analytics if requested
   if (showAnalytics) {
     return (
@@ -203,7 +230,7 @@ const Profile = () => {
             <Button 
               variant="outline" 
               className="flex items-center gap-2 hover:scale-105 transition-transform duration-200"
-              onClick={() => setShowProfileSetup(true)}
+              onClick={() => setShowProfileEdit(true)}
             >
               <Edit className="w-4 h-4" />
               Edit Profile
