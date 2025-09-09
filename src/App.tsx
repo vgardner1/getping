@@ -10,6 +10,7 @@ import Checkout from "./pages/Checkout";
 import ProfileSetup from "./pages/ProfileSetup";
 import ProfileView from "./pages/ProfileView";
 import Profile from "./pages/Profile";
+import ProfileDetails from "./pages/ProfileDetails";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/details" element={<ProfileDetails />} />
             <Route path="/profile/analytics" element={<ProfileView />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
