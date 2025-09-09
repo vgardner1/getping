@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfileSetup } from "@/components/ProfileSetup";
 import { ProfileEdit } from "@/components/ProfileEdit";
+import { ProfileDetailsModal } from "@/components/ProfileDetailsModal";
 import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
@@ -20,6 +21,7 @@ const Profile = () => {
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showProfileEdit, setShowProfileEdit] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [currentWorkIndex, setCurrentWorkIndex] = useState(0);
   
   // Redirect if not authenticated - but only after loading is complete and we're sure there's no user
@@ -248,9 +250,12 @@ const Profile = () => {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto p-6 pb-28 space-y-8 relative z-10">
-        {/* Profile Card */}
+        {/* Simplified Profile Card */}
         <Card className="bg-card border-border p-8 text-center">
-          <div className="w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6">
+          <div 
+            className="w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+            onClick={() => setShowDetailsModal(true)}
+          >
             <img
               src={profile.avatar_url || "/placeholder.svg"}
               alt={profile.display_name || "Profile"}
@@ -258,12 +263,15 @@ const Profile = () => {
             />
           </div>
           
-          <h1 className="text-3xl font-bold iridescent-text mb-2">
+          <h1 
+            className="text-3xl font-bold iridescent-text mb-2 cursor-pointer hover:text-primary transition-colors duration-200"
+            onClick={() => setShowDetailsModal(true)}
+          >
             {profile.display_name || user.email}
           </h1>
           
-          <p className="text-muted-foreground iridescent-text mb-6 max-w-md mx-auto">
-            {profile.bio || "Entrepreneur & Creative Director building the future of sustainable design through AI-powered innovation"}
+          <p className="text-lg text-muted-foreground iridescent-text mb-4">
+            {profile.job_title || "Professional"}
           </p>
           
           <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mb-6">
@@ -284,6 +292,10 @@ const Profile = () => {
           <Button className="w-full max-w-xs bg-primary hover:bg-primary/90 text-primary-foreground">
             Ping {profile.display_name?.split(' ')[0] || 'User'}
           </Button>
+          
+          <p className="text-sm text-muted-foreground mt-4 iridescent-text">
+            Click name or photo to learn more
+          </p>
         </Card>
 
         {/* Featured Work */}
@@ -461,6 +473,13 @@ const Profile = () => {
           </p>
         </div>
       </main>
+
+      {/* Profile Details Modal */}
+      <ProfileDetailsModal 
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        profile={profile}
+      />
     </div>
   );
 };
