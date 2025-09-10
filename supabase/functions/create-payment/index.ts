@@ -15,9 +15,13 @@ serve(async (req) => {
   try {
     console.log("Payment function called");
     
-    // Initialize Stripe with the provided key
-    const stripeKey = "pk_live_51RvsVGE1cXZQghLFyHUMacLwqShYnKSmqyDKcMsLbdvulfMF2omrH5Qhg17ZbAOas19WBLLqPYrH4utWtYOhH6XL00qCMRFtZO";
-    console.log("Using Stripe key");
+    // Initialize Stripe with the secret key from Supabase secrets
+    const stripeKey = Deno.env.get("The Key to Ping");
+    console.log("Stripe key exists:", !!stripeKey);
+    
+    if (!stripeKey) {
+      throw new Error("The Key to Ping secret not found in environment");
+    }
     
     const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
