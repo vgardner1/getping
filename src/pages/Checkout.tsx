@@ -25,8 +25,8 @@ const Checkout = () => {
     e.preventDefault();
     // Simulate successful transaction
     alert("Payment successful! Welcome to Ping!");
-    // Redirect to account setup
-    window.location.href = "/profile-setup";
+    // Redirect to signup to create account
+    window.location.href = "/signup";
   };
   return <div className="min-h-screen bg-background relative">
       <StarField />

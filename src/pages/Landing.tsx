@@ -16,8 +16,13 @@ const Landing = () => {
       
       {/* Header */}
       <header className="border-b border-border p-4 relative z-10">
-        <div className="max-w-6xl mx-auto flex items-center justify-center">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
           <h1 className="text-2xl font-bold iridescent-text">ping!</h1>
+          <Link to="/auth">
+            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-6 py-2">
+              Sign In
+            </Button>
+          </Link>
         </div>
       </header>
 
@@ -40,7 +45,7 @@ Your new network is waiting</p>
 
           {/* CTA Button */}
           <div className={`transition-all duration-1000 delay-500 ${visibleText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <Link to="/signup">
+            <Link to="/checkout">
               <Button size="lg" className="shimmer bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-all duration-200 px-12 py-6 text-xl font-semibold">
                 Get Your Ping - $9.99
               </Button>
@@ -48,13 +53,6 @@ Your new network is waiting</p>
             <p className="text-sm text-muted-foreground mt-4 iridescent-text">
               7-day free trial • Get 1 month free when a friend orders
             </p>
-            <div className="mt-6">
-              <Link to="/auth">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 text-lg">
-                  Sign In
-                </Button>
-              </Link>
-            </div>
           </div>
 
           {/* Features */}
