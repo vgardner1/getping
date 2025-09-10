@@ -13,13 +13,27 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Payment function called");
+    
     // Initialize Stripe with the secret key
-    const stripe = new Stripe(Deno.env.get("The 1 and only key") || "", {
+    const stripeKey = Deno.env.get("The 1 and only key");
+    console.log("Stripe key exists:", !!stripeKey);
+    
+    if (!stripeKey) {
+      throw new Error("Stripe API key not found");
+    }
+
+    const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
     });
 
     // Get customer email from request body
-    const { email, name } = await req.json();
+    const requestBody = await req.json();
+    console.log("Request body:", requestBody);
+    
+    const { email, name } = requestBody;
+
+    console.log("Creating Stripe session for:", email);
 
     // Create a one-time payment session
     const session = await stripe.checkout.sessions.create({
@@ -45,6 +59,8 @@ serve(async (req) => {
         customer_email: email,
       },
     });
+
+    console.log("Stripe session created:", session.id);
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
