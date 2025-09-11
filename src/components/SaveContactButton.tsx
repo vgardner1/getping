@@ -12,6 +12,7 @@ interface SaveContactButtonProps {
     job_title?: string;
     website_url?: string;
     location?: string;
+    avatar_url?: string;
   };
   userEmail: string;
 }
@@ -19,11 +20,37 @@ interface SaveContactButtonProps {
 export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps) => {
   const { toast } = useToast();
 
-  const saveContact = () => {
+  const imageToBase64 = async (url: string): Promise<string> => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = reader.result as string;
+          // Remove the data:image/...;base64, prefix
+          const base64Data = base64.split(',')[1];
+          resolve(base64Data);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Error converting image to base64:', error);
+      return '';
+    }
+  };
+
+  const saveContact = async () => {
     try {
       const displayName = (profile.display_name?.toLowerCase() === 'vgardner') ? 'Vaness Gardner' : (profile.display_name || 'Contact');
       
-      // Create comprehensive vCard format
+      let photoData = '';
+      if (profile.avatar_url && !profile.avatar_url.includes('placeholder.svg')) {
+        photoData = await imageToBase64(profile.avatar_url);
+      }
+      
+      // Create comprehensive vCard format with photo
       const vCard = `BEGIN:VCARD
 VERSION:3.0
 FN:${displayName}
@@ -34,6 +61,7 @@ ${profile.phone_number ? `TEL:${profile.phone_number}` : ''}
 ${profile.website_url ? `URL:${profile.website_url}` : ''}
 ${profile.location ? `ADR:;;;;;;${profile.location}` : ''}
 ${profile.bio ? `NOTE:${profile.bio}` : ''}
+${photoData ? `PHOTO;ENCODING=BASE64;TYPE=JPEG:${photoData}` : ''}
 END:VCARD`;
 
       // Create blob and download
@@ -50,7 +78,7 @@ END:VCARD`;
 
       toast({
         title: "Contact Saved",
-        description: `${displayName}'s contact has been saved to your device`,
+        description: `${displayName}'s contact with photo has been saved to your device`,
       });
     } catch (error) {
       toast({
