@@ -221,7 +221,7 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
           </Button>
           <Button onClick={handleSave} disabled={saving}>
             <Save className="w-4 h-4 mr-2" />
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? 'Saving...' : 'Change'}
           </Button>
         </div>
       </div>

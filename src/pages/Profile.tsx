@@ -233,23 +233,23 @@ const Profile = () => {
             {profile.job_title || "Professional"}
           </p>
           
-          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mb-4">
+          <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground mb-4">
             {profile.location && (
               <div className="flex items-center gap-1">
-                <MapPin className="w-4 h-4 text-primary" />
+                <MapPin className="w-3 h-3 text-primary" />
                 <span className="iridescent-text">{profile.location}</span>
               </div>
             )}
             {profile.company && (
               <div className="flex items-center gap-1">
-                <Building2 className="w-4 h-4 text-primary" />
+                <Building2 className="w-3 h-3 text-primary" />
                 <span className="iridescent-text">{profile.company}</span>
               </div>
             )}
           </div>
 
           
-          <Button className="w-full max-w-xs bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Button className="w-full max-w-xs bg-primary hover:bg-primary/90 text-primary-foreground text-sm">
             Ping {displayName.split(' ')[0] || 'User'}
           </Button>
           
@@ -257,7 +257,7 @@ const Profile = () => {
             <SaveContactButton profile={profile} userEmail={user.email || ''} />
           </div>
           
-          <p className="text-sm text-muted-foreground mt-2 iridescent-text">
+          <p className="text-xs text-muted-foreground mt-2 iridescent-text">
             Click name or photo to learn more
           </p>
         </div>
@@ -266,7 +266,7 @@ const Profile = () => {
         <div>
           <h2 className="text-2xl font-bold iridescent-text mb-6 text-center animate-fade-in">Connect & Learn More</h2>
           
-          <div className="space-y-4 animate-fade-in">
+          <div className="space-y-3 animate-fade-in">
             {profile.phone_number && (
               <Card className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
                 <div className="flex items-center justify-between">
@@ -281,19 +281,17 @@ const Profile = () => {
               </Card>
             )}
             {user.email && (
-              <Card className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="font-medium iridescent-text">Email</p>
-                      <a 
-                        href={`mailto:${user.email}`}
-                        className="text-sm text-muted-foreground iridescent-text truncate hover:text-primary transition-colors cursor-pointer"
-                      >
-                        {user.email}
-                      </a>
-                    </div>
+              <Card className="bg-card border-border p-3 hover:border-primary/50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <Mail className="w-4 h-4 text-primary" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium iridescent-text text-sm">Email</p>
+                    <a 
+                      href={`mailto:${user.email}`}
+                      className="text-sm text-muted-foreground iridescent-text truncate hover:text-primary transition-colors cursor-pointer block"
+                    >
+                      {user.email}
+                    </a>
                   </div>
                 </div>
               </Card>
@@ -304,34 +302,34 @@ const Profile = () => {
                 return null;
               }
               
+              const url = typeof linkData === 'string' ? linkData : linkData.url;
+              
               return (
-                <Card key={platform} className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 flex items-center justify-center">
-                        {platform === 'linkedin' && <Building2 className="w-5 h-5 text-primary" />}
-                        {platform === 'instagram' && <span className="text-primary font-bold">IG</span>}
-                        {platform === 'twitter' && <span className="text-primary font-bold">X</span>}
-                        {platform === 'venmo' && <span className="text-primary font-bold">V</span>}
-                        {!['linkedin', 'instagram', 'twitter', 'venmo'].includes(platform) && <ExternalLink className="w-5 h-5 text-primary" />}
-                      </div>
-                      <div>
-                        <p className="font-medium iridescent-text capitalize">
-                          {platform === 'linkedin' && 'LinkedIn - Connect with me'}
-                          {platform === 'instagram' && 'Instagram - Behind the scenes'}
-                          {platform === 'twitter' && 'Twitter/X - Follow my updates'}
-                          {platform === 'venmo' && 'Venmo - Send payment'}
-                          {!['linkedin', 'instagram', 'twitter', 'venmo'].includes(platform) && `${platform} - Connect with me`}
-                        </p>
-                        <p className="text-sm text-muted-foreground iridescent-text truncate">
-                          {typeof linkData === 'string' ? linkData : linkData.url}
-                        </p>
-                      </div>
+                <Card key={platform} className="bg-card border-border p-3 hover:border-primary/50 transition-colors">
+                  <a 
+                    href={url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 w-full"
+                  >
+                    <div className="w-5 h-5 flex items-center justify-center">
+                      {platform === 'linkedin' && <Building2 className="w-4 h-4 text-primary" />}
+                      {platform === 'instagram' && <span className="text-primary font-bold text-xs">IG</span>}
+                      {platform === 'twitter' && <span className="text-primary font-bold text-xs">X</span>}
+                      {platform === 'venmo' && <span className="text-primary font-bold text-xs">V</span>}
+                      {!['linkedin', 'instagram', 'twitter', 'venmo'].includes(platform) && <ExternalLink className="w-4 h-4 text-primary" />}
                     </div>
-                    <Button variant="ghost" size="sm" className="hover:scale-105 transition-transform duration-200">
-                      <ExternalLink className="w-4 h-4 text-primary" />
-                    </Button>
-                  </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium iridescent-text text-sm capitalize">
+                        {platform === 'linkedin' && 'LinkedIn'}
+                        {platform === 'instagram' && 'Instagram'}
+                        {platform === 'twitter' && 'Twitter/X'}
+                        {platform === 'venmo' && 'Venmo'}
+                        {!['linkedin', 'instagram', 'twitter', 'venmo'].includes(platform) && platform}
+                      </p>
+                    </div>
+                    <ExternalLink className="w-3 h-3 text-primary flex-shrink-0" />
+                  </a>
                 </Card>
               );
             })}
