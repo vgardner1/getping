@@ -112,18 +112,14 @@ All colors MUST be HSL.
   }
   
   .iridescent-text {
-    background: linear-gradient(45deg, 
-      rgba(255, 255, 255, 0.95) 0%,
-      rgba(144, 238, 144, 0.9) 25%,
-      rgba(255, 255, 255, 0.95) 50%,
-      rgba(255, 192, 203, 0.8) 75%,
-      rgba(255, 255, 255, 0.95) 100%
+    background: linear-gradient(135deg, 
+      hsl(var(--primary)) 0%,
+      rgba(255, 192, 203, 0.9) 50%,
+      hsl(var(--primary)) 100%
     );
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-size: 200% 200%;
-    animation: iridescent 15s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
   
   .shimmer {
@@ -170,14 +166,6 @@ All colors MUST be HSL.
   }
 }
 
-@keyframes iridescent {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
 
 @keyframes float {
   0% {
