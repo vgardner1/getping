@@ -280,7 +280,12 @@ const Profile = () => {
                     <Mail className="w-5 h-5 text-primary" />
                     <div>
                       <p className="font-medium iridescent-text">Email</p>
-                      <p className="text-sm text-muted-foreground iridescent-text truncate">{user.email}</p>
+                      <a 
+                        href={`mailto:${user.email}`}
+                        className="text-sm text-muted-foreground iridescent-text truncate hover:text-primary transition-colors cursor-pointer"
+                      >
+                        {user.email}
+                      </a>
                     </div>
                   </div>
                 </div>

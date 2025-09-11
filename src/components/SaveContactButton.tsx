@@ -7,6 +7,11 @@ interface SaveContactButtonProps {
     display_name?: string;
     phone_number?: string;
     user_id: string;
+    bio?: string;
+    company?: string;
+    job_title?: string;
+    website_url?: string;
+    location?: string;
   };
   userEmail: string;
 }
@@ -18,12 +23,17 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
     try {
       const displayName = (profile.display_name?.toLowerCase() === 'vgardner') ? 'Vaness Gardner' : (profile.display_name || 'Contact');
       
-      // Create vCard format
+      // Create comprehensive vCard format
       const vCard = `BEGIN:VCARD
 VERSION:3.0
 FN:${displayName}
+${profile.job_title ? `TITLE:${profile.job_title}` : ''}
+${profile.company ? `ORG:${profile.company}` : ''}
 EMAIL:${userEmail}
 ${profile.phone_number ? `TEL:${profile.phone_number}` : ''}
+${profile.website_url ? `URL:${profile.website_url}` : ''}
+${profile.location ? `ADR:;;;;;;${profile.location}` : ''}
+${profile.bio ? `NOTE:${profile.bio}` : ''}
 END:VCARD`;
 
       // Create blob and download
