@@ -264,7 +264,7 @@ const Profile = () => {
 
         {/* Connect & Learn More */}
         <div>
-          <h2 className="text-2xl font-bold iridescent-text mb-6 text-center animate-fade-in">Connect & Learn More</h2>
+          <h2 className="text-2xl font-bold iridescent-text mb-6 text-center animate-fade-in">The new way of connecting</h2>
           
           <div className="space-y-3 animate-fade-in">
             {profile.phone_number && (
