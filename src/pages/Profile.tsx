@@ -356,7 +356,7 @@ const Profile = () => {
         </div>
 
         {/* Share Profile Button - Bottom of page */}
-        <div className="mt-8 text-center space-y-3">
+        <div className="mt-8 flex flex-col items-center space-y-3">
           <Button 
             variant="outline" 
             className="w-full max-w-sm border-primary text-primary hover:bg-primary/10"
@@ -367,7 +367,7 @@ const Profile = () => {
           </Button>
           <Button 
             variant="outline" 
-            className="w-full max-w-sm border-primary/50 text-primary hover:bg-primary/5 flex items-center gap-2"
+            className="w-full max-w-sm border-primary/50 text-primary hover:bg-primary/5 flex items-center justify-center gap-2"
             onClick={() => setShowInviteModal(true)}
           >
             <UserPlus className="w-4 h-4" />
