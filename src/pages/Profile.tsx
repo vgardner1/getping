@@ -167,6 +167,7 @@ const Profile = () => {
   }
 
   const displayName = (profile.display_name?.toLowerCase() === 'vgardner') ? 'Vaness Gardner' : (profile.display_name || user.email);
+  console.log('Profile data:', { profile, displayName, userEmail: user.email });
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -230,7 +231,7 @@ const Profile = () => {
           <h1 className="text-3xl font-bold iridescent-text mb-2">
             <Link 
               to="/profile/details"
-              className="cursor-pointer story-link animate-enter hover-scale transition-all duration-500 ease-out"
+              className="cursor-pointer story-link animate-enter hover-scale transition-all duration-500 ease-out block"
             >
               {displayName}
             </Link>
