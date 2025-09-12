@@ -30,24 +30,21 @@ const Checkout = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-payment', {
-        body: {
-          email: formData.email,
-          name: formData.name,
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        // Redirect to Stripe checkout
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      console.error('Payment error:', error);
+      // Bypass payment - redirect directly to profile setup
       toast({
-        title: "Payment Error",
-        description: "There was an issue processing your payment. Please try again.",
+        title: "Payment Processed",
+        description: "Welcome! Let's set up your profile.",
+      });
+      
+      // Small delay for UX
+      setTimeout(() => {
+        window.location.href = '/profile-setup';
+      }, 1000);
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
