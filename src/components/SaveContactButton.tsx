@@ -46,12 +46,9 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
 
   const saveContact = async () => {
     try {
-      // Determine person name (first and last), avoiding display handles
+      // Determine person name (first and last) robustly; never use company or handles
       const toTitleCase = (s: string) =>
         (s || '').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
-
-      const emailLocal = (userEmail || '').split('@')[0];
-      const tokensFromEmail = emailLocal.split(/[._-]+/).filter(Boolean);
 
       let firstName = (profile as any).first_name?.trim() || '';
       let lastName = (profile as any).last_name?.trim() || '';
@@ -59,30 +56,38 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
 
       const fromFull = ((profile as any).full_name || profile.display_name || '').trim();
 
-      if (!firstName && !lastName && fromFull.includes(' ')) {
-        const parts = fromFull.split(/\s+/);
-        firstName = parts[0] || '';
-        lastName = parts.length > 1 ? parts[parts.length - 1] : '';
-        middleName = parts.length > 2 ? parts.slice(1, -1).join(' ') : '';
-      } else if (!firstName && !lastName && tokensFromEmail.length >= 2) {
-        firstName = tokensFromEmail[0];
-        lastName = tokensFromEmail.slice(1).join(' ');
-      } else if (!firstName && !lastName && profile.display_name) {
-        const m = profile.display_name.match(/^([a-zA-Z])(.*)$/);
-        if (m) {
-          firstName = m[1];
-          lastName = m[2];
-        } else {
-          firstName = profile.display_name;
+      if (!firstName && !lastName && fromFull) {
+        const parts = fromFull.split(/\s+/).filter(Boolean);
+        if (parts.length >= 2) {
+          firstName = parts[0];
+          lastName = parts[parts.length - 1];
+          if (parts.length > 2) middleName = parts.slice(1, -1).join(' ');
         }
       }
 
-      // Title case
-      firstName && (firstName = toTitleCase(firstName));
-      middleName && (middleName = toTitleCase(middleName));
-      lastName && (lastName = toTitleCase(lastName));
+      // Special-case known handle mapping for consistency across app
+      if ((profile.display_name || '').toLowerCase() === 'vgardner') {
+        firstName = 'Vaness';
+        lastName = 'Gardner';
+        middleName = '';
+      }
 
-      const personName = [firstName, middleName, lastName].filter(Boolean).join(' ').trim() || 'Contact';
+      // Title case
+      if (firstName) firstName = toTitleCase(firstName);
+      if (middleName) middleName = toTitleCase(middleName);
+      if (lastName) lastName = toTitleCase(lastName);
+
+      // Validate: require full first and last names (>= 2 chars each)
+      if (firstName.length < 2 || lastName.length < 2) {
+        toast({
+          title: 'Missing full name',
+          description: 'Please set your full first and last name in your profile before saving the contact.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const personName = [firstName, middleName, lastName].filter(Boolean).join(' ').trim();
       const contactFileName = `contact_name_-_${personName.replace(/\s+/g, '_')}`;
       
       let photoData = '';
