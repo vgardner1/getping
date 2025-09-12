@@ -43,7 +43,7 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
 
   const saveContact = async () => {
     try {
-      const displayName = (profile.display_name?.toLowerCase() === 'vgardner') ? 'Vaness Gardner' : (profile.display_name || 'Contact');
+      const displayName = profile.display_name || 'Contact';
       
       let photoData = '';
       if (profile.avatar_url && !profile.avatar_url.includes('placeholder.svg')) {
