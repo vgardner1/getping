@@ -147,9 +147,11 @@ const PublicPing = () => {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto p-4 pb-28 space-y-6 relative z-10">
-        {/* Profile Header - Matching internal profile layout */}
+        {/* Simplified Profile Card - Matching internal profile exactly */}
         <div className="p-6 text-center">
-          <div className="w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6">
+          <div 
+            className="w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6 cursor-pointer hover:scale-105 transition-transform duration-200"
+          >
             <img
               src={profile.avatar_url || "/placeholder.svg"}
               alt={profile.display_name || "Profile"}
@@ -157,7 +159,9 @@ const PublicPing = () => {
             />
           </div>
           
-          <h1 className="text-3xl font-bold iridescent-text mb-2">
+          <h1 
+            className="text-3xl font-bold iridescent-text mb-2 cursor-pointer story-link animate-enter hover-scale transition-all duration-500 ease-out"
+          >
             {displayName}
           </h1>
           
@@ -180,30 +184,25 @@ const PublicPing = () => {
             )}
           </div>
 
-          <Button className="w-full max-w-xs bg-primary hover:bg-primary/90 text-primary-foreground text-sm mb-4 flex items-center gap-2">
-            <MessageCircle className="w-4 h-4" />
-            Connect with {displayName.split(' ')[0] || 'User'}
+          <Button 
+            className="w-full max-w-xs bg-primary hover:bg-primary/90 text-primary-foreground text-sm"
+            onClick={() => window.location.href = '/signup'}
+          >
+            Ping {displayName.split(' ')[0] || 'User'}
           </Button>
           
-          <div className="mb-4">
+          <div className="mt-4">
             <SaveContactButton profile={profile} userEmail={userEmail} />
           </div>
+          
+          <p className="text-xs text-muted-foreground mt-2 iridescent-text">
+            Get ping! to connect instantly
+          </p>
         </div>
 
-        {/* Bio Section - if exists */}
-        {profile.bio && (
-          <Card className="bg-card border-border p-6">
-            <div className="bg-secondary/20 rounded-lg p-4">
-              <p className="text-muted-foreground iridescent-text whitespace-pre-wrap">
-                {profile.bio}
-              </p>
-            </div>
-          </Card>
-        )}
-
-        {/* Connect & Learn More - Matching internal profile layout */}
+        {/* Connect & Learn More */}
         <div>
-          <h2 className="text-2xl font-bold iridescent-text mb-6 text-center animate-fade-in">Connect with {displayName}</h2>
+          <h2 className="text-2xl font-bold iridescent-text mb-6 text-center animate-fade-in">The new way of connecting</h2>
           
           <div className="space-y-3 animate-fade-in">
             {profile.phone_number && (
@@ -285,8 +284,8 @@ const PublicPing = () => {
         {/* Skills */}
         {profile.skills && profile.skills.length > 0 && (
           <Card className="bg-card border-border p-6">
-            <h3 className="text-lg font-semibold iridescent-text mb-4">Skills</h3>
-            <div className="flex flex-wrap gap-2">
+            <h3 className="text-lg font-semibold iridescent-text mb-4 text-center">Skills</h3>
+            <div className="flex flex-wrap gap-2 justify-center">
               {profile.skills.map((skill, index) => (
                 <span
                   key={index}
@@ -302,8 +301,8 @@ const PublicPing = () => {
         {/* Interests */}
         {profile.interests && profile.interests.length > 0 && (
           <Card className="bg-card border-border p-6">
-            <h3 className="text-lg font-semibold iridescent-text mb-4">Interests</h3>
-            <div className="flex flex-wrap gap-2">
+            <h3 className="text-lg font-semibold iridescent-text mb-4 text-center">Interests</h3>
+            <div className="flex flex-wrap gap-2 justify-center">
               {profile.interests.map((interest, index) => (
                 <span
                   key={index}
