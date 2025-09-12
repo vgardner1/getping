@@ -30,26 +30,40 @@ const Checkout = () => {
     setLoading(true);
 
     try {
-      // Bypass payment - redirect directly to profile setup
-      toast({
-        title: "Payment Processed",
-        description: "Welcome! Let's set up your profile.",
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: {
+          email: formData.email,
+          name: formData.name,
+        },
       });
-      
-      // Small delay for UX
-      setTimeout(() => {
-        window.location.href = '/profile-setup';
-      }, 1000);
+
+      if (error) throw error;
+
+      if (data?.url) {
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Payment error:', error);
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: "Payment Error",
+        description: "There was an issue processing your payment. Please try again.",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCreateAccount = () => {
+    toast({
+      title: "Welcome!",
+      description: "Let's set up your profile.",
+    });
+    
+    setTimeout(() => {
+      window.location.href = '/profile-setup';
+    }, 500);
   };
   return <div className="min-h-screen bg-background relative">
       <StarField />
@@ -204,6 +218,15 @@ const Checkout = () => {
                 className="w-full shimmer bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105 transition-transform duration-200 py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Processing..." : "Get Ping Today - $9.99"}
+              </Button>
+              
+              <Button 
+                type="button"
+                onClick={handleCreateAccount}
+                variant="outline"
+                className="w-full mt-3 py-4 text-lg font-semibold border-primary/30 text-primary hover:bg-primary/10"
+              >
+                Create My Account
               </Button>
             </form>
           </Card>
