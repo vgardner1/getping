@@ -121,7 +121,7 @@ const ProfileView = () => {
 
   const getPublicProfileUrl = () => {
     if (!user?.id) return '#';
-    return `/u/${user.id}`;
+    return `/ping/${user.id}`;
   };
 
   const displayName = (profile?.display_name?.toLowerCase() === 'vgardner') ? 'Vaness Gardner' : (profile?.display_name || user?.email);

@@ -7,6 +7,7 @@ import { MapPin, Building2, ExternalLink, Mail, Phone, MessageCircle } from "luc
 import { supabase } from "@/integrations/supabase/client";
 import { SaveContactButton } from "@/components/SaveContactButton";
 import { buildPublicUrl } from "@/lib/utils";
+import { ShareButton } from "@/components/ShareButton";
 
 interface PublicProfile {
   user_id: string;
@@ -141,11 +142,14 @@ const PublicPing = () => {
       <header className="border-b border-border p-4 relative z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <span className="text-xl font-bold iridescent-text">ping!</span>
-          <Link to="/signup">
-            <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
-              Join ping!
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <ShareButton userId={userId || ''} label="Share" />
+            <Link to="/signup">
+              <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
+                Join ping!
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 

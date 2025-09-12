@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { X, Send, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { buildPublicUrl } from "@/lib/utils";
+import { getShareableUrl } from "@/lib/environment";
 
 interface SMSModalProps {
   isOpen: boolean;
@@ -21,10 +21,10 @@ const SMSModal = ({ isOpen, onClose, userProfile, isInvite = false }: SMSModalPr
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const profileUrl = buildPublicUrl(`/ping/${userProfile?.user_id}`);
+  const profileUrl = getShareableUrl(`/ping/${userProfile?.user_id}`);
   const signupUrl = isInvite
-    ? buildPublicUrl(`/signup?ref=${userProfile?.user_id}`)
-    : buildPublicUrl(`/signup`);
+    ? getShareableUrl(`/signup?ref=${userProfile?.user_id}`)
+    : getShareableUrl(`/signup`);
 
   const defaultMessage = isInvite 
     ? `Hey! I'm using this amazing NFC ring called ping! that lets me share my contact info instantly just by tapping it on phones.

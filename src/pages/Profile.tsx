@@ -13,7 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { SaveContactButton } from "@/components/SaveContactButton";
 import GlobalSearch from "@/components/GlobalSearch";
 import SMSModal from "@/components/SMSModal";
-import { buildPublicUrl } from "@/lib/utils";
+import { getPublicProfileUrl, isProduction } from "@/lib/environment";
+import { ShareButton } from "@/components/ShareButton";
 
 const Profile = () => {
   const { user, loading } = useAuth();
@@ -26,6 +27,7 @@ const Profile = () => {
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [copied, setCopied] = useState(false);
   
   // Redirect if not authenticated - but only after loading is complete and we're sure there's no user
   useEffect(() => {
@@ -354,13 +356,24 @@ const Profile = () => {
 
         {/* Share Profile Button - Bottom of page */}
         <div className="mt-8 text-center space-y-3">
-          <Button 
-            variant="outline" 
-            className="w-full max-w-sm border-primary text-primary hover:bg-primary/10"
-            onClick={() => window.open(buildPublicUrl(`/ping/${user.id}`), '_blank')}
-          >
-            Share my ping! profile
-          </Button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <ShareButton userId={user.id} label="Share my ping! profile" />
+            <Button 
+              variant="outline" 
+              className="w-full sm:w-auto max-w-sm border-primary/50 text-primary hover:bg-primary/5"
+              onClick={async () => {
+                const publicUrl = getPublicProfileUrl(user.id);
+                console.log('Current URL:', window.location.href);
+                console.log('Generated Share URL:', publicUrl);
+                console.log('Is Production?:', isProduction());
+                await navigator.clipboard.writeText(publicUrl);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+            >
+              {copied ? '✓ Copied!' : 'Copy Public Profile Link'}
+            </Button>
+          </div>
           <Button 
             variant="outline" 
             className="w-full max-w-sm border-primary/50 text-primary hover:bg-primary/5 flex items-center gap-2"
