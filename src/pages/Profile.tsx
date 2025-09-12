@@ -228,14 +228,14 @@ const Profile = () => {
             />
           </Link>
           
-          <h1 className="text-3xl font-bold iridescent-text mb-2">
-            <Link 
-              to="/profile/details"
-              className="cursor-pointer story-link animate-enter hover-scale transition-all duration-500 ease-out block"
-            >
+          <Link 
+            to="/profile/details"
+            className="block"
+          >
+            <h1 className="text-3xl font-bold iridescent-text mb-2 cursor-pointer hover:scale-105 transition-transform duration-200">
               {displayName}
-            </Link>
-          </h1>
+            </h1>
+          </Link>
           
           <p className="text-base md:text-lg text-muted-foreground iridescent-text mb-4">
             {profile.job_title || "Professional"}
