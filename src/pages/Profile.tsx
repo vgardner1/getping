@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StarField } from "@/components/StarField";
-import { ArrowLeft, MapPin, Building2, Edit, BarChart3, ExternalLink, Mail, Phone, Search, MessageSquare } from "lucide-react";
+import { ArrowLeft, MapPin, Building2, Edit, BarChart3, ExternalLink, Mail, Phone, Search, UserPlus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
@@ -24,7 +24,7 @@ const Profile = () => {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [showSMSModal, setShowSMSModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   
   // Redirect if not authenticated - but only after loading is complete and we're sure there's no user
   useEffect(() => {
@@ -195,14 +195,6 @@ const Profile = () => {
               variant="ghost" 
               size="icon"
               className="hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full w-8 h-8 backdrop-blur-sm border border-primary/20 shadow-lg"
-              onClick={() => setShowSMSModal(true)}
-            >
-              <MessageSquare className="w-4 h-4 text-primary" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full w-8 h-8 backdrop-blur-sm border border-primary/20 shadow-lg"
               onClick={() => setShowProfileEdit(true)}
             >
               <Edit className="w-4 h-4 text-primary" />
@@ -356,7 +348,7 @@ const Profile = () => {
         </div>
 
         {/* Share Profile Button - Bottom of page */}
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center space-y-3">
           <Button 
             variant="outline" 
             className="w-full max-w-sm border-primary text-primary hover:bg-primary/10"
@@ -364,15 +356,24 @@ const Profile = () => {
           >
             Share my ping! profile
           </Button>
+          <Button 
+            variant="outline" 
+            className="w-full max-w-sm border-primary/50 text-primary hover:bg-primary/5 flex items-center gap-2"
+            onClick={() => setShowInviteModal(true)}
+          >
+            <UserPlus className="w-4 h-4" />
+            Invite a friend for 1 month free
+          </Button>
         </div>
       </main>
       
       
-      {/* SMS Modal */}
+      {/* Invite Friend Modal */}
       <SMSModal 
-        isOpen={showSMSModal} 
-        onClose={() => setShowSMSModal(false)} 
+        isOpen={showInviteModal} 
+        onClose={() => setShowInviteModal(false)} 
         userProfile={profile}
+        isInvite={true}
       />
       
       {/* Global Search */}

@@ -11,15 +11,25 @@ interface SMSModalProps {
   isOpen: boolean;
   onClose: () => void;
   userProfile: any;
+  isInvite?: boolean;
 }
 
-const SMSModal = ({ isOpen, onClose, userProfile }: SMSModalProps) => {
+const SMSModal = ({ isOpen, onClose, userProfile, isInvite = false }: SMSModalProps) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const defaultMessage = `Hey! Check out my ping! profile: ${window.location.origin}/ping/${userProfile?.user_id}
+  const defaultMessage = isInvite 
+    ? `Hey! I'm using this amazing NFC ring called ping! that lets me share my contact info instantly just by tapping it on phones.
+
+Check out my profile: ${window.location.origin}/ping/${userProfile?.user_id}
+
+You should totally get one too! Use my referral link and we both get 1 month free:
+${window.location.origin}/signup?ref=${userProfile?.user_id}
+
+It's so much easier than typing out contact info every time!`
+    : `Hey! Check out my ping! profile: ${window.location.origin}/ping/${userProfile?.user_id}
 
 I just got this cool NFC ring that lets me share my contact info instantly. You should get one too! 
 
@@ -47,8 +57,10 @@ Get your free trial: ${window.location.origin}/signup`;
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       toast({
-        title: "Message sent!",
-        description: `Your ping! profile has been shared with ${phoneNumber}`,
+        title: "Invite sent!",
+        description: isInvite 
+          ? `Your referral invitation has been sent to ${phoneNumber}. You'll both get 1 month free when they sign up!`
+          : `Your ping! profile has been shared with ${phoneNumber}`,
       });
       
       onClose();
@@ -71,7 +83,7 @@ Get your free trial: ${window.location.origin}/signup`;
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 iridescent-text">
             <MessageSquare className="w-5 h-5 text-primary" />
-            Share via SMS
+            {isInvite ? "Invite a Friend" : "Share via SMS"}
           </DialogTitle>
         </DialogHeader>
         
@@ -96,7 +108,7 @@ Get your free trial: ${window.location.origin}/signup`;
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              rows={6}
+              rows={isInvite ? 8 : 6}
               className="bg-secondary/20 border-border focus:ring-primary resize-none"
             />
           </div>
@@ -122,7 +134,7 @@ Get your free trial: ${window.location.origin}/signup`;
               ) : (
                 <div className="flex items-center gap-2">
                   <Send className="w-4 h-4" />
-                  Send SMS
+                  {isInvite ? "Send Invite" : "Send SMS"}
                 </div>
               )}
             </Button>

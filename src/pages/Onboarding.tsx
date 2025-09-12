@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StarField } from "@/components/StarField";
-import { ArrowLeft, ArrowRight, User, CreditCard, UserCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, User, CreditCard, UserCheck, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
+import SMSModal from "@/components/SMSModal";
 
 const Onboarding = () => {
   const [step, setStep] = useState(1);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -220,6 +222,14 @@ const Onboarding = () => {
           </div>
         </Card>
       </main>
+      
+      {/* SMS Invite Modal */}
+      <SMSModal 
+        isOpen={showInviteModal} 
+        onClose={() => setShowInviteModal(false)} 
+        userProfile={{ user_id: 'signup-user' }}
+        isInvite={true}
+      />
     </div>
   );
 };
