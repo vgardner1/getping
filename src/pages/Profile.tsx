@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StarField } from "@/components/StarField";
-import { ArrowLeft, MapPin, Building2, Edit, BarChart3, ExternalLink, Mail, Phone, Search } from "lucide-react";
+import { ArrowLeft, MapPin, Building2, Edit, BarChart3, ExternalLink, Mail, Phone, Search, MessageSquare } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
@@ -11,8 +11,8 @@ import { ProfileSetup } from "@/components/ProfileSetup";
 import { ProfileEdit } from "@/components/ProfileEdit";
 import { useToast } from "@/hooks/use-toast";
 import { SaveContactButton } from "@/components/SaveContactButton";
-import { ChatSystem } from "@/components/ChatSystem";
 import GlobalSearch from "@/components/GlobalSearch";
+import SMSModal from "@/components/SMSModal";
 
 const Profile = () => {
   const { user, loading } = useAuth();
@@ -24,6 +24,7 @@ const Profile = () => {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showSMSModal, setShowSMSModal] = useState(false);
   
   // Redirect if not authenticated - but only after loading is complete and we're sure there's no user
   useEffect(() => {
@@ -176,13 +177,14 @@ const Profile = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between px-2">
           <span className="text-lg font-bold iridescent-text">ping!</span>
           
-          {/* Network in center */}
+          {/* Network in center with search */}
           <div className="absolute left-1/2 transform -translate-x-1/2">
             <Button 
               variant="ghost" 
-              className="flex items-center gap-1 hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full px-4 py-1.5 backdrop-blur-sm border border-primary/20 shadow-lg text-sm"
+              className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full px-4 py-1.5 backdrop-blur-sm border border-primary/20 shadow-lg text-sm"
               onClick={() => navigate('/network')}
             >
+              <Search className="w-4 h-4 text-primary" />
               <span className="iridescent-text font-medium">Network</span>
             </Button>
           </div>
@@ -193,9 +195,9 @@ const Profile = () => {
               variant="ghost" 
               size="icon"
               className="hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full w-8 h-8 backdrop-blur-sm border border-primary/20 shadow-lg"
-              onClick={() => setShowSearch(true)}
+              onClick={() => setShowSMSModal(true)}
             >
-              <Search className="w-4 h-4 text-primary" />
+              <MessageSquare className="w-4 h-4 text-primary" />
             </Button>
             <Button 
               variant="ghost" 
@@ -365,14 +367,12 @@ const Profile = () => {
         </div>
       </main>
       
-      {/* Chat System */}
-      <ChatSystem 
-        targetUserId={profile.user_id} 
-        targetProfile={{
-          user_id: profile.user_id,
-          display_name: profile.display_name,
-          avatar_url: profile.avatar_url
-        }} 
+      
+      {/* SMS Modal */}
+      <SMSModal 
+        isOpen={showSMSModal} 
+        onClose={() => setShowSMSModal(false)} 
+        userProfile={profile}
       />
       
       {/* Global Search */}
