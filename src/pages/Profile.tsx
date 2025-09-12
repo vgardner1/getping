@@ -263,15 +263,8 @@ const Profile = () => {
             Ping {displayName.split(' ')[0] || 'User'}
           </Button>
           
-          <div className="mt-4 space-y-2">
+          <div className="mt-4">
             <SaveContactButton profile={profile} userEmail={user.email || ''} />
-            <Button 
-              variant="outline" 
-              className="w-full max-w-xs border-primary text-primary hover:bg-primary/10"
-              onClick={() => window.open(`${window.location.origin}/ping/${user.id}`, '_blank')}
-            >
-              Share my ping! profile
-            </Button>
           </div>
           
           <p className="text-xs text-muted-foreground mt-2 iridescent-text">
@@ -358,6 +351,17 @@ const Profile = () => {
               );
             })}
           </div>
+        </div>
+
+        {/* Share Profile Button - Bottom of page */}
+        <div className="mt-8 text-center">
+          <Button 
+            variant="outline" 
+            className="w-full max-w-sm border-primary text-primary hover:bg-primary/10"
+            onClick={() => window.open(`${window.location.origin}/ping/${user.id}`, '_blank')}
+          >
+            Share my ping! profile
+          </Button>
         </div>
       </main>
       
