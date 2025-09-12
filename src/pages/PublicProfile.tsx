@@ -138,183 +138,193 @@ const PublicProfile = () => {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto p-6 pb-28 space-y-8 relative z-10">
         {/* Profile Card */}
-        <Card className="bg-card border-border p-8 text-center">
-          <div className="w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6">
-            <img
-              src={profile.avatar_url || "/placeholder.svg"}
-              alt={profile.display_name || "Profile"}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          
-          <h1 className="text-3xl font-bold iridescent-text mb-2">
-            {displayName}
-          </h1>
-          
-          <p className="text-lg text-muted-foreground iridescent-text mb-4">
-            {profile.job_title || "Professional"}
-          </p>
-          
-          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mb-6">
-            {profile.location && (
-              <div className="flex items-center gap-1">
-                <MapPin className="w-4 h-4 text-primary" />
-                <span className="iridescent-text">{profile.location}</span>
-              </div>
-            )}
-            {profile.company && (
-              <div className="flex items-center gap-1">
-                <Building2 className="w-4 h-4 text-primary" />
-                <span className="iridescent-text">{profile.company}</span>
-              </div>
-            )}
-          </div>
-
-          {profile.bio && (
-            <p className="text-muted-foreground mb-6 max-w-2xl mx-auto iridescent-text">
-              {profile.bio}
+        <div className="flex justify-center">
+          <Card className="bg-card border-border p-8 text-center w-full max-w-2xl">
+            <div className="w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6">
+              <img
+                src={profile.avatar_url || "/placeholder.svg"}
+                alt={profile.display_name || "Profile"}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            <h1 className="text-3xl font-bold iridescent-text mb-2">
+              {displayName}
+            </h1>
+            
+            <p className="text-lg text-muted-foreground iridescent-text mb-4">
+              {profile.job_title || "Professional"}
             </p>
-          )}
-          
-          <Button className="w-full max-w-xs bg-primary hover:bg-primary/90 text-primary-foreground mb-4">
-            Connect with {displayName.split(' ')[0] || 'User'}
-          </Button>
-          
-          <div className="mt-4">
-            <SaveContactButton profile={profile} userEmail={userEmail} />
-          </div>
-        </Card>
+            
+            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mb-6">
+              {profile.location && (
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-4 h-4 text-primary" />
+                  <span className="iridescent-text">{profile.location}</span>
+                </div>
+              )}
+              {profile.company && (
+                <div className="flex items-center gap-1">
+                  <Building2 className="w-4 h-4 text-primary" />
+                  <span className="iridescent-text">{profile.company}</span>
+                </div>
+              )}
+            </div>
+
+            {profile.bio && (
+              <p className="text-muted-foreground mb-6 max-w-xl mx-auto iridescent-text">
+                {profile.bio}
+              </p>
+            )}
+            
+            <div className="flex flex-col items-center gap-3">
+              <Button className="w-full max-w-xs bg-primary hover:bg-primary/90 text-primary-foreground">
+                Connect with {displayName.split(' ')[0] || 'User'}
+              </Button>
+              
+              <SaveContactButton profile={profile} userEmail={userEmail} />
+            </div>
+          </Card>
+        </div>
 
         {/* Contact Information */}
-        <div>
-          <h2 className="text-2xl font-bold iridescent-text mb-6 text-center">Contact Information</h2>
-          
-          <div className="space-y-4">
-            {profile.phone_number && (
-              <Card className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="font-medium iridescent-text">Phone</p>
-                      <a 
-                        href={`tel:${profile.phone_number}`}
-                        className="text-sm text-muted-foreground iridescent-text truncate hover:text-primary transition-colors cursor-pointer"
-                      >
-                        {profile.phone_number}
-                      </a>
+        <div className="flex justify-center">
+          <div className="w-full max-w-2xl">
+            <h2 className="text-2xl font-bold iridescent-text mb-6 text-center">Contact Information</h2>
+            
+            <div className="space-y-4">
+              {profile.phone_number && (
+                <Card className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Phone className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="font-medium iridescent-text">Phone</p>
+                        <a 
+                          href={`tel:${profile.phone_number}`}
+                          className="text-sm text-muted-foreground iridescent-text truncate hover:text-primary transition-colors cursor-pointer"
+                        >
+                          {profile.phone_number}
+                        </a>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
-            )}
-            {userEmail && (
-              <Card className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="font-medium iridescent-text">Email</p>
-                      <a 
-                        href={`mailto:${userEmail}`}
-                        className="text-sm text-muted-foreground iridescent-text truncate hover:text-primary transition-colors cursor-pointer"
-                      >
-                        {userEmail}
-                      </a>
+                </Card>
+              )}
+              {userEmail && (
+                <Card className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Mail className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="font-medium iridescent-text">Email</p>
+                        <a 
+                          href={`mailto:${userEmail}`}
+                          className="text-sm text-muted-foreground iridescent-text truncate hover:text-primary transition-colors cursor-pointer"
+                        >
+                          {userEmail}
+                        </a>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
-            )}
+                </Card>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Social Links */}
         {profile?.social_links && Object.keys(profile.social_links).length > 0 && (
-          <div>
-            <h2 className="text-2xl font-bold iridescent-text mb-6 text-center">Connect on Social</h2>
-            
-            <div className="space-y-4">
-              {Object.entries(profile.social_links).map(([platform, linkData]: [string, any]) => {
-                // Skip empty values
-                if (!linkData || (typeof linkData === 'object' && !linkData.url) || (typeof linkData === 'string' && !linkData)) {
-                  return null;
-                }
-                
-                const url = typeof linkData === 'string' ? linkData : linkData.url;
-                
-                return (
-                  <Card key={platform} className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
-                    <a 
-                      href={url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between w-full"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 flex items-center justify-center">
-                          {platform === 'linkedin' && <Building2 className="w-5 h-5 text-primary" />}
-                          {platform === 'instagram' && <span className="text-primary font-bold">IG</span>}
-                          {platform === 'twitter' && <span className="text-primary font-bold">X</span>}
-                          {platform === 'venmo' && <span className="text-primary font-bold">V</span>}
-                          {!['linkedin', 'instagram', 'twitter', 'venmo'].includes(platform) && <ExternalLink className="w-5 h-5 text-primary" />}
+          <div className="flex justify-center">
+            <div className="w-full max-w-2xl">
+              <h2 className="text-2xl font-bold iridescent-text mb-6 text-center">Connect on Social</h2>
+              
+              <div className="space-y-4">
+                {Object.entries(profile.social_links).map(([platform, linkData]: [string, any]) => {
+                  // Skip empty values
+                  if (!linkData || (typeof linkData === 'object' && !linkData.url) || (typeof linkData === 'string' && !linkData)) {
+                    return null;
+                  }
+                  
+                  const url = typeof linkData === 'string' ? linkData : linkData.url;
+                  
+                  return (
+                    <Card key={platform} className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
+                      <a 
+                        href={url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between w-full"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-6 h-6 flex items-center justify-center">
+                            {platform === 'linkedin' && <Building2 className="w-5 h-5 text-primary" />}
+                            {platform === 'instagram' && <span className="text-primary font-bold">IG</span>}
+                            {platform === 'twitter' && <span className="text-primary font-bold">X</span>}
+                            {platform === 'venmo' && <span className="text-primary font-bold">V</span>}
+                            {!['linkedin', 'instagram', 'twitter', 'venmo'].includes(platform) && <ExternalLink className="w-5 h-5 text-primary" />}
+                          </div>
+                          <div>
+                            <p className="font-medium iridescent-text capitalize">
+                              {platform === 'linkedin' && 'LinkedIn'}
+                              {platform === 'instagram' && 'Instagram'}
+                              {platform === 'twitter' && 'Twitter/X'}
+                              {platform === 'venmo' && 'Venmo'}
+                              {!['linkedin', 'instagram', 'twitter', 'venmo'].includes(platform) && platform}
+                            </p>
+                            <p className="text-sm text-muted-foreground iridescent-text truncate">
+                              {url}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium iridescent-text capitalize">
-                            {platform === 'linkedin' && 'LinkedIn'}
-                            {platform === 'instagram' && 'Instagram'}
-                            {platform === 'twitter' && 'Twitter/X'}
-                            {platform === 'venmo' && 'Venmo'}
-                            {!['linkedin', 'instagram', 'twitter', 'venmo'].includes(platform) && platform}
-                          </p>
-                          <p className="text-sm text-muted-foreground iridescent-text truncate">
-                            {url}
-                          </p>
-                        </div>
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-primary" />
-                    </a>
-                  </Card>
-                );
-              })}
+                        <ExternalLink className="w-4 h-4 text-primary" />
+                      </a>
+                    </Card>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
 
         {/* Skills & Interests */}
         {(profile.skills?.length || profile.interests?.length) && (
-          <div className="grid md:grid-cols-2 gap-8">
-            {profile.skills?.length && (
-              <Card className="bg-card border-border p-6">
-                <h3 className="text-xl font-bold iridescent-text mb-4">Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {profile.skills.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm border border-primary/20"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </Card>
-            )}
-            
-            {profile.interests?.length && (
-              <Card className="bg-card border-border p-6">
-                <h3 className="text-xl font-bold iridescent-text mb-4">Interests</h3>
-                <div className="flex flex-wrap gap-2">
-                  {profile.interests.map((interest, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-secondary/50 text-foreground rounded-full text-sm border border-border"
-                    >
-                      {interest}
-                    </span>
-                  ))}
-                </div>
-              </Card>
-            )}
+          <div className="flex justify-center">
+            <div className="w-full max-w-4xl">
+              <div className="grid md:grid-cols-2 gap-8">
+                {profile.skills?.length && (
+                  <Card className="bg-card border-border p-6">
+                    <h3 className="text-xl font-bold iridescent-text mb-4 text-center">Skills</h3>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {profile.skills.map((skill, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm border border-primary/20"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </Card>
+                )}
+                
+                {profile.interests?.length && (
+                  <Card className="bg-card border-border p-6">
+                    <h3 className="text-xl font-bold iridescent-text mb-4 text-center">Interests</h3>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {profile.interests.map((interest, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-secondary/50 text-foreground rounded-full text-sm border border-border"
+                        >
+                          {interest}
+                        </span>
+                      ))}
+                    </div>
+                  </Card>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </main>
