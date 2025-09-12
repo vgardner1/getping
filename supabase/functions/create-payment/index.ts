@@ -33,11 +33,10 @@ serve(async (req) => {
     
     const { email, name } = requestBody;
 
-    console.log("Creating Stripe session for:", email);
+    console.log("Creating Stripe session");
 
-    // Create a subscription session with trial
-    const session = await stripe.checkout.sessions.create({
-      customer_email: email,
+    // Create checkout session options
+    const sessionOptions = {
       line_items: [
         {
           price_data: {
@@ -73,10 +72,18 @@ serve(async (req) => {
       success_url: `${req.headers.get("origin")}/signup?payment_success=true`,
       cancel_url: `${req.headers.get("origin")}/checkout`,
       metadata: {
-        customer_name: name,
-        customer_email: email,
+        customer_name: name || '',
+        customer_email: email || '',
       },
-    });
+    };
+
+    // Only include customer_email if we have a valid email
+    if (email && email.includes('@')) {
+      sessionOptions.customer_email = email;
+    }
+
+    // Create a subscription session with trial
+    const session = await stripe.checkout.sessions.create(sessionOptions);
 
     console.log("Stripe session created:", session.id);
 
