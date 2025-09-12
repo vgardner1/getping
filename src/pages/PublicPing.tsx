@@ -74,8 +74,8 @@ const PublicPing = () => {
         website_url: profile.website_url,
         skills: profile.skills || [],
         interests: profile.interests || [],
-        social_links: {}, // Not included in secure function
-        phone_number: '' // Not included in secure function
+        social_links: profile.social_links || {},
+        phone_number: profile.phone_number || ''
       });
 
       // Fetch user email for contact using the secure function
