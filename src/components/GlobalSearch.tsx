@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { buildPublicUrl } from "@/lib/utils";
+import { getShareableUrl } from "@/lib/environment";
 
 interface SearchResult {
   user_id: string;
@@ -58,7 +58,7 @@ const GlobalSearch = ({ isOpen, onClose }: GlobalSearchProps) => {
   };
 
   const handleProfileClick = (userId: string) => {
-    window.open(buildPublicUrl(`/ping/${userId}`), '_blank');
+    window.open(getShareableUrl(`/ping/${userId}`), '_blank');
     onClose();
   };
 

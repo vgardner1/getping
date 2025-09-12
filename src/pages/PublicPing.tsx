@@ -3,11 +3,11 @@ import { useParams, Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StarField } from "@/components/StarField";
-import { MapPin, Building2, ExternalLink, Mail, Phone, MessageCircle } from "lucide-react";
+import { MapPin, Building2, ExternalLink, Mail, Phone, MessageCircle, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SaveContactButton } from "@/components/SaveContactButton";
 import { buildPublicUrl } from "@/lib/utils";
-import { ShareButton } from "@/components/ShareButton";
+import ShareModal from "@/components/ShareModal";
 
 interface PublicProfile {
   user_id: string;
@@ -30,6 +30,7 @@ const PublicPing = () => {
   const [userEmail, setUserEmail] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -143,7 +144,9 @@ const PublicPing = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <span className="text-xl font-bold iridescent-text">ping!</span>
           <div className="flex items-center gap-2">
-            <ShareButton userId={userId || ''} label="Share" />
+            <Button variant="outline" className="border-primary text-primary hover:bg-primary/10" onClick={() => setShowShareModal(true)}>
+              <Share2 className="w-4 h-4 mr-2" /> Share
+            </Button>
             <Link to="/signup">
               <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
                 Join ping!
@@ -343,6 +346,13 @@ const PublicPing = () => {
           </Link>
         </Card>
       </main>
+
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        userId={userId || ''}
+        displayName={displayName}
+      />
     </div>
   );
 };
