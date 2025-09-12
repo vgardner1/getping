@@ -244,7 +244,7 @@ const ProfileSetup = () => {
                   onChange={handleInputChange}
                   className="w-full p-3 bg-secondary/20 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary iridescent-text resize-none"
                   rows={3}
-                  placeholder="I'm a UX designer and most people don't realize how much psychology goes into every button placement..."
+                  placeholder="Tell us about your professional work..."
                 />
               </div>
               <div>
@@ -257,7 +257,7 @@ const ProfileSetup = () => {
                   onChange={handleInputChange}
                   className="w-full p-3 bg-secondary/20 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary iridescent-text resize-none"
                   rows={3}
-                  placeholder="I'm learning to make sourdough bread and experimenting with different fermentation techniques..."
+                  placeholder="What interests you outside of work?"
                 />
               </div>
               <div>
@@ -270,7 +270,7 @@ const ProfileSetup = () => {
                   onChange={handleInputChange}
                   className="w-full p-3 bg-secondary/20 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary iridescent-text resize-none"
                   rows={3}
-                  placeholder="I'm passionate about digital accessibility and making technology inclusive for everyone..."
+                  placeholder="What causes or principles matter to you?"
                 />
               </div>
               <div>
@@ -283,7 +283,7 @@ const ProfileSetup = () => {
                   onChange={handleInputChange}
                   className="w-full p-3 bg-secondary/20 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary iridescent-text resize-none"
                   rows={3}
-                  placeholder="I'm building a mobile app to help people track their carbon footprint..."
+                  placeholder="What are you currently working on or learning?"
                 />
               </div>
               <div>
@@ -296,7 +296,7 @@ const ProfileSetup = () => {
                   onChange={handleInputChange}
                   className="w-full p-3 bg-secondary/20 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary iridescent-text resize-none"
                   rows={3}
-                  placeholder="I lived in 5 different countries before turning 25, which gives me a unique perspective on..."
+                  placeholder="What experiences or perspectives do you bring to conversations?"
                 />
               </div>
             </div>

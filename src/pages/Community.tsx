@@ -9,6 +9,7 @@ import Globe3D, { type GlobePin } from "@/components/Globe3D";
 import GlobalSearch from "@/components/GlobalSearch";
 const Community = () => {
   const [selectedSearchPerson, setSelectedSearchPerson] = useState<any>(null);
+  const [showSearch, setShowSearch] = useState(false);
   
   const handlePersonSelect = (person: any) => {
     console.log("Selected person:", person);
@@ -64,7 +65,13 @@ We just reimagined networking.</p>
 
         {/* Search Section */}
         <section className="px-4">
-          <GlobalSearch onPersonSelect={handlePersonSelect} />
+          <Button 
+            onClick={() => setShowSearch(true)}
+            className="w-full bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30"
+          >
+            Search people...
+          </Button>
+          <GlobalSearch isOpen={showSearch} onClose={() => setShowSearch(false)} />
         </section>
 
         {/* Globe Section */}

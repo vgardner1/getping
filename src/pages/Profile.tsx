@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StarField } from "@/components/StarField";
-import { ArrowLeft, MapPin, Building2, Edit, BarChart3, ExternalLink, Mail, Phone } from "lucide-react";
+import { ArrowLeft, MapPin, Building2, Edit, BarChart3, ExternalLink, Mail, Phone, Search } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
@@ -12,6 +12,7 @@ import { ProfileEdit } from "@/components/ProfileEdit";
 import { useToast } from "@/hooks/use-toast";
 import { SaveContactButton } from "@/components/SaveContactButton";
 import { ChatSystem } from "@/components/ChatSystem";
+import GlobalSearch from "@/components/GlobalSearch";
 
 const Profile = () => {
   const { user, loading } = useAuth();
@@ -22,6 +23,7 @@ const Profile = () => {
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showProfileEdit, setShowProfileEdit] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   
   // Redirect if not authenticated - but only after loading is complete and we're sure there's no user
   useEffect(() => {
@@ -191,6 +193,14 @@ const Profile = () => {
               variant="ghost" 
               size="icon"
               className="hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full w-8 h-8 backdrop-blur-sm border border-primary/20 shadow-lg"
+              onClick={() => setShowSearch(true)}
+            >
+              <Search className="w-4 h-4 text-primary" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full w-8 h-8 backdrop-blur-sm border border-primary/20 shadow-lg"
               onClick={() => setShowProfileEdit(true)}
             >
               <Edit className="w-4 h-4 text-primary" />
@@ -253,8 +263,15 @@ const Profile = () => {
             Ping {displayName.split(' ')[0] || 'User'}
           </Button>
           
-          <div className="mt-4">
+          <div className="mt-4 space-y-2">
             <SaveContactButton profile={profile} userEmail={user.email || ''} />
+            <Button 
+              variant="outline" 
+              className="w-full max-w-xs border-primary text-primary hover:bg-primary/10"
+              onClick={() => window.open(`${window.location.origin}/ping/${user.id}`, '_blank')}
+            >
+              Share my ping! profile
+            </Button>
           </div>
           
           <p className="text-xs text-muted-foreground mt-2 iridescent-text">
@@ -353,6 +370,9 @@ const Profile = () => {
           avatar_url: profile.avatar_url
         }} 
       />
+      
+      {/* Global Search */}
+      <GlobalSearch isOpen={showSearch} onClose={() => setShowSearch(false)} />
     </div>
   );
 };

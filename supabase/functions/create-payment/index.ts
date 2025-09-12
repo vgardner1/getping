@@ -35,7 +35,7 @@ serve(async (req) => {
 
     console.log("Creating Stripe session for:", email);
 
-    // Create a one-time payment session
+    // Create a subscription session with trial
     const session = await stripe.checkout.sessions.create({
       customer_email: email,
       line_items: [
@@ -46,12 +46,30 @@ serve(async (req) => {
               name: "ping! - Access your new network today",
               description: "NFC ring with app access and networking features"
             },
-            unit_amount: 999, // $9.99 in cents
+            unit_amount: 999, // $9.99 setup fee
+            recurring: null, // One-time setup fee
+          },
+          quantity: 1,
+        },
+        {
+          price_data: {
+            currency: "usd",
+            product_data: { 
+              name: "ping! Monthly Subscription",
+              description: "Monthly access to ping! network and features"
+            },
+            unit_amount: 299, // $2.99 in cents
+            recurring: {
+              interval: "month",
+            },
           },
           quantity: 1,
         },
       ],
-      mode: "payment",
+      mode: "subscription",
+      subscription_data: {
+        trial_period_days: 7, // 7 days free trial
+      },
       success_url: `${req.headers.get("origin")}/signup?payment_success=true`,
       cancel_url: `${req.headers.get("origin")}/checkout`,
       metadata: {
