@@ -140,17 +140,21 @@ const PublicProfile = () => {
         {/* Profile Card */}
         <div className="flex justify-center">
           <Card className="bg-card border-border p-8 text-center w-full max-w-2xl">
-            <div className="w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6">
-              <img
-                src={profile.avatar_url || "/placeholder.svg"}
-                alt={profile.display_name || "Profile"}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            <Link to={`/ping/${userId}/details`} className="block">
+              <div className="w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6 hover:scale-105 transition-transform duration-200 cursor-pointer">
+                <img
+                  src={profile.avatar_url || "/placeholder.svg"}
+                  alt={profile.display_name || "Profile"}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </Link>
             
-            <h1 className="text-3xl font-bold iridescent-text mb-2">
-              {displayName}
-            </h1>
+            <Link to={`/ping/${userId}/details`} className="block hover:scale-105 transition-transform duration-200">
+              <h1 className="text-3xl font-bold iridescent-text mb-2 cursor-pointer">
+                {displayName}
+              </h1>
+            </Link>
             
             <p className="text-lg text-muted-foreground iridescent-text mb-4">
               {profile.job_title || "Professional"}
@@ -282,47 +286,6 @@ const PublicProfile = () => {
                     </Card>
                   );
                 })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Skills & Interests */}
-        {(profile.skills?.length || profile.interests?.length) && (
-          <div className="flex justify-center">
-            <div className="w-full max-w-4xl">
-              <div className="grid md:grid-cols-2 gap-8">
-                {profile.skills?.length && (
-                  <Card className="bg-card border-border p-6">
-                    <h3 className="text-xl font-bold iridescent-text mb-4 text-center">Skills</h3>
-                    <div className="flex flex-wrap gap-2 justify-center">
-                      {profile.skills.map((skill, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm border border-primary/20"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </Card>
-                )}
-                
-                {profile.interests?.length && (
-                  <Card className="bg-card border-border p-6">
-                    <h3 className="text-xl font-bold iridescent-text mb-4 text-center">Interests</h3>
-                    <div className="flex flex-wrap gap-2 justify-center">
-                      {profile.interests.map((interest, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-secondary/50 text-foreground rounded-full text-sm border border-border"
-                        >
-                          {interest}
-                        </span>
-                      ))}
-                    </div>
-                  </Card>
-                )}
               </div>
             </div>
           </div>
