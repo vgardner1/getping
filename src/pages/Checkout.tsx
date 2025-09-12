@@ -145,12 +145,6 @@ const Checkout = () => {
             </h2>
             
             <div className="space-y-6">
-              <div className="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
-                <p className="text-sm text-muted-foreground iridescent-text text-center">
-                  Get your Ping ring and access to your new network • Billed $2.99/month after first month
-                </p>
-              </div>
-              
               <Button 
                 onClick={handleSubmit} 
                 disabled={loading}

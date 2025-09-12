@@ -24,7 +24,7 @@ const Onboarding = () => {
   };
 
   const handleNext = () => {
-    if (step < 3) {
+    if (step < 2) {
       setStep(step + 1);
     }
   };
@@ -107,33 +107,9 @@ const Onboarding = () => {
         return (
           <div className="space-y-6">
             <div className="text-center space-y-4">
-              <CreditCard className="w-16 h-16 text-primary mx-auto" />
-              <h2 className="text-2xl font-bold iridescent-text">Get Your Ping Ring</h2>
-              <p className="text-muted-foreground iridescent-text">7-day free trial, then $9.99/month</p>
-            </div>
-            <div className="bg-secondary/10 border border-secondary/20 rounded-lg p-6 space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="iridescent-text font-medium">Ping Ring + Service</span>
-                <span className="iridescent-text font-bold">$2.99/mo</span>
-              </div>
-              <div className="text-sm text-muted-foreground iridescent-text space-y-2">
-                <p>✓ Physical NFC ring shipped to you</p>
-                <p>✓ Digital profile with analytics</p>
-                <p>✓ Unlimited profile updates</p>
-                <p>✓ 7-day free trial</p>
-                <p>✓ Get 1 month free when a friend orders</p>
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 3:
-        return (
-          <div className="space-y-6">
-            <div className="text-center space-y-4">
-              <UserCheck className="w-16 h-16 text-primary mx-auto" />
-              <h2 className="text-2xl font-bold iridescent-text">Invite a Friend for 1 Month Free</h2>
-              <p className="text-muted-foreground iridescent-text">Get your first month free when they order</p>
+              <MessageSquare className="w-16 h-16 text-primary mx-auto" />
+              <h2 className="text-2xl font-bold iridescent-text">Get a Month Free by Sending a Lil Message :)</h2>
+              <p className="text-muted-foreground iridescent-text">Invite a friend and both of you get a month free!</p>
             </div>
             <div className="flex flex-col items-center space-y-4">
               <Button 
@@ -166,7 +142,7 @@ const Onboarding = () => {
             <ArrowLeft className="w-5 h-5 text-primary" />
             <span className="text-xl font-bold iridescent-text">ping!</span>
           </Link>
-          <div className="text-sm iridescent-text">Step {step} of 3</div>
+          <div className="text-sm iridescent-text">Step {step} of 2</div>
         </div>
       </header>
 
@@ -174,7 +150,7 @@ const Onboarding = () => {
       <div className="relative z-10 bg-secondary/20 h-2">
         <div 
           className="bg-primary h-full transition-all duration-500"
-          style={{ width: `${(step / 3) * 100}%` }}
+          style={{ width: `${(step / 2) * 100}%` }}
         />
       </div>
 
@@ -195,7 +171,7 @@ const Onboarding = () => {
               </Button>
             )}
             
-            {step < 3 ? (
+            {step < 2 ? (
               <Button 
                 onClick={handleNext}
                 className="flex-1 shimmer bg-primary hover:bg-primary/90 text-primary-foreground"
