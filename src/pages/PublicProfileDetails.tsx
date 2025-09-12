@@ -19,8 +19,8 @@ interface PublicProfile {
   interests: string[];
   social_links: any;
   phone_number: string;
-  experience: any[];
-  featured_work: any[];
+   experience?: any[];
+   featured_work?: any[];
 }
 
 const PublicProfileDetails = () => {
@@ -39,12 +39,11 @@ const PublicProfileDetails = () => {
     try {
       console.log("Fetching detailed profile for userId:", userId);
       
-      // Fetch directly from profiles table
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", userId)
-        .single();
+      // Use SECURITY DEFINER RPC for anonymous public access
+      const { data: profileData, error: profileError } = await supabase.rpc(
+        'get_public_profile_secure',
+        { target_user_id: userId }
+      );
 
       console.log("Profile data:", profileData);
       console.log("Profile error:", profileError);
@@ -56,28 +55,26 @@ const PublicProfileDetails = () => {
         return;
       }
 
-      if (!profileData) {
+      if (!profileData || profileData.length === 0) {
         setError("Profile not found");
         setLoading(false);
         return;
       }
 
-      const profile = profileData;
+      const p = profileData[0];
       setProfile({
-        user_id: profile.user_id,
-        display_name: profile.display_name,
-        avatar_url: profile.avatar_url,
-        bio: profile.bio,
-        location: profile.location,
-        company: profile.company,
-        job_title: profile.job_title,
-        website_url: profile.website_url,
-        skills: profile.skills || [],
-        interests: profile.interests || [],
-        social_links: profile.social_links || {},
-        phone_number: profile.phone_number,
-        experience: Array.isArray(profile.experience) ? profile.experience : [],
-        featured_work: Array.isArray(profile.featured_work) ? profile.featured_work : []
+        user_id: p.user_id,
+        display_name: p.display_name,
+        avatar_url: p.avatar_url,
+        bio: p.bio,
+        location: p.location,
+        company: p.company,
+        job_title: p.job_title,
+        website_url: p.website_url,
+        skills: p.skills || [],
+        interests: p.interests || [],
+        social_links: p.social_links || {},
+        phone_number: p.phone_number,
       });
     } catch (error) {
       console.error("Error fetching public profile:", error);
