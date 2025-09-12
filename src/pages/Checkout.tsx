@@ -29,11 +29,13 @@ const Checkout = () => {
     setLoading(true);
 
     try {
+      const { data: authData } = await supabase.auth.getUser();
+      const user = authData?.user;
+      const email = user?.email || '';
+      const name = (user?.user_metadata as any)?.display_name || (user?.user_metadata as any)?.full_name || '';
+
       const { data, error } = await supabase.functions.invoke('create-payment', {
-        body: {
-          email: '',  // Stripe will collect this
-          name: '',   // Stripe will collect this
-        },
+        body: { email, name },
       });
 
       if (error) throw error;

@@ -45,8 +45,8 @@ serve(async (req) => {
               name: "ping! - Access your new network today",
               description: "NFC ring with app access and networking features"
             },
-            unit_amount: 999, // $9.99 setup fee
-            recurring: null, // One-time setup fee
+            unit_amount: 999, // $9.99 setup fee (one-time)
+            // Note: omit 'recurring' for one-time items
           },
           quantity: 1,
         },
