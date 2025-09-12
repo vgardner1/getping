@@ -6,7 +6,7 @@ import { StarField } from "@/components/StarField";
 import { MapPin, Building2, ExternalLink, Mail, Phone, MessageCircle, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SaveContactButton } from "@/components/SaveContactButton";
-import { buildPublicUrl } from "@/lib/utils";
+import { getShareableUrl } from "@/lib/environment";
 import ShareModal from "@/components/ShareModal";
 
 interface PublicProfile {
@@ -41,6 +41,8 @@ const PublicPing = () => {
   const fetchPublicProfile = async () => {
     try {
       console.log('Fetching profile for userId:', userId);
+      console.log('Current URL:', window.location.href);
+      console.log('Is production:', !window.location.pathname.includes('/sandbox/'));
       
       // Use the secure RPC function for public access
       const { data: profileData, error: profileError } = await supabase.rpc(
@@ -162,7 +164,7 @@ const PublicPing = () => {
         <div className="p-6 text-center">
           <div 
             className="w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6 cursor-pointer hover:scale-105 transition-transform duration-200"
-            onClick={() => window.location.href = buildPublicUrl(`/ping/${userId}/details`)}
+            onClick={() => window.location.href = getShareableUrl(`/ping/${userId}/details`)}
           >
             <img
               src={profile.avatar_url || "/placeholder.svg"}
@@ -173,7 +175,7 @@ const PublicPing = () => {
           
           <h1 
             className="text-3xl font-bold iridescent-text mb-2 cursor-pointer story-link animate-enter hover-scale transition-all duration-500 ease-out"
-            onClick={() => window.location.href = buildPublicUrl(`/ping/${userId}/details`)}
+            onClick={() => window.location.href = getShareableUrl(`/ping/${userId}/details`)}
           >
             {displayName}
           </h1>
