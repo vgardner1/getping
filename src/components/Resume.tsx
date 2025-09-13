@@ -9,7 +9,7 @@ export const Resume = () => {
     // In a real app, this would download the actual PDF
     const link = document.createElement('a');
     link.href = '/placeholder-resume.pdf'; // This would be the actual PDF path
-    link.download = 'Vaness_Reece_Gardner_Resume.pdf';
+    link.download = 'Resume.pdf';
     link.click();
   };
 
@@ -44,8 +44,8 @@ export const Resume = () => {
           <div className={`w-full mx-auto bg-white shadow-sm ${isExpanded ? 'max-w-md p-6' : 'max-w-xs p-4'}`}>
             {/* Resume Preview Content */}
             <div className="text-center mb-4">
-              <h1 className={`font-bold text-gray-900 mb-1 ${isExpanded ? 'text-xl' : 'text-lg'}`}>Vaness Reece Gardner</h1>
-              <p className={`text-gray-600 ${isExpanded ? 'text-base' : 'text-sm'}`}>Entrepreneur & Creative Director</p>
+              <h1 className={`font-bold text-gray-900 mb-1 ${isExpanded ? 'text-xl' : 'text-lg'}`}>Resume</h1>
+              <p className={`text-gray-600 ${isExpanded ? 'text-base' : 'text-sm'}`}>Professional Resume</p>
               <div className={`text-gray-500 mt-1 ${isExpanded ? 'text-sm' : 'text-xs'}`}>
                 <p>vaness@bind.solutions {isExpanded && '| (617) 555-0123'}</p>
                 <p>Boston, MA {isExpanded && '| www.bind.solutions'}</p>

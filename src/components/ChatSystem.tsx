@@ -225,7 +225,7 @@ export const ChatSystem = ({ targetUserId, targetProfile }: ChatSystemProps) => 
     );
   }
 
-  const displayName = (targetProfile.display_name?.toLowerCase() === 'vgardner') ? 'Vaness Gardner' : (targetProfile.display_name || 'User');
+  const displayName = targetProfile.display_name || 'User';
 
   return (
     <div className="fixed bottom-6 right-6 z-50">

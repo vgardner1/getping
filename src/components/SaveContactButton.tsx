@@ -65,11 +65,12 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
         }
       }
 
-      // Special-case known handle mapping for consistency across app
-      if ((profile.display_name || '').toLowerCase() === 'vgardner') {
-        firstName = 'Vaness';
-        lastName = 'Gardner';
-        middleName = '';
+      // Use the actual profile display name
+      const nameParts = (profile.display_name || '').split(' ');
+      firstName = nameParts[0] || '';
+      lastName = nameParts[nameParts.length - 1] || '';
+      if (nameParts.length > 2) {
+        middleName = nameParts.slice(1, -1).join(' ');
       }
 
       // Title case

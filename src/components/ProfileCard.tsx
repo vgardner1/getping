@@ -24,13 +24,13 @@ export const ProfileCard = () => {
         <div className="w-32 h-32 mx-auto mb-6 rounded-full border-4 border-primary overflow-hidden">
           <img
             src={profilePhoto}
-            alt="Vaness Reece Gardner"
+            alt="Profile Photo"
             className="w-full h-full object-cover"
           />
         </div>
         
         <h1 className="text-2xl font-bold iridescent-text mb-2">
-          Vaness Reece Gardner
+          Profile Name
         </h1>
       </Link>
       

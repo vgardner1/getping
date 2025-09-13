@@ -116,7 +116,7 @@ const PublicProfile = () => {
     );
   }
 
-  const displayName = (profile.display_name?.toLowerCase() === 'vgardner') ? 'Vaness Gardner' : (profile.display_name || 'User');
+  const displayName = profile.display_name || 'User';
 
   return (
     <div className="min-h-screen bg-background relative">

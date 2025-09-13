@@ -115,11 +115,11 @@ const PublicProfileDetails = () => {
     );
   }
 
-  const displayName = (profile.display_name?.toLowerCase() === "vgardner") ? "Vaness Gardner" : (profile.display_name || "User");
+  const displayName = profile.display_name || "User";
 
   // Mock data for detailed profile (this would come from database in real app)
   const detailedProfile = {
-    fullBio: "Vanessa \"Reece\" Gardner is a creative technologist blending innovation and technology to craft engaging digital solutions. With a passion for merging design and development, Vanessa seeks collaborative opportunities with forward-thinking professionals and teams. Open to networking, project partnerships, and exploring cutting-edge trends in tech and creativity.",
+    fullBio: profile.bio || "No bio available yet.",
     experience: [
       {
         company: "Bind Solutions",

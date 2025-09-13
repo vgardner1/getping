@@ -170,7 +170,7 @@ const Profile = () => {
     return null;
   }
 
-  const displayName = (profile.display_name?.toLowerCase() === 'vgardner') ? 'Vaness Gardner' : (profile.display_name || user.email);
+  const displayName = profile.display_name || user.email;
   console.log('Profile data:', { profile, displayName, userEmail: user.email });
 
   return (

@@ -124,7 +124,7 @@ const ProfileView = () => {
     return `/ping/${user.id}`;
   };
 
-  const displayName = (profile?.display_name?.toLowerCase() === 'vgardner') ? 'Vaness Gardner' : (profile?.display_name || user?.email);
+  const displayName = profile?.display_name || user?.email;
 
   if (loading) {
     return (

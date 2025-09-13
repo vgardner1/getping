@@ -21,8 +21,8 @@ interface ChatBubbleProps {
 }
 
 export const ChatBubble = ({ 
-  contactName = "Vaness Reece Gardner",
-  contactAvatar = "/lovable-uploads/5cfc116f-36f7-4ba8-9859-4fdb89227406.png"
+  contactName = "Contact",
+  contactAvatar = "/placeholder.svg"
 }: ChatBubbleProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
