@@ -12,6 +12,9 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [instagramHandle, setInstagramHandle] = useState('');
+  const [linkedinUrl, setLinkedinUrl] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [showResend, setShowResend] = useState(false);
   const [resending, setResending] = useState(false);
@@ -41,6 +44,9 @@ const handleSignUp = async () => {
       emailRedirectTo: redirectUrl,
       data: {
         display_name: displayName,
+        instagram_handle: instagramHandle,
+        linkedin_url: linkedinUrl,
+        phone_number: phoneNumber,
       },
     },
   });
@@ -52,13 +58,29 @@ const handleSignUp = async () => {
       description: error.message,
     });
   } else {
-    toast({
-      title: 'Confirm your email',
-      description:
-        'We sent a confirmation link. After confirming, you’ll be redirected to profile setup.',
-    });
-    setIsLogin(true);
-    setShowResend(true);
+    if (data.user && data.user.email_confirmed_at) {
+      // Immediately confirmed accounts: ensure profile row has latest metadata
+      await supabase
+        .from('profiles')
+        .update({
+          display_name: displayName,
+          instagram_handle: instagramHandle,
+          linkedin_url: linkedinUrl,
+          phone_number: phoneNumber,
+        })
+        .eq('user_id', data.user.id);
+
+      toast({ title: 'Account created!', description: 'Redirecting to setup…' });
+      navigate('/profile-setup');
+    } else {
+      toast({
+        title: 'Confirm your email',
+        description:
+          'We sent a confirmation link. After confirming, you’ll be redirected to profile setup.',
+      });
+      setIsLogin(true);
+      setShowResend(true);
+    }
   }
   setLoading(false);
 };
@@ -195,17 +217,49 @@ const handleSubmit = (e: React.FormEvent) => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="displayName">Display Name</Label>
-                <Input
-                  id="displayName"
-                  type="text"
-                  placeholder="Enter your name"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  required={!isLogin}
-                />
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="displayName">Display Name</Label>
+                  <Input
+                    id="displayName"
+                    type="text"
+                    placeholder="Enter your name"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    required={!isLogin}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phoneNumber">Phone Number</Label>
+                  <Input
+                    id="phoneNumber"
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="instagramHandle">Instagram Handle</Label>
+                  <Input
+                    id="instagramHandle"
+                    type="text"
+                    placeholder="@yourusername"
+                    value={instagramHandle}
+                    onChange={(e) => setInstagramHandle(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="linkedinUrl">LinkedIn Profile</Label>
+                  <Input
+                    id="linkedinUrl"
+                    type="url"
+                    placeholder="https://linkedin.com/in/yourprofile"
+                    value={linkedinUrl}
+                    onChange={(e) => setLinkedinUrl(e.target.value)}
+                  />
+                </div>
+              </>
             )}
             
             <div className="space-y-2">
