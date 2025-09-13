@@ -43,8 +43,8 @@ const App = () => (
             <Route path="/profile/analytics" element={<ProfileView />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/u/:userId" element={<PublicProfile />} />
-            <Route path="/ping!/:userId" element={<PublicRouteHandler />} />
-            <Route path="/ping!/:userId/:view" element={<PublicRouteHandler />} />
+            <Route path="/ping/:userId" element={<PublicRouteHandler />} />
+            <Route path="/ping/:userId/:view" element={<PublicRouteHandler />} />
             <Route path="/network" element={<Network />} />
             <Route path="/tribe" element={<Network />} />
             <Route path="/chat/:conversationId" element={<ChatThread />} />
