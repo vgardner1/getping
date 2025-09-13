@@ -50,7 +50,7 @@ const ProfileSetup = () => {
       try {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('display_name, avatar_url, linkedin_url, instagram_handle, social_links')
+          .select('display_name, linkedin_url, instagram_handle, social_links')
           .eq('user_id', user.id)
           .single();
 
@@ -59,7 +59,7 @@ const ProfileSetup = () => {
           setProfileData(prev => ({
             ...prev,
             name: prev.name || (profile.display_name as string) || prev.name,
-            avatarUrl: (profile.avatar_url as string) || prev.avatarUrl,
+            // Never pre-populate avatarUrl for new signups - always start blank
             linkedin: (profile.linkedin_url as string) || (links.linkedin as string) || prev.linkedin,
             instagram: (links.instagram as string) || (profile.instagram_handle as string) || prev.instagram,
             twitter: (links.twitter as string) || prev.twitter,
@@ -97,9 +97,38 @@ const ProfileSetup = () => {
       return;
     }
 
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid file type',
+        description: 'Please select an image file (JPG, PNG, etc.).'
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        variant: 'destructive',
+        title: 'File too large',
+        description: 'Please select an image smaller than 5MB.'
+      });
+      return;
+    }
+
     console.log('Starting photo upload for file:', file.name);
     setLoading(true);
+    
     try {
+      // Create preview URL immediately for better UX
+      const previewUrl = URL.createObjectURL(file);
+      setProfileData(prev => ({
+        ...prev,
+        profilePhoto: file,
+        avatarUrl: previewUrl // Show preview immediately
+      }));
+
       // Upload to Supabase storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/avatar.${fileExt}`;
@@ -117,16 +146,17 @@ const ProfileSetup = () => {
 
       console.log('Upload successful:', data);
 
-      // Get public URL
+      // Get public URL and replace preview
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName);
 
       console.log('Public URL:', publicUrl);
 
+      // Clean up preview URL and set final URL
+      URL.revokeObjectURL(previewUrl);
       setProfileData(prev => ({
         ...prev,
-        profilePhoto: file,
         avatarUrl: publicUrl
       }));
 
@@ -134,8 +164,14 @@ const ProfileSetup = () => {
         title: 'Photo uploaded!',
         description: 'Your profile photo has been uploaded successfully.'
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading photo:', error);
+      // Reset the avatar URL on error
+      setProfileData(prev => ({
+        ...prev,
+        profilePhoto: null,
+        avatarUrl: ""
+      }));
       toast({
         variant: 'destructive',
         title: 'Upload failed',
@@ -252,11 +288,23 @@ const ProfileSetup = () => {
               <p className="text-muted-foreground iridescent-text">Help people recognize you</p>
             </div>
             <div className="flex flex-col items-center space-y-4">
-              <div className="w-32 h-32 bg-secondary/20 rounded-full flex items-center justify-center border-2 border-dashed border-primary/50 overflow-hidden">
+              <div className="w-32 h-32 bg-secondary/20 rounded-full flex items-center justify-center border-2 border-dashed border-primary/50 overflow-hidden relative">
                 {profileData.avatarUrl ? (
-                  <img src={profileData.avatarUrl} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                  <img 
+                    src={profileData.avatarUrl} 
+                    alt="Profile preview" 
+                    className="w-full h-full object-cover rounded-full" 
+                    onError={(e) => {
+                      console.error('Image failed to load:', profileData.avatarUrl);
+                      // Reset avatar URL if image fails to load
+                      setProfileData(prev => ({ ...prev, avatarUrl: "" }));
+                    }}
+                  />
                 ) : (
-                  <span className="text-4xl">📷</span>
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <span className="text-3xl mb-1">📷</span>
+                    <span className="text-xs text-muted-foreground">Upload Photo</span>
+                  </div>
                 )}
               </div>
               <input
