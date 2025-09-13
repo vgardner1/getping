@@ -65,7 +65,30 @@ const Profile = () => {
           setShowProfileSetup(true);
         }
       } else {
-        setProfile(data);
+        // For the user's own profile, also fetch contact info securely
+        let contactInfo = null;
+        if (user?.id) {
+          try {
+            const { data: contactData, error: contactError } = await supabase.rpc(
+              'get_profile_contact_info',
+              { target_user_id: user.id }
+            );
+            if (!contactError && contactData && contactData.length > 0) {
+              contactInfo = contactData[0];
+            }
+          } catch (e) {
+            console.warn('Could not fetch contact info:', e);
+          }
+        }
+
+        // Merge profile data with contact info
+        setProfile({
+          ...data,
+          phone_number: contactInfo?.phone_number || null,
+          email: contactInfo?.email || user?.email || null,
+          contact_social_links: contactInfo?.contact_social_links || null
+        });
+
         // If profile exists but not AI processed, might want to show setup
         if (!data.display_name || !data.bio) {
           setShowProfileSetup(true);
