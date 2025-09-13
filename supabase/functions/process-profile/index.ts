@@ -110,6 +110,7 @@ serve(async (req) => {
     const { error: updateError } = await supabaseClient
       .from('profiles')
       .update({
+        display_name: profileData.profile.name,
         bio: profileData.profile.bio,
         location: profileData.profile.location,
         company: profileData.experience[0]?.company,
@@ -198,7 +199,17 @@ async function generateProfileWithAI(socialData: any[], seed: any): Promise<Prof
   }
 
   try {
-    return JSON.parse(data.choices[0].message.content);
+    const content: string = data?.choices?.[0]?.message?.content ?? '';
+    try {
+      return JSON.parse(content);
+    } catch (_e) {
+      const cleaned = content
+        .replace(/^```json\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/```\s*$/i, '')
+        .trim();
+      return JSON.parse(cleaned);
+    }
   } catch (error) {
     console.error('Failed to parse AI response:', error);
     return createFallbackProfile();

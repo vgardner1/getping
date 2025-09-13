@@ -149,10 +149,12 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
       const { error } = await supabase
         .from('profiles')
         .update({
-          bio: manualData.bio,
+          display_name: (user.user_metadata as any)?.display_name || (user.email || '').split('@')[0],
+          bio: (manualData.bio && manualData.bio.trim()) ? manualData.bio.trim() : 'Excited to connect and network with like-minded people!',
           job_title: manualData.job_title,
           company: manualData.company,
           location: manualData.location,
+          phone_number: manualData.phone_number,
           linkedin_url: socialLinks.find(link => link.platform === 'linkedin')?.value || '',
           social_links: socialLinksData,
           updated_at: new Date().toISOString()
