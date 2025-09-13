@@ -15,11 +15,15 @@ import GlobalSearch from "@/components/GlobalSearch";
 import SMSModal from "@/components/SMSModal";
 import ShareModal from "@/components/ShareModal";
 import { getPublicProfileUrl, isProduction } from "@/lib/environment";
-
 const Profile = () => {
-  const { user, loading } = useAuth();
+  const {
+    user,
+    loading
+  } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [profile, setProfile] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
@@ -29,7 +33,7 @@ const Profile = () => {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
-  
+
   // Redirect if not authenticated - but only after loading is complete and we're sure there's no user
   useEffect(() => {
     if (!loading && !user) {
@@ -49,15 +53,12 @@ const Profile = () => {
       fetchProfile();
     }
   }, [user]);
-
   const fetchProfile = async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('profiles').select('*').eq('user_id', user?.id).single();
       if (error) {
         console.error('Error fetching profile:', error);
         // If profile doesn't exist, show profile setup
@@ -69,10 +70,12 @@ const Profile = () => {
         let contactInfo = null;
         if (user?.id) {
           try {
-            const { data: contactData, error: contactError } = await supabase.rpc(
-              'get_profile_contact_info',
-              { target_user_id: user.id }
-            );
+            const {
+              data: contactData,
+              error: contactError
+            } = await supabase.rpc('get_profile_contact_info', {
+              target_user_id: user.id
+            });
             if (!contactError && contactData && contactData.length > 0) {
               contactInfo = contactData[0];
             }
@@ -105,76 +108,58 @@ const Profile = () => {
       setProfileLoading(false);
     }
   };
-
   const handleProfileSetupComplete = () => {
     setShowProfileSetup(false);
     fetchProfile(); // Reload profile data
   };
-
   const handleProfileEditSave = () => {
     setShowProfileEdit(false);
     fetchProfile(); // Reload profile data
   };
-
   const handleProfileEditCancel = () => {
     setShowProfileEdit(false);
   };
 
   // Show loading state
   if (loading || profileLoading) {
-    return (
-      <div className="min-h-screen bg-background relative flex items-center justify-center">
+    return <div className="min-h-screen bg-background relative flex items-center justify-center">
         <StarField />
         <div className="text-center relative z-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="iridescent-text">Loading profile...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // Show profile setup if needed
   if (showProfileSetup) {
-    return (
-      <div className="min-h-screen bg-background relative">
+    return <div className="min-h-screen bg-background relative">
         <StarField />
         <div className="max-w-4xl mx-auto p-6 relative z-10">
           <ProfileSetup onComplete={handleProfileSetupComplete} />
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // Show profile edit if requested
   if (showProfileEdit) {
-    return (
-      <div className="min-h-screen bg-background relative">
+    return <div className="min-h-screen bg-background relative">
         <StarField />
         <div className="relative z-10">
-          <ProfileEdit 
-            profile={profile} 
-            onSave={handleProfileEditSave} 
-            onCancel={handleProfileEditCancel} 
-          />
+          <ProfileEdit profile={profile} onSave={handleProfileEditSave} onCancel={handleProfileEditCancel} />
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // Show analytics if requested
   if (showAnalytics) {
-    return (
-      <div className="min-h-screen bg-background relative">
+    return <div className="min-h-screen bg-background relative">
         <StarField />
         
         {/* Header */}
         <header className="border-b border-border p-4 relative z-10">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
-            <Button 
-              variant="ghost" 
-              className="flex items-center gap-2 hover:scale-105 transition-transform duration-200"
-              onClick={() => setShowAnalytics(false)}
-            >
+            <Button variant="ghost" className="flex items-center gap-2 hover:scale-105 transition-transform duration-200" onClick={() => setShowAnalytics(false)}>
               <ArrowLeft className="w-5 h-5 text-primary" />
               <span className="text-xl font-bold iridescent-text">Back to Profile</span>
             </Button>
@@ -184,20 +169,20 @@ const Profile = () => {
         <div className="max-w-6xl mx-auto p-6 relative z-10">
           <AnalyticsDashboard />
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // Don't render if no user
   if (!user || !profile) {
     return null;
   }
-
   const displayName = profile.display_name || user.email;
-  console.log('Profile data:', { profile, displayName, userEmail: user.email });
-
-  return (
-    <div className="min-h-screen bg-background relative">
+  console.log('Profile data:', {
+    profile,
+    displayName,
+    userEmail: user.email
+  });
+  return <div className="min-h-screen bg-background relative">
       <StarField />
       
       {/* Header */}
@@ -207,32 +192,18 @@ const Profile = () => {
           
           {/* Network in center with search */}
           <div className="absolute left-1/2 transform -translate-x-1/2">
-            <Button 
-              variant="ghost" 
-              className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full px-4 py-1.5 backdrop-blur-sm border border-primary/20 shadow-lg text-sm"
-              onClick={() => navigate('/network')}
-            >
+            <Button variant="ghost" className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full px-4 py-1.5 backdrop-blur-sm border border-primary/20 shadow-lg text-sm" onClick={() => navigate('/network')}>
               <Search className="w-4 h-4 text-primary" />
-              <span className="iridescent-text font-medium">Tribe</span>
+              <span className="iridescent-text font-medium">Find Your Tribe</span>
             </Button>
           </div>
           
           {/* Right side icon bubbles */}
           <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full w-8 h-8 backdrop-blur-sm border border-primary/20 shadow-lg"
-              onClick={() => setShowProfileEdit(true)}
-            >
+            <Button variant="ghost" size="icon" className="hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full w-8 h-8 backdrop-blur-sm border border-primary/20 shadow-lg" onClick={() => setShowProfileEdit(true)}>
               <Edit className="w-4 h-4 text-primary" />
             </Button>
-            <Button 
-              variant="ghost"
-              size="icon" 
-              className="hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full w-8 h-8 backdrop-blur-sm border border-primary/20 shadow-lg"
-              onClick={() => navigate('/profile/analytics')}
-            >
+            <Button variant="ghost" size="icon" className="hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full w-8 h-8 backdrop-blur-sm border border-primary/20 shadow-lg" onClick={() => navigate('/profile/analytics')}>
               <BarChart3 className="w-4 h-4 text-primary" />
             </Button>
           </div>
@@ -243,22 +214,11 @@ const Profile = () => {
       <main className="max-w-4xl mx-auto p-4 pb-28 space-y-6 relative z-10">
         {/* Simplified Profile Card */}
         <div className="p-6 text-center">
-          <Link 
-            to="/profile/details"
-            aria-label="View profile details"
-            className="block w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6 hover:scale-105 transition-transform duration-200"
-          >
-            <img
-              src={profile.avatar_url || "/placeholder.svg"}
-              alt={profile.display_name || "Profile"}
-              className="w-full h-full object-cover"
-            />
+          <Link to="/profile/details" aria-label="View profile details" className="block w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6 hover:scale-105 transition-transform duration-200">
+            <img src={profile.avatar_url || "/placeholder.svg"} alt={profile.display_name || "Profile"} className="w-full h-full object-cover" />
           </Link>
           
-          <Link 
-            to="/profile/details"
-            className="block"
-          >
+          <Link to="/profile/details" className="block">
             <h1 className="text-3xl font-bold iridescent-text mb-2 cursor-pointer hover:scale-105 transition-transform duration-200">
               {displayName}
             </h1>
@@ -269,18 +229,14 @@ const Profile = () => {
           </p>
           
           <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground mb-4">
-            {profile.location && (
-              <div className="flex items-center gap-1">
+            {profile.location && <div className="flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-primary" />
                 <span className="iridescent-text">{profile.location}</span>
-              </div>
-            )}
-            {profile.company && (
-              <div className="flex items-center gap-1">
+              </div>}
+            {profile.company && <div className="flex items-center gap-1">
                 <Building2 className="w-3 h-3 text-primary" />
                 <span className="iridescent-text">{profile.company}</span>
-              </div>
-            )}
+              </div>}
           </div>
 
           
@@ -302,8 +258,7 @@ const Profile = () => {
           <h2 className="text-2xl font-bold iridescent-text mb-6 text-center animate-fade-in">The new way of connecting</h2>
           
           <div className="space-y-3 animate-fade-in">
-            {profile.phone_number && (
-              <Card className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
+            {profile.phone_number && <Card className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Phone className="w-5 h-5 text-primary" />
@@ -313,40 +268,26 @@ const Profile = () => {
                     </div>
                   </div>
                 </div>
-              </Card>
-            )}
-            {user.email && (
-              <Card className="bg-card border-border p-3 hover:border-primary/50 transition-colors">
+              </Card>}
+            {user.email && <Card className="bg-card border-border p-3 hover:border-primary/50 transition-colors">
                 <div className="flex items-center gap-3">
                   <Mail className="w-4 h-4 text-primary" />
                   <div className="min-w-0 flex-1">
                     <p className="font-medium iridescent-text text-sm">Email</p>
-                    <a 
-                      href={`mailto:${user.email}`}
-                      className="text-sm text-muted-foreground iridescent-text truncate hover:text-primary transition-colors cursor-pointer block"
-                    >
+                    <a href={`mailto:${user.email}`} className="text-sm text-muted-foreground iridescent-text truncate hover:text-primary transition-colors cursor-pointer block">
                       {user.email}
                     </a>
                   </div>
                 </div>
-              </Card>
-            )}
+              </Card>}
             {profile?.social_links && Object.entries(profile.social_links).map(([platform, linkData]: [string, any]) => {
-              // Skip empty values
-              if (!linkData || (typeof linkData === 'object' && !linkData.url) || (typeof linkData === 'string' && !linkData)) {
-                return null;
-              }
-              
-              const url = typeof linkData === 'string' ? linkData : linkData.url;
-              
-              return (
-                <Card key={platform} className="bg-card border-border p-3 hover:border-primary/50 transition-colors">
-                  <a 
-                    href={url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 w-full"
-                  >
+            // Skip empty values
+            if (!linkData || typeof linkData === 'object' && !linkData.url || typeof linkData === 'string' && !linkData) {
+              return null;
+            }
+            const url = typeof linkData === 'string' ? linkData : linkData.url;
+            return <Card key={platform} className="bg-card border-border p-3 hover:border-primary/50 transition-colors">
+                  <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 w-full">
                     <div className="w-5 h-5 flex items-center justify-center">
                       {platform === 'linkedin' && <Building2 className="w-4 h-4 text-primary" />}
                       {platform === 'instagram' && <span className="text-primary font-bold text-xs">IG</span>}
@@ -364,35 +305,24 @@ const Profile = () => {
                         {platform === 'website' && 'Website'}
                         {!['linkedin', 'instagram', 'twitter', 'venmo', 'website'].includes(platform) && platform}
                       </p>
-                      {platform === 'website' && (
-                        <p className="text-xs text-muted-foreground iridescent-text truncate">
+                      {platform === 'website' && <p className="text-xs text-muted-foreground iridescent-text truncate">
                           {url}
-                        </p>
-                      )}
+                        </p>}
                     </div>
                     <ExternalLink className="w-3 h-3 text-primary flex-shrink-0" />
                   </a>
-                </Card>
-              );
-            })}
+                </Card>;
+          })}
           </div>
         </div>
 
         {/* Share Profile Button - Bottom of page */}
         <div className="mt-8 flex flex-col items-center space-y-3">
-          <Button 
-            variant="outline" 
-            className="w-full max-w-sm border-primary text-primary hover:bg-primary/10"
-            onClick={() => setShowShareModal(true)}
-          >
+          <Button variant="outline" className="w-full max-w-sm border-primary text-primary hover:bg-primary/10" onClick={() => setShowShareModal(true)}>
             <Share2 className="w-4 h-4 mr-2" />
             Share my ping! profile
           </Button>
-          <Button 
-            variant="outline" 
-            className="w-full max-w-sm border-primary/50 text-primary hover:bg-primary/5 flex items-center justify-center gap-2"
-            onClick={() => setShowInviteModal(true)}
-          >
+          <Button variant="outline" className="w-full max-w-sm border-primary/50 text-primary hover:bg-primary/5 flex items-center justify-center gap-2" onClick={() => setShowInviteModal(true)}>
             <UserPlus className="w-4 h-4" />
             Invite a friend for 1 month free
           </Button>
@@ -401,25 +331,13 @@ const Profile = () => {
       
       
       {/* Share Modal */}
-      <ShareModal 
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        userId={user.id}
-        displayName={displayName}
-      />
+      <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} userId={user.id} displayName={displayName} />
       
       {/* Invite Friend Modal */}
-      <SMSModal 
-        isOpen={showInviteModal} 
-        onClose={() => setShowInviteModal(false)} 
-        userProfile={profile}
-        isInvite={true}
-      />
+      <SMSModal isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} userProfile={profile} isInvite={true} />
       
       {/* Global Search */}
       <GlobalSearch isOpen={showSearch} onClose={() => setShowSearch(false)} />
-    </div>
-  );
+    </div>;
 };
-
 export default Profile;
