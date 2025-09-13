@@ -110,6 +110,72 @@ const Network = () => {
     window.open(getShareableUrl(`/ping/${userId}`), '_blank');
   };
 
+  const addToTribe = async (targetUserId: string) => {
+    if (!user) return;
+
+    try {
+      // Check if connection already exists
+      const { data: existingConnection, error: checkError } = await supabase
+        .from('connections')
+        .select('id')
+        .or(`and(user_id.eq.${user.id},target_user_id.eq.${targetUserId}),and(user_id.eq.${targetUserId},target_user_id.eq.${user.id})`)
+        .limit(1);
+
+      if (checkError) {
+        console.error('Error checking existing connection:', checkError);
+        return;
+      }
+
+      if (existingConnection && existingConnection.length > 0) {
+        toast({
+          title: "Already in your tribe",
+          description: "This person is already part of your tribe!",
+        });
+        return;
+      }
+
+      // Create new connection
+      const { error: insertError } = await supabase
+        .from('connections')
+        .insert({
+          user_id: user.id,
+          target_user_id: targetUserId
+        });
+
+      if (insertError) {
+        console.error('Error creating connection:', insertError);
+        toast({
+          title: "Error",
+          description: "Failed to add to tribe. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Added to tribe!",
+        description: "They've been added to your tribe successfully.",
+      });
+
+      // Refresh connections
+      const { data: connectionRows, error } = await supabase
+        .from('connections')
+        .select('*')
+        .or(`user_id.eq.${user.id},target_user_id.eq.${user.id})`);
+
+      if (!error) {
+        setConnections(connectionRows || []);
+      }
+    } catch (error) {
+      console.error('Error adding to tribe:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add to tribe. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const startConversation = async (otherId: string) => {
     if (!user) return;
 
@@ -146,7 +212,7 @@ const Network = () => {
             <ArrowLeft className="w-5 h-5 text-primary" />
             <span className="text-xl font-bold iridescent-text">Back to Profile</span>
           </Button>
-          <div className="flex items-center gap-2 text-muted-foreground"><Users className="w-4 h-4" /> Network</div>
+          <div className="flex items-center gap-2 text-muted-foreground"><Users className="w-4 h-4" /> Tribe</div>
         </div>
       </header>
 
@@ -178,14 +244,19 @@ const Network = () => {
                 {searchResults.map((profile) => (
                   <div
                     key={profile.user_id}
-                    onClick={() => handleProfileClick(profile.user_id)}
-                    className="p-3 flex items-center gap-3 hover:bg-secondary/20 rounded-lg transition-colors cursor-pointer"
+                    className="p-3 flex items-center gap-3 hover:bg-secondary/20 rounded-lg transition-colors"
                   >
-                    <Avatar className="w-10 h-10">
+                    <Avatar 
+                      className="w-10 h-10 cursor-pointer"
+                      onClick={() => handleProfileClick(profile.user_id)}
+                    >
                       <AvatarImage src={profile.avatar_url || "/placeholder.svg"} alt={profile.display_name || "Profile"} />
                       <AvatarFallback>{(profile.display_name || "U")[0]}</AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 min-w-0">
+                    <div 
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onClick={() => handleProfileClick(profile.user_id)}
+                    >
                       <h4 className="font-medium iridescent-text truncate">
                         {profile.display_name || "Unknown User"}
                       </h4>
@@ -200,6 +271,13 @@ const Network = () => {
                         </p>
                       )}
                     </div>
+                    <Button 
+                      size="sm"
+                      onClick={() => addToTribe(profile.user_id)}
+                      className="hover-scale"
+                    >
+                      Add to Tribe
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -211,9 +289,9 @@ const Network = () => {
           </Card>
         )}
 
-        {/* Connections Section */}
+        {/* Tribe Section */}
         <Card className="bg-card border-border p-4">
-          <h3 className="text-lg font-semibold iridescent-text mb-4">Your Connections</h3>
+          <h3 className="text-lg font-semibold iridescent-text mb-4">Your Tribe</h3>
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -232,7 +310,7 @@ const Network = () => {
                       </Avatar>
                       <div>
                         <p className="font-medium iridescent-text">{prof.name}</p>
-                        <p className="text-xs text-muted-foreground iridescent-text">Connected on {new Date(c.created_at).toLocaleDateString()}</p>
+                        <p className="text-xs text-muted-foreground iridescent-text">Joined tribe on {new Date(c.created_at).toLocaleDateString()}</p>
                       </div>
                     </div>
                     <Button onClick={() => startConversation(other)} className="hover-scale">
@@ -243,7 +321,7 @@ const Network = () => {
               })}
               {connections.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground iridescent-text">
-                  No connections yet. Search for people above to connect!
+                  No tribe members yet. Search for people above to add to your tribe!
                 </div>
               )}
             </div>

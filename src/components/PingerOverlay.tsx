@@ -162,7 +162,7 @@ const PingerOverlay: React.FC<PingerOverlayProps> = ({
           <p className="text-sm text-muted-foreground mb-4 line-clamp-3">{pinger.bio}</p>
         )}
         <Button onClick={onPing} className="w-full">
-          Ping {pinger.name.split(" ")[0]}
+          Add to Tribe
         </Button>
       </Card>
     </div>

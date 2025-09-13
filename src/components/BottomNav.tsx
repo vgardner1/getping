@@ -4,7 +4,7 @@ import { Users, PlaySquare, Search, MessageCircle, User } from "lucide-react";
 export const BottomNav = () => {
   const items = [
     { to: "/feed", label: "Feed", icon: PlaySquare },
-    { to: "/community", label: "Community", icon: Users },
+    { to: "/network", label: "Tribe", icon: Users },
     { to: "/chat", label: "Chat", icon: MessageCircle },
     { to: "/profile", label: "Profile", icon: User },
   ];

@@ -164,14 +164,18 @@ export const PingerCarousel = () => {
                       <span>{pinger.mutualConnections} mutual connections</span>
                     </div>
                     
-                    <Link to={`/chat/thread/${pinger.id}`}>
-                      <Button 
-                        size="sm" 
-                        className="shimmer bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105 transition-transform duration-200"
-                      >
-                        Send Ping
-                      </Button>
-                    </Link>
+                    <Button 
+                      size="sm" 
+                      className="shimmer bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105 transition-transform duration-200"
+                      onClick={() => {
+                        // For now, just show a toast - in a real app this would add to tribe
+                        window.dispatchEvent(new CustomEvent('ping-user', {
+                          detail: { name: pinger.name, id: pinger.id }
+                        }));
+                      }}
+                    >
+                      Add to Tribe
+                    </Button>
                   </>
                 )}
               </Card>

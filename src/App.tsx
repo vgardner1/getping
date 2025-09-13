@@ -46,6 +46,7 @@ const App = () => (
             <Route path="/ping/:userId" element={<PublicRouteHandler />} />
             <Route path="/ping/:userId/:view" element={<PublicRouteHandler />} />
             <Route path="/network" element={<Network />} />
+            <Route path="/tribe" element={<Network />} />
             <Route path="/chat/:conversationId" element={<ChatThread />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

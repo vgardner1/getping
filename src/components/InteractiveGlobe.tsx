@@ -484,24 +484,12 @@ scene.add(directionalLight);
           onClose={() => setSelectedPinger(null)}
           onPing={() => {
             if (!selectedPinger) return;
-            const slug = selectedPinger.name
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, "-")
-              .replace(/(^-|-$)/g, "");
             toast({
-              title: "Opening chat…",
-              description: `Generating questions for ${selectedPinger.name}`,
+              title: "Added to Tribe!",
+              description: `${selectedPinger.name} has been added to your tribe`,
+              duration: 2000,
             });
             setSelectedPinger(null);
-            navigate(`/chat/thread/${slug}`, {
-              state: {
-                name: selectedPinger.name,
-                avatar: selectedPinger.avatarUrl,
-                role: selectedPinger.role,
-                city: selectedPinger.city,
-                bio: selectedPinger.bio,
-              },
-            });
           }}
         />
       )}
