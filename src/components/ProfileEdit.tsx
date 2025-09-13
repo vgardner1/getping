@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Save, X, Camera, MapPin, Building2, Mail, Phone, ExternalLink, Plus, Trash2, Upload } from 'lucide-react';
-import { removeBackground, loadImage } from '@/lib/backgroundRemoval';
+
 
 interface ProfileEditProps {
   profile: any;
@@ -93,20 +93,15 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
 
     setUploadingPhoto(true);
     try {
-      // Load the image
-      const imageElement = await loadImage(file);
-      
-      // Remove background
-      const processedBlob = await removeBackground(imageElement);
-      
-      // Upload to Supabase Storage
-      const fileExt = 'png'; // Always PNG for transparency
+      // Get file extension and create file name
+      const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       const filePath = `${user.id}/${fileName}`;
 
+      // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, processedBlob, { contentType: 'image/png', upsert: true });
+        .upload(filePath, file, { contentType: file.type, upsert: true });
 
       if (uploadError) throw uploadError;
 
@@ -120,7 +115,7 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
 
       toast({
         title: "Success",
-        description: "Profile photo uploaded and background removed!"
+        description: "Profile photo uploaded successfully!"
       });
     } catch (error) {
       console.error('Error uploading photo:', error);
@@ -266,7 +261,7 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Background will be automatically removed
+                Upload your profile photo
               </p>
             </div>
           </div>
