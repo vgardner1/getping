@@ -244,11 +244,14 @@ const Profile = () => {
           </div>
 
           
-          <Button className="w-full max-w-xs bg-primary hover:bg-primary/90 text-primary-foreground text-sm">
+          <Button 
+            className="w-full max-w-xs bg-primary hover:bg-primary/90 text-primary-foreground text-sm"
+            onClick={() => navigate('/chat')}
+          >
             ping! {displayName.split(' ')[0] || 'user'}
           </Button>
           
-          <div className="mt-4 bg-green-500/10 border border-green-500/30 rounded-lg p-4 backdrop-blur-sm">
+          <div className="mt-4 bg-green-500/10 border border-green-500/30 rounded-lg p-3 backdrop-blur-sm">
             <SaveContactButton profile={profile} userEmail={user.email || ''} />
           </div>
         </div>

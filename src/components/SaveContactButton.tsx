@@ -150,9 +150,9 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
     <Button 
       onClick={saveContact}
       variant="ghost"
-      className="bg-transparent border-none text-primary hover:bg-transparent hover:text-primary/80 text-sm font-medium"
+      className="bg-transparent border-none text-primary hover:bg-transparent hover:text-primary/80 text-xs font-medium px-2 py-1"
     >
-      <Download className="w-4 h-4 mr-2" />
+      <Download className="w-3 h-3 mr-1" />
       save contact
     </Button>
   );

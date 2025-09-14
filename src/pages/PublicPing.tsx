@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StarField } from "@/components/StarField";
@@ -8,6 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { SaveContactButton } from "@/components/SaveContactButton";
 import { getShareableUrl } from "@/lib/environment";
 import ShareModal from "@/components/ShareModal";
+import { useAuth } from "@/hooks/useAuth";
+import { createChatWithUser } from "@/utils/chatUtils";
+import { useToast } from "@/hooks/use-toast";
 
 interface PublicProfile {
   user_id: string;
@@ -25,11 +28,15 @@ interface PublicProfile {
 
 const PublicPing = () => {
   const { userId } = useParams<{ userId: string }>();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [userEmail, setUserEmail] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [creatingChat, setCreatingChat] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -99,6 +106,34 @@ const PublicPing = () => {
       setError("Failed to load profile");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePing = async () => {
+    if (!user) {
+      navigate('/signup');
+      return;
+    }
+
+    if (!userId) return;
+
+    setCreatingChat(true);
+    try {
+      const conversationId = await createChatWithUser(userId, user.id);
+      toast({
+        title: "ping! sent",
+        description: `Started a conversation with ${profile?.display_name || 'user'}`,
+      });
+      navigate(`/chat/thread/${conversationId}`);
+    } catch (error) {
+      console.error('Error creating chat:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start conversation. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setCreatingChat(false);
     }
   };
 
@@ -178,8 +213,12 @@ const PublicPing = () => {
             {displayName}
           </h1>
           
-          <p className="text-base md:text-lg text-muted-foreground iridescent-text mb-4">
+          <p className="text-base md:text-lg text-muted-foreground iridescent-text mb-2">
             {profile.job_title || "Professional"}
+          </p>
+          
+          <p className="text-xs text-muted-foreground mb-4 iridescent-text">
+            Click name or photo to learn more
           </p>
           
           <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground mb-4">
@@ -199,18 +238,15 @@ const PublicPing = () => {
 
           <Button 
             className="w-full max-w-xs bg-primary hover:bg-primary/90 text-primary-foreground text-sm"
-            onClick={() => window.location.href = '/signup'}
+            onClick={handlePing}
+            disabled={creatingChat}
           >
-            ping! {displayName.split(' ')[0] || 'User'}
+            {creatingChat ? 'Starting chat...' : `ping! ${displayName.split(' ')[0] || 'User'}`}
           </Button>
           
-          <div className="mt-4">
+          <div className="mt-4 bg-green-500/10 border border-green-500/30 rounded-lg p-3 backdrop-blur-sm">
             <SaveContactButton profile={profile} userEmail={userEmail} />
           </div>
-          
-          <p className="text-xs text-muted-foreground mt-2 iridescent-text">
-            Click name or photo to learn more
-          </p>
         </div>
 
         {/* Connect & Learn More */}
