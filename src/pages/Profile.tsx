@@ -251,7 +251,7 @@ const Profile = () => {
             ping! {displayName.split(' ')[0] || 'user'}
           </Button>
           
-          <div className="mt-4 bg-green-500/10 border border-green-500/30 rounded-lg p-3 backdrop-blur-sm">
+          <div className="mt-4 bg-green-500/10 border border-green-500/30 rounded-lg backdrop-blur-sm w-full max-w-xs mx-auto">
             <SaveContactButton profile={profile} userEmail={user.email || ''} />
           </div>
         </div>
