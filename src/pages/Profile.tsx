@@ -224,8 +224,12 @@ const Profile = () => {
             </h1>
           </Link>
           
-          <p className="text-base md:text-lg text-muted-foreground iridescent-text mb-4">
+          <p className="text-base md:text-lg text-muted-foreground iridescent-text mb-2">
             {profile.job_title || "Professional"}
+          </p>
+          
+          <p className="text-xs text-muted-foreground mb-4 iridescent-text">
+            click name or photo to learn more
           </p>
           
           <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground mb-4">
@@ -244,13 +248,9 @@ const Profile = () => {
             ping! {displayName.split(' ')[0] || 'user'}
           </Button>
           
-          <div className="mt-4">
+          <div className="mt-4 bg-green-500/10 border border-green-500/30 rounded-lg p-4 backdrop-blur-sm">
             <SaveContactButton profile={profile} userEmail={user.email || ''} />
           </div>
-          
-          <p className="text-xs text-muted-foreground mt-2 iridescent-text">
-            click name or photo to learn more
-          </p>
         </div>
 
         {/* Connect & Learn More */}
