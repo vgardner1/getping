@@ -47,7 +47,8 @@ const Network = () => {
       const { data: connectionRows, error } = await supabase
         .from('connections')
         .select('*')
-        .or(`user_id.eq.${user.id},target_user_id.eq.${user.id})`);
+        .or(`user_id.eq.${user.id},target_user_id.eq.${user.id}`);
+
 
       if (error) {
         console.error(error);
@@ -161,7 +162,8 @@ const Network = () => {
       const { data: connectionRows, error } = await supabase
         .from('connections')
         .select('*')
-        .or(`user_id.eq.${user.id},target_user_id.eq.${user.id})`);
+        .or(`user_id.eq.${user.id},target_user_id.eq.${user.id}`);
+
 
       if (!error) {
         setConnections(connectionRows || []);
@@ -199,7 +201,8 @@ const Network = () => {
       .insert({ conversation_id: conv.id, user_id: otherId });
     if (partErr2) { console.error(partErr2); return; }
 
-    navigate(`/chat/${conv.id}`);
+    navigate(`/chat/thread/${conv.id}`);
+
   };
 
   return (
