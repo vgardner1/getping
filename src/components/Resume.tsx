@@ -47,8 +47,8 @@ export const Resume = () => {
               <h1 className={`font-bold text-gray-900 mb-1 ${isExpanded ? 'text-xl' : 'text-lg'}`}>Resume</h1>
               <p className={`text-gray-600 ${isExpanded ? 'text-base' : 'text-sm'}`}>Professional Resume</p>
               <div className={`text-gray-500 mt-1 ${isExpanded ? 'text-sm' : 'text-xs'}`}>
-                <p>vaness@bindsolutions.co {isExpanded && '| (617) 555-0123'}</p>
-                <p>Boston, MA {isExpanded && '| www.bindsolutions.co'}</p>
+                <p>vaness@bind.solutions {isExpanded && '| (617) 555-0123'}</p>
+                <p>Boston, MA {isExpanded && '| www.bind.solutions'}</p>
               </div>
             </div>
 

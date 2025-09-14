@@ -74,7 +74,7 @@ const DamChair = () => {
                 <div className="flex gap-4 pt-4">
                   <Button 
                     className="flex-1 shimmer bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105 transition-transform duration-200"
-                    onClick={() => window.open('https://www.bindsolutions.co', '_blank')}
+                    onClick={() => window.open('https://bind.solutions', '_blank')}
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Visit BIND Solutions
