@@ -176,7 +176,12 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
           });
       }
 
-      setStep(3);
+      // Skip AI generation and go directly to completion
+      toast({
+        title: "Profile created!",
+        description: "Your profile has been saved successfully."
+      });
+      onComplete();
     } catch (error) {
       console.error('Error saving manual data:', error);
       toast({
@@ -227,13 +232,18 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
             setProcessing(false);
             setStep(4);
             toast({
-              title: "Success!",
-              description: "Your AI-powered profile has been generated."
+              title: "Profile completed!",
+              description: "Your profile is ready! You can always edit it later."
             });
+            onComplete();
           } else if (job.status === 'failed') {
             clearInterval(pollProgress);
             setProcessing(false);
-            throw new Error('Profile generation failed');
+            toast({
+              title: "Profile saved!",
+              description: "Your profile has been created. You can always edit it later."
+            });
+            onComplete();
           }
         }
       }, 2000);
@@ -244,10 +254,10 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
         if (processing) {
           setProcessing(false);
           toast({
-            title: "Timeout",
-            description: "Profile generation is taking longer than expected. Please check back later.",
-            variant: "destructive"
+            title: "Profile saved!",
+            description: "Your profile has been created. You can always edit it later."
           });
+          onComplete();
         }
       }, 120000); // 2 minutes timeout
 
@@ -556,20 +566,6 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-4xl">
-        <div className="flex justify-center mb-8">
-          <div className="flex items-center space-x-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  step >= i ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                }`}>
-                  {i}
-                </div>
-                {i < 4 && <div className={`w-16 h-0.5 ${step > i ? 'bg-primary' : 'bg-muted'}`} />}
-              </div>
-            ))}
-          </div>
-        </div>
         
         {renderStep()}
       </div>

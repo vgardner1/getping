@@ -92,8 +92,8 @@ const Profile = () => {
           contact_social_links: contactInfo?.contact_social_links || null
         });
 
-        // If profile exists but not AI processed, might want to show setup
-        if (!data.display_name || !data.bio) {
+        // Only show setup if profile is completely empty
+        if (!data.display_name && !data.bio && !data.job_title && !data.avatar_url) {
           setShowProfileSetup(true);
         }
       }

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StarField } from "@/components/StarField";
 import { Progress } from "@/components/ui/progress";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -30,6 +30,7 @@ const ProfileSetup = () => {
   
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Populate form with user data on load
   useEffect(() => {
@@ -256,26 +257,28 @@ const ProfileSetup = () => {
           }
 
           toast({
-            title: completed ? 'Profile completed!' : 'Profile saved',
-            description: completed ? 'Your AI bio and details are ready.' : 'AI is still finishing up. You can edit later.'
+            title: 'Profile completed!',
+            description: 'Your profile is ready! You can always edit it later.'
           });
         } catch (e) {
           console.error('AI generation failed, continuing with saved data', e);
           toast({
-            variant: 'destructive',
-            title: 'AI generation failed',
-            description: 'We saved your details. You can retry AI generation later.'
+            title: 'Profile saved!',
+            description: 'Your profile has been created. You can always edit it later.'
           });
         }
 
-        window.location.href = '/profile';
+        // Navigate to profile with a small delay to ensure data is saved
+        setTimeout(() => {
+          navigate('/profile');
+        }, 500);
       }
       setLoading(false);
     }
   };
 
   const handleSkip = () => {
-    window.location.href = '/profile';
+    navigate('/profile');
   };
 
   const renderStep = () => {
