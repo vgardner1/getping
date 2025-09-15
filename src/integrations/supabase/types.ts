@@ -305,6 +305,7 @@ export type Database = {
           interests: string[]
           job_title: string
           location: string
+          phone_number: string
           profile_completeness: number
           skills: string[]
           social_links: Json
