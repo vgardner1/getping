@@ -191,23 +191,14 @@ const PublicPing = () => {
       {/* Guest Header */}
       <header className="border-b border-border p-4 relative z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <span className="text-xl font-bold iridescent-text">ping!</span>
+          <button
+            type="button"
+            onClick={() => navigate(user ? '/profile' : '/')}
+            className="text-xl font-bold iridescent-text hover:scale-105 transition-transform duration-200"
+          >
+            ping!
+          </button>
           <div className="flex items-center gap-2">
-            <Button variant="outline" className="border-primary text-primary hover:bg-primary/10" onClick={() => setShowShareModal(true)}>
-              <Share2 className="w-4 h-4 mr-2" /> Share
-            </Button>
-            <Button
-              variant="outline"
-              className="border-primary text-primary hover:bg-primary/10"
-              onClick={() => {
-                if (userId) {
-                  try { localStorage.setItem('postLoginIntent', JSON.stringify({ type: 'ping', targetUserId: userId })); } catch {}
-                }
-                navigate('/auth');
-              }}
-            >
-              Sign in
-            </Button>
             <Link to="/signup">
               <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
                 Join ping!
@@ -379,6 +370,17 @@ const PublicPing = () => {
           </Card>
         )}
 
+        {/* Share Profile Button */}
+        <div className="flex justify-center">
+          <Button 
+            variant="outline" 
+            className="border-primary text-primary hover:bg-primary/10" 
+            onClick={() => setShowShareModal(true)}
+          >
+            <Share2 className="w-4 h-4 mr-2" /> Share Profile
+          </Button>
+        </div>
+
         {/* CTA Section */}
         <Card className="bg-card border-border p-6 text-center">
           <h3 className="text-xl font-bold iridescent-text mb-2">Ready to join ping!?</h3>
@@ -390,11 +392,27 @@ const PublicPing = () => {
             <p className="text-sm text-muted-foreground iridescent-text">📱 Instant profile sharing</p>
             <p className="text-sm text-muted-foreground iridescent-text">🔗 Build your network</p>
           </div>
-          <Link to="/signup">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              Get Started - Free Trial
-            </Button>
-          </Link>
+          <div className="flex flex-col gap-3 items-center">
+            <Link to="/signup">
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                Get Started - Free Trial
+              </Button>
+            </Link>
+            <p className="text-sm text-muted-foreground iridescent-text">
+              Already have an account?{' '}
+              <button
+                onClick={() => {
+                  if (userId) {
+                    try { localStorage.setItem('postLoginIntent', JSON.stringify({ type: 'ping', targetUserId: userId })); } catch {}
+                  }
+                  navigate('/auth');
+                }}
+                className="text-primary hover:underline font-medium"
+              >
+                Sign in
+              </button>
+            </p>
+          </div>
         </Card>
       </main>
 
