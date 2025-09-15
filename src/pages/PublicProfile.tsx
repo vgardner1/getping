@@ -107,19 +107,50 @@ const PublicProfile = () => {
 
     if (!userId) return;
 
+    // Prevent pinging yourself
+    if (user.id === userId) {
+      toast({
+        title: "Cannot ping yourself",
+        description: "You can't start a conversation with yourself!",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setCreatingChat(true);
     try {
+      console.log('Creating chat with user:', userId);
+      
       const conversationId = await createChatWithUser(userId, user.id);
+      
+      if (!conversationId) {
+        throw new Error('No conversation ID returned');
+      }
+
       toast({
-        title: "ping! sent",
-        description: `Started a conversation with ${profile?.display_name || 'user'}`,
+        title: "ping! successful!",
+        description: `Connected with ${profile?.display_name || 'user'}. They've been added to your tribe!`,
       });
+
+      // Navigate to the chat
       navigate(`/chat/${conversationId}`);
+      
     } catch (error) {
       console.error('Error creating chat:', error);
+      
+      // More specific error messages
+      let errorMessage = "Failed to start conversation. Please try again.";
+      if (error instanceof Error) {
+        if (error.message.includes('already exists')) {
+          errorMessage = "Conversation already exists. Redirecting...";
+        } else if (error.message.includes('not found')) {
+          errorMessage = "User not found. Please try again.";
+        }
+      }
+      
       toast({
-        title: "Error",
-        description: "Failed to start conversation. Please try again.",
+        title: "Connection failed",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
