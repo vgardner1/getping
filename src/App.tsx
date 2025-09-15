@@ -14,6 +14,7 @@ import ProfileView from "./pages/ProfileView";
 import Profile from "./pages/Profile";
 import ProfileDetails from "./pages/ProfileDetails";
 import Auth from "./pages/Auth";
+import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 import Network from "./pages/Network";
 import PublicProfile from "./pages/PublicProfile";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/signup" element={<Onboarding />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/account-setup" element={<AccountSetup />} />

@@ -55,7 +55,7 @@ const Auth = () => {
 const handleSignUp = async () => {
   setLoading(true);
 
-  const redirectUrl = `${window.location.origin}/profile-setup`;
+  const redirectUrl = `${window.location.origin}/auth/callback`;
   const normalizedEmail = email.trim().toLowerCase();
 
   const { data, error } = await supabase.auth.signUp({
@@ -173,7 +173,7 @@ const handleSignIn = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/profile-setup`
+        redirectTo: `${window.location.origin}/auth/callback`
       }
     });
 
