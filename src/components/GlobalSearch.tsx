@@ -28,18 +28,19 @@ const GlobalSearch = ({ isOpen, onClose }: GlobalSearchProps) => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (query.length > 2) {
-      searchProfiles();
+    const q = query.trim();
+    if (q.length >= 2) {
+      searchProfiles(q);
     } else {
       setResults([]);
     }
   }, [query]);
 
-  const searchProfiles = async () => {
+  const searchProfiles = async (qstr: string) => {
     setLoading(true);
     try {
       const { data, error } = await supabase.rpc('search_public_profiles', {
-        search_term: query
+        search_term: qstr
       });
 
       if (error) throw error;
@@ -53,7 +54,7 @@ const GlobalSearch = ({ isOpen, onClose }: GlobalSearchProps) => {
   };
 
   const handleProfileClick = (userId: string) => {
-    window.open(getShareableUrl(`/ping!/${userId}`), '_blank');
+    window.open(getShareableUrl(`/ping/${userId}`), '_blank');
     onClose();
   };
 

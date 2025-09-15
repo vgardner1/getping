@@ -120,7 +120,12 @@ const PublicPing = () => {
 
   const handlePing = async () => {
     if (!user) {
-      navigate('/signup');
+      if (userId) {
+        try {
+          localStorage.setItem('postLoginIntent', JSON.stringify({ type: 'ping', targetUserId: userId }));
+        } catch {}
+      }
+      navigate('/auth');
       return;
     }
 
@@ -133,7 +138,7 @@ const PublicPing = () => {
         title: "ping! sent",
         description: `Started a conversation with ${profile?.display_name || 'user'}`,
       });
-      navigate(`/chat/thread/${conversationId}`);
+      navigate(`/chat/${conversationId}`);
     } catch (error) {
       console.error('Error creating chat:', error);
       toast({
@@ -190,6 +195,18 @@ const PublicPing = () => {
           <div className="flex items-center gap-2">
             <Button variant="outline" className="border-primary text-primary hover:bg-primary/10" onClick={() => setShowShareModal(true)}>
               <Share2 className="w-4 h-4 mr-2" /> Share
+            </Button>
+            <Button
+              variant="outline"
+              className="border-primary text-primary hover:bg-primary/10"
+              onClick={() => {
+                if (userId) {
+                  try { localStorage.setItem('postLoginIntent', JSON.stringify({ type: 'ping', targetUserId: userId })); } catch {}
+                }
+                navigate('/auth');
+              }}
+            >
+              Sign in
             </Button>
             <Link to="/signup">
               <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">

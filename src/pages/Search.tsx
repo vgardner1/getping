@@ -24,11 +24,17 @@ const Search = () => {
   };
 
   const handlePing = async (targetUserId: string) => {
-    if (!user) return;
+    if (!user) {
+      try {
+        localStorage.setItem('postLoginIntent', JSON.stringify({ type: 'ping', targetUserId }));
+      } catch {}
+      navigate('/auth');
+      return;
+    }
     try {
       setPingingId(targetUserId);
       const conversationId = await createChatWithUser(targetUserId, user.id);
-      navigate(`/chat/thread/${conversationId}`);
+      navigate(`/chat/${conversationId}`);
     } catch (e) {
       console.error("ping error", e);
     } finally {

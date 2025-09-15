@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { createChatWithUser } from '@/utils/chatUtils';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -20,12 +21,32 @@ const Auth = () => {
   const [resending, setResending] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Process post-login intents (e.g., ping -> create conversation and redirect)
+  const processPostLoginIntent = async (uid: string): Promise<boolean> => {
+    try {
+      const raw = localStorage.getItem('postLoginIntent');
+      if (!raw) return false;
+      const intent = JSON.parse(raw);
+      if (intent?.type === 'ping' && intent.targetUserId) {
+        const conversationId = await createChatWithUser(intent.targetUserId, uid);
+        localStorage.removeItem('postLoginIntent');
+        navigate(`/chat/${conversationId}`);
+        return true;
+      }
+    } catch {}
+    return false;
+  };
+
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate('/profile');
+        const processed = await processPostLoginIntent(session.user.id);
+        if (!processed) {
+          navigate('/profile');
+        }
       }
     };
     checkUser();
@@ -121,7 +142,8 @@ const handleSignIn = async () => {
             description: 'Please click the link we sent or resend below.',
           });
         } else {
-          navigate('/profile');
+          const processed = await processPostLoginIntent(retry.data.user!.id);
+          if (!processed) navigate('/profile');
         }
       } catch (e) {
         setShowResend(true);
@@ -139,7 +161,9 @@ const handleSignIn = async () => {
       });
     }
   } else {
-    navigate('/profile');
+    const { data: userData } = await supabase.auth.getUser();
+    const processed = userData.user ? await processPostLoginIntent(userData.user.id) : false;
+    if (!processed) navigate('/profile');
   }
   setLoading(false);
 };
