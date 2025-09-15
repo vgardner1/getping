@@ -263,6 +263,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_chat_and_connect: {
+        Args: { p_current_user: string; p_target_user: string }
+        Returns: string
+      }
       get_profile_contact_info: {
         Args: { target_user_id: string }
         Returns: {

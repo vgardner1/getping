@@ -69,16 +69,17 @@ const Network = () => {
       setConnections(deduped);
 
       // Fetch counterpart profiles
-      const otherIds = deduped.map(r => r.user_id === user.id ? r.target_user_id : r.user_id);
+      const otherIds = deduped.map(r => r.user_id === user.id ? r.target_user_id : r.user_id).filter(id => id !== user.id);
       const unique = Array.from(new Set(otherIds));
       if (unique.length) {
-        const { data: profs } = await supabase
-          .from('profiles')
-          .select('user_id, display_name, avatar_url')
-          .in('user_id', unique);
-        const map: Record<string, { name: string; avatar: string | null }> = {};
-        (profs || []).forEach(p => map[p.user_id] = { name: p.display_name || 'User', avatar: p.avatar_url });
-        setProfiles(map);
+        const { data: profs, error: profError } = await supabase.rpc('get_public_profiles_list', {
+          user_ids: unique
+        });
+        if (!profError && profs) {
+          const map: Record<string, { name: string; avatar: string | null }> = {};
+          profs.forEach(p => map[p.user_id] = { name: p.display_name || 'User', avatar: p.avatar_url });
+          setProfiles(map);
+        }
       }
 
       setLoading(false);
@@ -132,6 +133,21 @@ const Network = () => {
     }
 
     try {
+      // Optimistic UI update - find/add person to tribe immediately
+      const targetProfile = searchResults.find(p => p.user_id === otherId);
+      if (targetProfile && !profiles[otherId]) {
+        setProfiles(prev => ({
+          ...prev,
+          [otherId]: { name: targetProfile.display_name || 'User', avatar: targetProfile.avatar_url }
+        }));
+        setConnections(prev => [...prev, {
+          id: 'temp-' + Date.now(),
+          user_id: user.id,
+          target_user_id: otherId,
+          created_at: new Date().toISOString()
+        }]);
+      }
+
       const conversationId = await createChatWithUser(otherId, user.id);
       navigate(`/chat/${conversationId}`);
     } catch (error) {
@@ -144,32 +160,6 @@ const Network = () => {
     }
   };
 
-  const startConversation = async (otherId: string) => {
-    if (!user) return;
-
-    // Create conversation
-    const { data: conv, error: convErr } = await supabase
-      .from('conversations')
-      .insert({ category: 'personal' })
-      .select('id')
-      .single();
-    if (convErr || !conv) { console.error(convErr); return; }
-
-    // Add current user as participant (allowed by policy)
-    const { error: partErr1 } = await supabase
-      .from('conversation_participants')
-      .insert({ conversation_id: conv.id, user_id: user.id });
-    if (partErr1) { console.error(partErr1); return; }
-
-    // Add other user as participant (allowed by new policy)
-    const { error: partErr2 } = await supabase
-      .from('conversation_participants')
-      .insert({ conversation_id: conv.id, user_id: otherId });
-    if (partErr2) { console.error(partErr2); return; }
-
-    navigate(`/chat/thread/${conv.id}`);
-
-  };
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -290,7 +280,7 @@ const Network = () => {
               })}
               {connections.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground iridescent-text">
-                  No tribe members yet. Search for people above to add to your tribe!
+                  No tribe members yet. ping! people from search results to add them to your tribe!
                 </div>
               )}
             </div>
