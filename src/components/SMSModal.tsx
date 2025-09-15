@@ -8,6 +8,7 @@ import { X, Send, MessageSquare, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getShareableUrl } from "@/lib/environment";
 import { supabase } from "@/integrations/supabase/client";
+import { generateReferralMessage } from "@/utils/referralMessage";
 
 interface SMSModalProps {
   isOpen: boolean;
@@ -28,14 +29,7 @@ const SMSModal = ({ isOpen, onClose, userProfile, isInvite = false }: SMSModalPr
     : getShareableUrl(`/signup`);
 
   const defaultMessage = isInvite 
-    ? `Hey! I'm using this amazing NFC ring called ping! that lets me share my contact info instantly just by tapping it on phones.
-
-Check out my profile: ${profileUrl}
-
-You should totally get one too! Use my referral link and we both get 1 month free:
-${signupUrl}
-
-It's so much easier than typing out contact info every time!`
+    ? generateReferralMessage({ userId: userProfile?.user_id, isOnboarded: true })
     : `Hey! Check out my ping! profile: ${profileUrl}
 
 I just got this cool NFC ring that lets me share my contact info instantly. You should get one too! 

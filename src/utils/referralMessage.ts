@@ -1,4 +1,4 @@
-import { getPublicProfileUrl } from "@/lib/environment";
+import { getPublicProfileUrl, getShareableUrl } from "@/lib/environment";
 
 interface ReferralMessageOptions {
   userId: string;
@@ -17,7 +17,7 @@ export const generateReferralMessage = ({
     ? `\n\nCheck out my profile: ${getPublicProfileUrl(userId)}`
     : "";
   
-  const referralUrl = `${window.location.origin}/signup?ref=${userId}`;
+  const referralUrl = getShareableUrl(`/signup?ref=${userId}`);
   const referralText = isOnboarded 
     ? "\n\nYou should lowkey get one too! If you use my referral link we both get 1 month free:"
     : "\n\nuse this link to sign up for yours:";

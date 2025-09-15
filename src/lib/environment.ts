@@ -10,11 +10,26 @@ export const isProduction = (): boolean => {
   }
 };
 
+export const getCanonicalOrigin = (): string => {
+  try {
+    const { hostname, protocol, origin } = window.location;
+    // Map preview domains to canonical project domain
+    // id-preview--<id>.lovable.app -> <id>.lovableproject.com
+    const previewMatch = hostname.match(/^id-preview--([a-z0-9-]+)\.lovable\.app$/);
+    if (previewMatch) {
+      const projectId = previewMatch[1];
+      return `${protocol}//${projectId}.lovableproject.com`;
+    }
+    return origin;
+  } catch {
+    return "";
+  }
+};
+
 export const getShareableUrl = (path: string): string => {
   try {
-    const origin = window.location.origin;
+    const origin = getCanonicalOrigin() || window.location.origin;
     const normalized = path.startsWith('/') ? path : `/${path}`;
-    // Always return origin + path (no sandbox segment)
     const url = `${origin}${normalized}`;
     return url;
   } catch {
