@@ -142,7 +142,12 @@ const Onboarding = () => {
             <ArrowLeft className="w-5 h-5 text-primary" />
             <span className="text-xl font-bold iridescent-text">ping!</span>
           </Link>
-          <div className="text-sm iridescent-text">Step {step} of 2</div>
+          <div className="flex items-center gap-4">
+            <Link to="/account-setup" className="text-sm text-primary hover:text-primary/80 transition-colors">
+              I Already Paid
+            </Link>
+            <div className="text-sm iridescent-text">Step {step} of 2</div>
+          </div>
         </div>
       </header>
 

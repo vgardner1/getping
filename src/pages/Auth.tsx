@@ -378,11 +378,22 @@ const handleSubmit = (e: React.FormEvent) => {
   </div>
 )}
 
-<div className="mt-6 text-center">
+<div className="mt-6 text-center space-y-3">
+  {!isLogin && (
+    <Button 
+      type="button"
+      variant="outline"
+      className="w-full border-primary text-primary hover:bg-primary/10"
+      onClick={() => navigate('/account-setup')}
+    >
+      I Already Paid - Create Account
+    </Button>
+  )}
+  
   <button
     type="button"
     onClick={() => setIsLogin(!isLogin)}
-    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+    className="text-sm text-muted-foreground hover:text-foreground transition-colors block w-full"
   >
     {isLogin 
       ? "Don't have an account? Sign up" 
