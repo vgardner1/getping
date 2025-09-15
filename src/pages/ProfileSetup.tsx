@@ -67,16 +67,9 @@ const ProfileSetup = () => {
           }));
         }
 
-        const { data: social } = await supabase
-          .from('social_media_data')
-          .select('platform')
-          .eq('user_id', user.id);
-
-        if (social) {
-          setConnectedPlatforms(social.map((s: any) => s.platform));
-        }
+        // No need to check for OAuth social media data - users input links directly
       } catch (e) {
-        console.error('Error preloading profile/social data', e);
+        console.error('Error preloading profile data', e);
       }
     };
     loadExisting();

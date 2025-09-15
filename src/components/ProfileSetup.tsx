@@ -15,8 +15,6 @@ interface ProfileSetupProps {
 
 export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
   const [step, setStep] = useState(1);
-  const [linkedinConnected, setLinkedinConnected] = useState(false);
-  const [instagramConnected, setInstagramConnected] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [manualData, setManualData] = useState({
@@ -49,43 +47,12 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
   const { user } = useAuth();
 
   useEffect(() => {
-    // Check if user already has social connections
-    checkExistingConnections();
+    // Component loads without needing to check OAuth connections
   }, []);
 
-  const checkExistingConnections = async () => {
-    if (!user) return;
+  // No need to check for OAuth connections anymore
 
-    const { data: socialData } = await supabase
-      .from('social_media_data')
-      .select('platform')
-      .eq('user_id', user.id);
-
-    if (socialData) {
-      setLinkedinConnected(socialData.some(d => d.platform === 'linkedin'));
-      setInstagramConnected(socialData.some(d => d.platform === 'instagram'));
-    }
-  };
-
-  const handleLinkedInConnect = () => {
-    const clientId = 'your_linkedin_client_id'; // This should be from environment
-    const redirectUri = `${window.location.origin}/profile-setup`;
-    const scope = 'r_liteprofile%20r_emailaddress';
-    
-    const linkedinUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=linkedin`;
-    
-    window.location.href = linkedinUrl;
-  };
-
-  const handleInstagramConnect = () => {
-    const clientId = 'your_instagram_client_id'; // This should be from environment
-    const redirectUri = `${window.location.origin}/profile-setup`;
-    const scope = 'user_profile,user_media';
-    
-    const instagramUrl = `https://api.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=code&state=instagram`;
-    
-    window.location.href = instagramUrl;
-  };
+  // OAuth connection functions removed - users will input links directly
 
   const updateSocialLink = (index: number, value: string) => {
     const updatedLinks = [...socialLinks];
@@ -111,121 +78,105 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
   const updateCustomSocialLabel = (index: number, label: string) => {
     const updatedLinks = [...socialLinks];
     updatedLinks[index].label = label;
-    updatedLinks[index].platform = label.toLowerCase().replace(/\s+/g, '');
     setSocialLinks(updatedLinks);
   };
 
-  const validateRequiredFields = () => {
-    const requiredLinks = socialLinks.filter(link => link.required);
-    return requiredLinks.every(link => link.value.trim() !== '');
-  };
-
   const handleManualSubmit = async () => {
-    if (!user) return;
-
-    if (!validateRequiredFields()) {
+    const requiredFields = socialLinks.filter(link => link.required);
+    const missingFields = requiredFields.filter(field => !field.value.trim());
+    
+    if (missingFields.length > 0) {
       toast({
-        title: "Missing Required Fields",
-        description: "Please fill in all required fields (Email, Phone Number, LinkedIn).",
+        title: "Required fields missing",
+        description: `Please fill in: ${missingFields.map(f => f.label).join(', ')}`,
         variant: "destructive"
       });
       return;
     }
 
     try {
-      // Prepare social links data
-      const socialLinksData = socialLinks
-        .filter(link => link.value.trim() !== '')
-        .reduce((acc, link) => {
-          acc[link.platform] = {
-            label: link.label,
-            url: link.value,
-            platform: link.platform
-          };
-          return acc;
-        }, {} as Record<string, any>);
+      const socialLinksObject = socialLinks.reduce((acc, link) => {
+        if (link.value.trim()) {
+          acc[link.platform] = link.value;
+        }
+        return acc;
+      }, {} as Record<string, string>);
 
-      // Save manual data to profiles table
+      const profileData = {
+        user_id: user?.id,
+        bio: manualData.bio,
+        job_title: manualData.job_title,
+        company: manualData.company,
+        location: manualData.location,
+        phone_number: socialLinksObject.phone || manualData.phone_number,
+        social_links: socialLinksObject,
+        linkedin_url: socialLinksObject.linkedin || manualData.linkedin_url,
+        instagram_handle: socialLinksObject.instagram || manualData.instagram_username
+      };
+
       const { error } = await supabase
         .from('profiles')
-        .update({
-          display_name: (user.user_metadata as any)?.display_name || (user.email || '').split('@')[0],
-          bio: (manualData.bio && manualData.bio.trim()) ? manualData.bio.trim() : 'Excited to connect and network with like-minded people!',
-          job_title: manualData.job_title,
-          company: manualData.company,
-          location: manualData.location,
-          phone_number: manualData.phone_number,
-          linkedin_url: socialLinks.find(link => link.platform === 'linkedin')?.value || '',
-          social_links: socialLinksData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id);
+        .upsert(profileData, {
+          onConflict: 'user_id',
+          ignoreDuplicates: false
+        });
 
       if (error) throw error;
 
-      // Store Instagram username as social data if provided
-      const instagramLink = socialLinks.find(link => link.platform === 'instagram');
-      if (instagramLink?.value) {
-        await supabase
-          .from('social_media_data')
-          .upsert({
-            user_id: user.id,
-            platform: 'instagram',
-            raw_data: { username: instagramLink.value },
-            updated_at: new Date().toISOString()
-          });
-      }
-
-      // Skip AI generation and go directly to completion
       toast({
-        title: "Profile created!",
-        description: "Your profile has been saved successfully."
+        title: "Profile saved!",
+        description: "Your profile has been created successfully."
       });
+      
       onComplete();
+
     } catch (error) {
-      console.error('Error saving manual data:', error);
+      console.error('Profile creation error:', error);
       toast({
         title: "Error",
-        description: "Failed to save profile information.",
+        description: "Failed to save profile. Please try again.",
         variant: "destructive"
       });
     }
   };
 
-  const handleGenerateProfile = async () => {
-    if (!user) return;
-
+  const handleProcessProfile = async () => {
     setProcessing(true);
     setProgress(0);
 
     try {
-      // Determine which platforms to process
+      // Simply process based on manual data only
       const platforms = [];
-      if (linkedinConnected) platforms.push('linkedin');
-      if (instagramConnected || manualData.instagram_username) platforms.push('instagram');
+      if (manualData.linkedin_url) platforms.push('linkedin');
+      if (manualData.instagram_username) platforms.push('instagram');
 
       // Call the profile processing function
       const { data, error } = await supabase.functions.invoke('process-profile', {
-        body: {
-          userId: user.id,
-          platforms
+        body: { 
+          user_id: user?.id,
+          platforms,
+          manual_data: manualData
         }
       });
 
       if (error) throw error;
 
-      // Poll for progress updates
+      // Start polling for progress
+      const jobId = data.job_id;
       const pollProgress = setInterval(async () => {
-        const { data: job } = await supabase
+        const { data: job, error: jobError } = await supabase
           .from('profile_processing_jobs')
-          .select('status, progress')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
+          .select('*')
+          .eq('id', jobId)
           .single();
 
+        if (jobError) {
+          console.error('Error polling job:', jobError);
+          return;
+        }
+
         if (job) {
-          setProgress(job.progress);
+          setProgress(job.progress || 0);
           
           if (job.status === 'completed') {
             clearInterval(pollProgress);
@@ -276,73 +227,6 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
     switch (step) {
       case 1:
         return (
-          <Card className="w-full max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle className="text-center">Connect Your Social Profiles</CardTitle>
-              <p className="text-center text-muted-foreground">
-                Connect your LinkedIn and Instagram to create an AI-powered networking profile
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Linkedin className="h-6 w-6 text-blue-600" />
-                    <h3 className="font-semibold">LinkedIn</h3>
-                    {linkedinConnected && <CheckCircle className="h-5 w-5 text-green-500" />}
-                  </div>
-                  {!linkedinConnected ? (
-                    <Button 
-                      onClick={handleLinkedInConnect}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Connect LinkedIn
-                    </Button>
-                  ) : (
-                    <p className="text-sm text-green-600">✓ Connected</p>
-                  )}
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Instagram className="h-6 w-6 text-pink-600" />
-                    <h3 className="font-semibold">Instagram</h3>
-                    {instagramConnected && <CheckCircle className="h-5 w-5 text-green-500" />}
-                  </div>
-                  {!instagramConnected ? (
-                    <Button 
-                      onClick={handleInstagramConnect}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Connect Instagram
-                    </Button>
-                  ) : (
-                    <p className="text-sm text-green-600">✓ Connected</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex justify-center gap-4 pt-4">
-                <Button onClick={() => setStep(2)} variant="outline">
-                  Add Manually Instead
-                </Button>
-                <Button 
-                  onClick={() => setStep(3)}
-                  disabled={!linkedinConnected && !instagramConnected}
-                >
-                  Continue
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        );
-
-      case 2:
-        return (
           <Card className="w-full max-w-4xl mx-auto">
             <CardHeader>
               <CardTitle className="text-center">Profile Setup</CardTitle>
@@ -373,31 +257,84 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
                       placeholder="Tech Corp"
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      value={manualData.location}
+                      onChange={(e) => setManualData({...manualData, location: e.target.value})}
+                      placeholder="San Francisco, CA"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone_number">Phone Number</Label>
+                    <Input
+                      id="phone_number"
+                      value={manualData.phone_number}
+                      onChange={(e) => setManualData({...manualData, phone_number: e.target.value})}
+                      placeholder="+1 (555) 123-4567"
+                    />
+                  </div>
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="bio">Bio</Label>
                   <Input
                     id="bio"
                     value={manualData.bio}
                     onChange={(e) => setManualData({...manualData, bio: e.target.value})}
-                    placeholder="Passionate about technology and innovation..."
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    value={manualData.location}
-                    onChange={(e) => setManualData({...manualData, location: e.target.value})}
-                    placeholder="Boston, MA"
+                    placeholder="Tell us about yourself..."
                   />
                 </div>
               </div>
 
-              {/* Social Links Section */}
+              {/* Social Links */}
               <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Social Links</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="linkedin_url">LinkedIn Profile URL</Label>
+                    <Input
+                      id="linkedin_url"
+                      value={manualData.linkedin_url}
+                      onChange={(e) => setManualData({...manualData, linkedin_url: e.target.value})}
+                      placeholder="https://linkedin.com/in/yourprofile"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="instagram_username">Instagram Username</Label>
+                    <Input
+                      id="instagram_username"
+                      value={manualData.instagram_username}
+                      onChange={(e) => setManualData({...manualData, instagram_username: e.target.value})}
+                      placeholder="@yourusername"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-4 pt-4">
+                <Button 
+                  onClick={() => setStep(2)}
+                  className="px-8"
+                >
+                  Continue
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 2:
+        return (
+          <Card className="w-full max-w-4xl mx-auto">
+            <CardHeader>
+              <CardTitle className="text-center">Social Links</CardTitle>
+              <p className="text-center text-muted-foreground">
+                Add all your social profiles and contact information
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Social Links</h3>
                   <Button onClick={addCustomSocialLink} variant="outline" size="sm">
@@ -494,7 +431,7 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
                   Back
                 </Button>
                 <Button onClick={handleManualSubmit}>
-                  Continue
+                  Complete Profile
                 </Button>
               </div>
             </CardContent>
@@ -505,31 +442,24 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
         return (
           <Card className="w-full max-w-2xl mx-auto">
             <CardHeader>
-              <CardTitle className="text-center">Generate Your AI Profile</CardTitle>
+              <CardTitle className="text-center">Processing Your Profile</CardTitle>
               <p className="text-center text-muted-foreground">
-                Our AI will analyze your data to create an amazing networking profile
+                Please wait while we analyze your social profiles and create your networking profile
               </p>
             </CardHeader>
             <CardContent className="space-y-6">
-              {processing ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-center gap-2">
-                    <Clock className="h-5 w-5 animate-spin" />
-                    <span>Generating your profile...</span>
-                  </div>
-                  <Progress value={progress} className="w-full" />
-                  <p className="text-sm text-center text-muted-foreground">
-                    This may take a few minutes as our AI analyzes your data
-                  </p>
+              <div className="space-y-4">
+                <div className="flex items-center justify-center">
+                  <Clock className="h-8 w-8 text-primary animate-spin" />
                 </div>
-              ) : (
-                <div className="text-center space-y-4">
-                  <p>Ready to create your AI-powered profile?</p>
-                  <Button onClick={handleGenerateProfile} size="lg">
-                    Generate My Profile
-                  </Button>
-                </div>
-              )}
+                <Progress value={progress} className="w-full" />
+                <p className="text-center text-sm text-muted-foreground">
+                  {progress < 25 ? 'Initializing...' :
+                   progress < 50 ? 'Analyzing social profiles...' :
+                   progress < 75 ? 'Generating AI insights...' :
+                   'Finalizing profile...'}
+                </p>
+              </div>
             </CardContent>
           </Card>
         );
@@ -538,21 +468,15 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
         return (
           <Card className="w-full max-w-2xl mx-auto">
             <CardHeader>
-              <CardTitle className="text-center">Profile Generated Successfully!</CardTitle>
+              <CardTitle className="text-center">Profile Complete!</CardTitle>
               <p className="text-center text-muted-foreground">
                 Your AI-powered networking profile is ready
               </p>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="text-center">
                 <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                <p className="mb-6">
-                  Your profile has been enhanced with AI-generated insights based on your social media data.
-                  You can now start networking with personalized conversation starters!
-                </p>
-                <Button onClick={onComplete} size="lg">
-                  Complete Setup
-                </Button>
+                <p className="text-lg">Welcome to your new networking experience!</p>
               </div>
             </CardContent>
           </Card>
@@ -563,12 +487,17 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
-        
+  if (processing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
         {renderStep()}
       </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      {renderStep()}
     </div>
   );
 };

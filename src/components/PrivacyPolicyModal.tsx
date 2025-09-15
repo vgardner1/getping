@@ -464,14 +464,9 @@ const PrivacyPolicyModal = ({
             <div className="border-t pt-6 mt-6">
               <h2 className="text-lg font-semibold mb-3">Platform-Specific Disclosures</h2>
               
-              <h3 className="text-base font-medium mb-2">LinkedIn API Usage</h3>
+              <h3 className="text-base font-medium mb-2">Social Profile Links</h3>
               <p className="mb-4">
-                This application uses LinkedIn APIs and complies with LinkedIn's API Terms of Use. LinkedIn data is used exclusively for enhancing professional networking profiles, generating relevant conversation starters, identifying mutual professional interests, and facilitating meaningful professional connections. Users can manage LinkedIn permissions through their LinkedIn account settings.
-              </p>
-
-              <h3 className="text-base font-medium mb-2">Instagram API Usage</h3>
-              <p className="mb-4">
-                This application uses Instagram Basic Display API in compliance with Instagram's Platform Policy. Instagram data is used exclusively for understanding professional interests and personal brand, generating authentic conversation topics, enhancing networking personality profiles, and creating more engaging professional connections. Users can manage Instagram permissions through their Instagram account settings.
+                Users can manually add their social media profile links (LinkedIn, Instagram, etc.) to enhance their networking profiles. These links are used to display contact information and help facilitate professional connections. Users have full control over which links they choose to include.
               </p>
             </div>
 
