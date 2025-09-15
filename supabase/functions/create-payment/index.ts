@@ -45,30 +45,12 @@ serve(async (req) => {
               name: "ping! - Access your new network today",
               description: "NFC ring with app access and networking features"
             },
-            unit_amount: 999, // $9.99 setup fee (one-time)
-            // Note: omit 'recurring' for one-time items
-          },
-          quantity: 1,
-        },
-        {
-          price_data: {
-            currency: "usd",
-            product_data: { 
-              name: "ping! Monthly Subscription",
-              description: "Monthly access to ping! network and features"
-            },
-            unit_amount: 299, // $2.99 in cents
-            recurring: {
-              interval: "month",
-            },
+            unit_amount: 999, // $9.99 one-time payment
           },
           quantity: 1,
         },
       ],
-      mode: "subscription",
-      subscription_data: {
-        trial_period_days: 7, // 7 days free trial
-      },
+      mode: "payment",
       success_url: `${req.headers.get("origin")}/payment-success`,
       cancel_url: `${req.headers.get("origin")}/checkout`,
       metadata: {
@@ -82,7 +64,7 @@ serve(async (req) => {
       sessionOptions.customer_email = email;
     }
 
-    // Create a subscription session with trial
+    // Create a one-time payment session
     const session = await stripe.checkout.sessions.create(sessionOptions);
 
     console.log("Stripe session created:", session.id);
