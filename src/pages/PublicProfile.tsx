@@ -404,6 +404,26 @@ const PublicProfile = () => {
             </div>
           </div>
         )}
+
+        {/* Join CTA for non-signed in users */}
+        {!user && (
+          <div className="flex justify-center">
+            <div className="w-full max-w-2xl">
+              <Card className="bg-card border-border p-6 text-center">
+                <h3 className="text-xl font-bold iridescent-text mb-2">Want to connect with {displayName}?</h3>
+                <p className="text-muted-foreground iridescent-text mb-4">
+                  Get ping! to unlock instant networking
+                </p>
+                <Button 
+                  onClick={() => navigate('/signup')}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  Join ping!
+                </Button>
+              </Card>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

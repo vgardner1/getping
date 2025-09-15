@@ -204,11 +204,6 @@ const PublicProfileDetails = () => {
                 {connectionLoading ? 'Removing...' : 'Remove from Tribe'}
               </Button>
             )}
-            <Link to="/signup">
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
-                Join ping!
-              </Button>
-            </Link>
           </div>
         </div>
       </header>
@@ -360,18 +355,21 @@ const PublicProfileDetails = () => {
           </div>
         </Card>
 
-        {/* CTA Section */}
-        <Card className="bg-card border-border p-6 text-center">
-          <h3 className="text-xl font-bold iridescent-text mb-2">Want to connect with {displayName}?</h3>
-          <p className="text-muted-foreground iridescent-text mb-4">
-            Get ping! to unlock instant networking
-          </p>
-          <Link to="/signup">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              Get Started - Free Trial
+        {/* CTA Section - Only show for non-signed in users */}
+        {!user && (
+          <Card className="bg-card border-border p-6 text-center">
+            <h3 className="text-xl font-bold iridescent-text mb-2">Want to connect with {displayName}?</h3>
+            <p className="text-muted-foreground iridescent-text mb-4">
+              Get ping! to unlock instant networking
+            </p>
+            <Button 
+              onClick={() => navigate('/signup')}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              Join ping!
             </Button>
-          </Link>
-        </Card>
+          </Card>
+        )}
       </main>
     </div>
   );
