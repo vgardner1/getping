@@ -17,11 +17,12 @@ interface PublicProfile {
   company: string;
   job_title: string;
   website_url: string;
+  phone_number?: string;
   skills: string[];
   interests: string[];
   social_links: any;
   experience?: any[];
-   featured_work?: any[];
+  featured_work?: any[];
 }
 
 const PublicProfileDetails = () => {
@@ -78,6 +79,7 @@ const PublicProfileDetails = () => {
         company: p.company,
         job_title: p.job_title,
         website_url: p.website_url,
+        phone_number: p.phone_number,
         skills: p.skills || [],
         interests: p.interests || [],
         social_links: p.social_links || {},
@@ -243,6 +245,47 @@ const PublicProfileDetails = () => {
             )}
           </div>
         </div>
+
+        {/* Contact Information */}
+        <Card className="bg-card border-border p-6 mb-6">
+          <h2 className="text-2xl font-bold iridescent-text mb-4">Contact</h2>
+          <div className="space-y-3">
+            {profile.phone_number && (
+              <div className="flex items-center gap-3 p-3 bg-secondary/20 rounded-lg">
+                <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                  <span className="text-primary text-sm">📞</span>
+                </div>
+                <div>
+                  <p className="font-medium iridescent-text">Phone</p>
+                  <a 
+                    href={`tel:${profile.phone_number}`}
+                    className="text-muted-foreground iridescent-text hover:text-primary transition-colors"
+                  >
+                    {profile.phone_number}
+                  </a>
+                </div>
+              </div>
+            )}
+            {profile.website_url && (
+              <div className="flex items-center gap-3 p-3 bg-secondary/20 rounded-lg">
+                <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                  <ExternalLink className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium iridescent-text">Website</p>
+                  <a 
+                    href={profile.website_url.startsWith('http') ? profile.website_url : `https://${profile.website_url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground iridescent-text hover:text-primary transition-colors"
+                  >
+                    {profile.website_url}
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
 
         {/* Bio Section */}
         <Card className="bg-card border-border p-6 mb-6">
