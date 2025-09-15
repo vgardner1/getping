@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { toast } from "@/hooks/use-toast";
 import { getPublicProfileUrl, isProduction } from "@/lib/environment";
 import { cn } from "@/lib/utils";
+import { generateReferralMessage } from "@/utils/referralMessage";
 
 interface ShareButtonProps {
   userId: string;
@@ -13,26 +14,21 @@ interface ShareButtonProps {
 
 export function ShareButton({ userId, label = "Share Profile", className }: ShareButtonProps) {
   const handleShare = useCallback(async () => {
-    const shareUrl = getPublicProfileUrl(userId);
+    const referralMessage = generateReferralMessage({ userId, isOnboarded: true });
 
     try {
-      // Debug logs to validate generation
-      // eslint-disable-next-line no-console
-      console.log("Current URL:", window.location.href);
-      // eslint-disable-next-line no-console
-      console.log("Generated Share URL:", shareUrl);
-      // eslint-disable-next-line no-console
-      console.log("Is Production?:", isProduction());
-
       if (navigator.share) {
-        await navigator.share({ title: "My Ping Profile", url: shareUrl });
+        await navigator.share({ 
+          title: "Check out my smart ring!", 
+          text: referralMessage 
+        });
       } else {
-        await navigator.clipboard.writeText(shareUrl);
-        toast({ title: "Link copied", description: "Public profile URL copied to clipboard." });
+        await navigator.clipboard.writeText(referralMessage);
+        toast({ title: "Message copied", description: "Referral message copied to clipboard." });
       }
     } catch (err) {
-      await navigator.clipboard.writeText(shareUrl);
-      toast({ title: "Link copied", description: "Public profile URL copied to clipboard." });
+      await navigator.clipboard.writeText(referralMessage);
+      toast({ title: "Message copied", description: "Referral message copied to clipboard." });
     }
   }, [userId]);
 

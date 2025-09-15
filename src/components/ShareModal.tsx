@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Share2, Copy, MessageSquare, Mail, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getPublicProfileUrl } from "@/lib/environment";
+import { generateReferralMessage } from "@/utils/referralMessage";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ const ShareModal = ({ isOpen, onClose, userId, displayName }: ShareModalProps) =
   
   const shareUrl = getPublicProfileUrl(userId);
   const firstName = displayName.split(' ')[0] || 'User';
+  const referralMessage = generateReferralMessage({ userId, isOnboarded: true });
 
   const handleCopyLink = async () => {
     try {
@@ -42,9 +44,8 @@ const ShareModal = ({ isOpen, onClose, userId, displayName }: ShareModalProps) =
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${displayName}'s ping! profile`,
-          text: `Check out ${firstName}'s ping! profile`,
-          url: shareUrl
+          title: "Check out my smart ring!",
+          text: referralMessage
         });
       } catch (error) {
         // User cancelled share or error occurred
@@ -61,8 +62,7 @@ const ShareModal = ({ isOpen, onClose, userId, displayName }: ShareModalProps) =
       icon: "💬",
       color: "bg-green-500 hover:bg-green-600",
       action: () => {
-        const text = `Check out ${firstName}'s ping! profile: ${shareUrl}`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        window.open(`https://wa.me/?text=${encodeURIComponent(referralMessage)}`, '_blank');
       }
     },
     {
@@ -96,8 +96,7 @@ const ShareModal = ({ isOpen, onClose, userId, displayName }: ShareModalProps) =
       icon: <MessageSquare className="w-5 h-5" />,
       color: "bg-blue-500 hover:bg-blue-600",
       action: () => {
-        const text = `Check out ${firstName}'s ping! profile: ${shareUrl}`;
-        window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank');
+        window.open(`sms:?body=${encodeURIComponent(referralMessage)}`, '_blank');
       }
     },
     {
@@ -105,9 +104,8 @@ const ShareModal = ({ isOpen, onClose, userId, displayName }: ShareModalProps) =
       icon: <Mail className="w-5 h-5" />,
       color: "bg-gray-600 hover:bg-gray-700",
       action: () => {
-        const subject = `${displayName}'s ping! profile`;
-        const body = `Check out ${firstName}'s ping! profile: ${shareUrl}`;
-        window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+        const subject = "Check out my smart ring!";
+        window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(referralMessage)}`, '_blank');
       }
     }
   ];
