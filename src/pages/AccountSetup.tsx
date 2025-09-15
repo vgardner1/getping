@@ -81,6 +81,55 @@ const AccountSetup = () => {
     }
   };
 
+  const handleVerifyWithoutEmail = async () => {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      toast({
+        variant: "destructive",
+        title: "Email required",
+        description: "Enter your email above first."
+      });
+      return;
+    }
+    if (!password) {
+      toast({
+        variant: "destructive",
+        title: "Password required",
+        description: "Enter your password above first."
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error: confirmError } = await supabase.functions.invoke('confirm-user', {
+        body: { email: normalizedEmail }
+      });
+      if (confirmError) throw confirmError;
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password
+      });
+      if (signInError) throw signInError;
+
+      toast({
+        title: 'Verified successfully',
+        description: 'You are now signed in. Redirecting…'
+      });
+      navigate('/profile-setup');
+    } catch (error: any) {
+      console.error('Manual verify failed:', error);
+      toast({
+        variant: "destructive",
+        title: "Verification failed",
+        description: error?.message || 'Please try again.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center p-4">
       <StarField />
@@ -143,6 +192,20 @@ const AccountSetup = () => {
               {loading ? "Creating Account..." : "Create Account & Continue"}
             </Button>
           </form>
+          <div className="mt-6 space-y-2">
+            <p className="text-xs text-muted-foreground text-center">
+              If the email link doesn't open on campus Wi‑Fi, verify here.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-primary text-primary hover:bg-primary/10"
+              onClick={handleVerifyWithoutEmail}
+              disabled={loading || !email || !password}
+            >
+              Verify without email (quick fix)
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
