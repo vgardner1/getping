@@ -84,11 +84,20 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
   };
 
   const handleManualSubmit = async () => {
-    // Check required fields including name
+    // Check required fields including name and phone
     if (!manualData.first_name.trim() || !manualData.last_name.trim()) {
       toast({
         title: "Name required",
         description: "Please enter your first and last name.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!manualData.phone_number.trim()) {
+      toast({
+        title: "Phone number required",
+        description: "Please enter your phone number for contact sharing.",
         variant: "destructive"
       });
       return;
@@ -300,12 +309,13 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone_number">Phone Number</Label>
+                    <Label htmlFor="phone_number">Phone Number *</Label>
                     <Input
                       id="phone_number"
                       value={manualData.phone_number}
                       onChange={(e) => setManualData({...manualData, phone_number: e.target.value})}
                       placeholder="+1 (555) 123-4567"
+                      required
                     />
                   </div>
                 </div>
