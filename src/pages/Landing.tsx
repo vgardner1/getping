@@ -85,6 +85,18 @@ your new network is waiting</p>
               </p>
             </div>
           </div>
+          
+          {/* Already Paid Button */}
+          <div className={`mt-12 transition-all duration-1000 delay-1500 ${visibleText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <Link to="/account-setup">
+              <Button 
+                variant="outline" 
+                className="border-primary text-primary hover:bg-primary/10 px-8 py-3"
+              >
+                I Already Paid - Create Account
+              </Button>
+            </Link>
+          </div>
         </div>
       </main>
     </div>;
