@@ -18,6 +18,8 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
   const [processing, setProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [manualData, setManualData] = useState({
+    first_name: '',
+    last_name: '',
     linkedin_url: '',
     instagram_username: '',
     bio: '',
@@ -82,6 +84,16 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
   };
 
   const handleManualSubmit = async () => {
+    // Check required fields including name
+    if (!manualData.first_name.trim() || !manualData.last_name.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter your first and last name.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const requiredFields = socialLinks.filter(link => link.required);
     const missingFields = requiredFields.filter(field => !field.value.trim());
     
@@ -104,6 +116,7 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
 
       const profileData = {
         user_id: user?.id,
+        display_name: `${manualData.first_name} ${manualData.last_name}`.trim(),
         bio: manualData.bio,
         job_title: manualData.job_title,
         company: manualData.company,
@@ -239,6 +252,26 @@ export const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete }) => {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Basic Information</h3>
                 <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="first_name">First Name</Label>
+                    <Input
+                      id="first_name"
+                      value={manualData.first_name}
+                      onChange={(e) => setManualData({...manualData, first_name: e.target.value})}
+                      placeholder="John"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="last_name">Last Name</Label>
+                    <Input
+                      id="last_name"
+                      value={manualData.last_name}
+                      onChange={(e) => setManualData({...manualData, last_name: e.target.value})}
+                      placeholder="Doe"
+                      required
+                    />
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="job_title">Job Title</Label>
                     <Input
