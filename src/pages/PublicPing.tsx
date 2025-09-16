@@ -21,6 +21,7 @@ interface PublicProfile {
   company: string;
   job_title: string;
   website_url: string;
+  phone_number?: string;
   skills: string[];
   interests: string[];
   social_links: any;
@@ -91,6 +92,7 @@ const PublicPing = () => {
         company: profile.company,
         job_title: profile.job_title,
         website_url: profile.website_url,
+        phone_number: profile.phone_number,
         skills: profile.skills || [],
         interests: profile.interests || [],
         social_links: profile.social_links || {}
@@ -215,6 +217,12 @@ const PublicPing = () => {
 
   const displayName = profile.display_name || 'User';
 
+  // Ensure phone number availability for display and contact card
+  const linkPhone = typeof (profile.social_links as any)?.phone === 'string'
+    ? (profile.social_links as any).phone
+    : (profile.social_links as any)?.phone?.url;
+  const phoneNumber = String((profile as any).phone_number || linkPhone || '').trim();
+
   return (
     <div className="min-h-screen bg-background relative">
       <StarField />
@@ -314,6 +322,22 @@ const PublicPing = () => {
                       className="text-sm text-muted-foreground iridescent-text truncate hover:text-primary transition-colors cursor-pointer block"
                     >
                       {userEmail}
+                    </a>
+                  </div>
+                </div>
+              </Card>
+            )}
+            {phoneNumber && (
+              <Card className="bg-card border-border p-3 hover:border-primary/50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <Phone className="w-4 h-4 text-primary" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium iridescent-text text-sm">Phone</p>
+                    <a 
+                      href={`tel:${phoneNumber}`}
+                      className="text-sm text-muted-foreground iridescent-text hover:text-primary transition-colors cursor-pointer block"
+                    >
+                      {phoneNumber}
                     </a>
                   </div>
                 </div>
