@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StarField } from '@/components/StarField';
-import { ArrowLeft, MapPin, Building2, Calendar, ExternalLink, MessageCircle, Send } from 'lucide-react';
+import { ArrowLeft, MapPin, Building2, Calendar, ExternalLink, MessageCircle, Send, FileText, Download, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -73,6 +73,29 @@ const ProfileDetails = () => {
       });
     } finally {
       setSubmittingComment(false);
+    }
+  };
+
+  const downloadResume = () => {
+    if (profile?.resume_url) {
+      const link = document.createElement('a');
+      link.href = profile.resume_url;
+      link.download = profile.resume_filename || 'resume.pdf';
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Resume Downloaded",
+        description: "Resume has been saved to your device."
+      });
+    }
+  };
+
+  const viewResume = () => {
+    if (profile?.resume_url) {
+      window.open(profile.resume_url, '_blank');
     }
   };
 
@@ -257,6 +280,64 @@ const ProfileDetails = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Resume Section */}
+        {profile?.resume_url && (
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="iridescent-text flex items-center gap-2">
+                <FileText className="w-5 h-5 text-primary" />
+                Resume
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between p-4 border border-border rounded-lg bg-muted/30">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <FileText className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold iridescent-text">
+                      {profile.resume_filename || 'Resume.pdf'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      PDF Document
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={viewResume}
+                    variant="outline"
+                    size="sm"
+                    className="hover:scale-105 transition-transform duration-200"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    View
+                  </Button>
+                  <Button
+                    onClick={downloadResume}
+                    variant="default"
+                    size="sm"
+                    className="hover:scale-105 transition-transform duration-200"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Save to Phone
+                  </Button>
+                </div>
+              </div>
+              
+              {/* PDF Preview (for mobile devices) */}
+              <div className="mt-4 border border-border rounded-lg overflow-hidden">
+                <iframe
+                  src={`${profile.resume_url}#toolbar=0&navpanes=0&scrollbar=0`}
+                  className="w-full h-96 border-0"
+                  title="Resume Preview"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Skills & Interests */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
