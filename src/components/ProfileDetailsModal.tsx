@@ -21,32 +21,10 @@ export const ProfileDetailsModal: React.FC<ProfileDetailsModalProps> = ({
 }) => {
   if (!profile) return null;
 
-  // Sample data following the framework
-  const workExperience = [
-    {
-      company: "BIND Solutions",
-      period: "2022 - Present",
-      location: "Boston, MA",
-      description: "Leading sustainable furniture innovation through AI-powered design. Created the first AI-designed chair on a college campus."
-    },
-    {
-      role: "Creative Lead",
-      company: "Republic 2.0 Project", 
-      period: "2023 - Present",
-      location: "Digital Art Installation",
-      description: "Developing immersive digital art installations reimagining Plato's Republic for modern audiences. Set to debut in major museums in 2026."
-    }
-  ];
+  // Use actual work experience from profile or empty array
+  const workExperience = profile.work_experience || [];
 
-  const featuredWork = [
-    { title: "Dam Chair", image: "/src/assets/dam-chair.jpg" },
-    { title: "Republic 2.0", image: "/src/assets/lucid-republic.jpg" },
-    { title: "Roots Table", image: "/src/assets/roots-table.jpg" },
-    { title: "Storm Republic", image: "/src/assets/storm-republic.jpg" }
-  ];
-
-  const coreSkills = ["AI Design", "Sustainable Architecture", "Biomimicry", "Creative Direction", "Digital Art", "Innovation Strategy"];
-  const interests = ["Philosophy", "Museum Curation", "Environmental Art", "Technology Ethics", "Future Design"];
+  // Remove hardcoded sample data - use actual profile data or hide sections
 
   const endorsements = [
     {
@@ -109,100 +87,112 @@ export const ProfileDetailsModal: React.FC<ProfileDetailsModalProps> = ({
           <Separator />
 
           {/* Work Experience */}
-          <div>
-            <h2 className="text-2xl font-bold iridescent-text mb-6">Experience</h2>
-            <div className="space-y-6">
-              {workExperience.map((exp, index) => (
-                <Card key={index} className="border-l-4 border-l-primary">
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3">
-                      <h3 className="text-xl font-semibold iridescent-text">
-                        {exp.company}
-                      </h3>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
-                        <span>{exp.period}</span>
-                        <span>•</span>
-                        <span>{exp.location}</span>
+          {workExperience && workExperience.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-bold iridescent-text mb-6">Experience</h2>
+              <div className="space-y-6">
+                {workExperience.map((exp, index) => (
+                  <Card key={index} className="border-l-4 border-l-primary">
+                    <CardContent className="pt-6">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3">
+                        <div>
+                          <h3 className="text-xl font-semibold iridescent-text">
+                            {exp.position || exp.company}
+                          </h3>
+                          {exp.position && exp.company && (
+                            <p className="text-lg text-muted-foreground">{exp.company}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Calendar className="w-4 h-4" />
+                          <span>{exp.duration}</span>
+                          {exp.location && (
+                            <>
+                              <span>•</span>
+                              <span>{exp.location}</span>
+                            </>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-muted-foreground leading-relaxed">
-                      {exp.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
+                      <p className="text-muted-foreground leading-relaxed">
+                        {exp.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Featured Work */}
-          <div>
-            <h2 className="text-2xl font-bold iridescent-text mb-6">Featured Work</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {featuredWork.map((work, index) => (
-                <div key={index} className="relative group">
-                  <div className="aspect-square rounded-lg overflow-hidden border border-border hover:border-primary transition-colors">
-                    <img
-                      src={work.image}
-                      alt={work.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-                  <p className="text-sm font-medium text-center mt-2 iridescent-text">
-                    {work.title}
-                  </p>
-                </div>
-              ))}
+          {profile.featured_work && profile.featured_work.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-bold iridescent-text mb-6">Featured Work</h2>
+              <div className="space-y-4">
+                {profile.featured_work.map((work, index) => (
+                  <Card key={index}>
+                    <CardContent className="pt-6">
+                      <h3 className="text-lg font-semibold mb-2 iridescent-text">{work.title}</h3>
+                      <p className="text-muted-foreground">{work.description}</p>
+                      {work.link && (
+                        <Button variant="outline" size="sm" className="mt-3" asChild>
+                          <a href={work.link} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            View Project
+                          </a>
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-            
-            <Card className="mt-6">
-              <CardContent className="pt-6">
-                <h3 className="text-lg font-semibold mb-2 iridescent-text">Republic 2.0</h3>
-                <p className="text-muted-foreground">
-                  Digital art installation reimagining Plato's Republic
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          )}
 
           {/* Skills & Interests */}
-          <div>
-            <h2 className="text-2xl font-bold iridescent-text mb-6">Skills & Interests</h2>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Core Skills */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Core Skills</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {coreSkills.map((skill, index) => (
-                      <Badge key={index} variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+          {((profile.skills && profile.skills.length > 0) || (profile.interests && profile.interests.length > 0)) && (
+            <div>
+              <h2 className="text-2xl font-bold iridescent-text mb-6">Skills & Interests</h2>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Core Skills */}
+                {profile.skills && profile.skills.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Core Skills</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {profile.skills.map((skill, index) => (
+                          <Badge key={index} variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
-              {/* Interests */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Interests</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {interests.map((interest, index) => (
-                      <Badge key={index} variant="outline" className="border-primary/30 text-primary">
-                        {interest}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                {/* Interests */}
+                {profile.interests && profile.interests.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Interests</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {profile.interests.map((interest, index) => (
+                          <Badge key={index} variant="outline" className="border-primary/30 text-primary">
+                            {interest}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Endorsements */}
           <div>
@@ -259,10 +249,24 @@ export const ProfileDetailsModal: React.FC<ProfileDetailsModalProps> = ({
               <Mail className="w-4 h-4 mr-2" />
               Contact {profile.display_name?.split(' ')[0] || 'User'}
             </Button>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Download className="w-4 h-4" />
-              Resume
-            </Button>
+            {profile.resume_url && (
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2"
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = profile.resume_url;
+                  link.download = profile.resume_filename || 'resume.pdf';
+                  link.target = '_blank';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+              >
+                <Download className="w-4 h-4" />
+                Resume
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>

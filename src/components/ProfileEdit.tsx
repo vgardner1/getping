@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Save, X, Camera, MapPin, Building2, Mail, Phone, ExternalLink, Plus, Trash2, Upload, Eye, EyeOff, LogOut } from 'lucide-react';
+import { ResumeUpload } from './ResumeUpload';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -418,6 +419,58 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Skills & Interests */}
+      <Card>
+        <CardHeader>
+          <CardTitle>skills & interests</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="skills">skills</Label>
+              <Textarea
+                id="skills"
+                value={profile?.skills?.join(', ') || ''}
+                onChange={() => {}} // Read-only for now
+                placeholder="Your skills will appear here after uploading your resume"
+                rows={3}
+                disabled
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="interests">interests</Label>
+              <Textarea
+                id="interests"
+                value={profile?.interests?.join(', ') || ''}
+                onChange={() => {}} // Read-only for now
+                placeholder="Your interests will appear here after uploading your resume"
+                rows={3}
+                disabled
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Resume Upload */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="w-5 h-5" />
+            resume upload
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResumeUpload 
+            profile={profile}
+            onResumeUploaded={() => {
+              // Refresh profile data
+              onSave();
+            }}
+          />
         </CardContent>
       </Card>
 

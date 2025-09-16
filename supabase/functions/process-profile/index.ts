@@ -270,11 +270,11 @@ function createFallbackProfile(): ProfileData {
       name: 'Ping User',
       title: 'Professional',
       bio: 'Excited to connect and network with like-minded professionals!',
-      location: 'Boston, MA'
+      location: ''
     },
     experience: [],
-    skills: ['Communication', 'Networking'],
-    interests: ['Professional Development', 'Technology'],
+    skills: [],
+    interests: [],
     featured_work: [],
     social_links: {}
   };

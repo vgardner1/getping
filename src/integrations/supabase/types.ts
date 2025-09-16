@@ -169,11 +169,14 @@ export type Database = {
           location: string | null
           phone_number: string | null
           profile_completeness: number | null
+          resume_filename: string | null
+          resume_url: string | null
           skills: string[] | null
           social_links: Json | null
           updated_at: string
           user_id: string
           website_url: string | null
+          work_experience: Json | null
         }
         Insert: {
           ai_processed?: boolean | null
@@ -193,11 +196,14 @@ export type Database = {
           location?: string | null
           phone_number?: string | null
           profile_completeness?: number | null
+          resume_filename?: string | null
+          resume_url?: string | null
           skills?: string[] | null
           social_links?: Json | null
           updated_at?: string
           user_id: string
           website_url?: string | null
+          work_experience?: Json | null
         }
         Update: {
           ai_processed?: boolean | null
@@ -217,11 +223,14 @@ export type Database = {
           location?: string | null
           phone_number?: string | null
           profile_completeness?: number | null
+          resume_filename?: string | null
+          resume_url?: string | null
           skills?: string[] | null
           social_links?: Json | null
           updated_at?: string
           user_id?: string
           website_url?: string | null
+          work_experience?: Json | null
         }
         Relationships: []
       }
