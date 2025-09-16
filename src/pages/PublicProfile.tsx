@@ -336,24 +336,30 @@ const PublicProfile = () => {
                 </Card>
               )}
               
-              {profile.phone_number && (
-                <Card className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Phone className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="font-medium iridescent-text">Phone</p>
-                        <a 
-                          href={`tel:${profile.phone_number}`}
-                          className="text-sm text-muted-foreground iridescent-text hover:text-primary transition-colors cursor-pointer"
-                        >
-                          {profile.phone_number}
-                        </a>
+              {(() => {
+                const linkPhone = typeof (profile.social_links as any)?.phone === 'string' 
+                  ? (profile.social_links as any).phone 
+                  : (profile.social_links as any)?.phone?.url;
+                const phoneNumber = profile.phone_number || linkPhone;
+                return phoneNumber ? (
+                  <Card className="bg-card border-border p-4 hover:border-primary/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Phone className="w-5 h-5 text-primary" />
+                        <div>
+                          <p className="font-medium iridescent-text">Phone</p>
+                          <a 
+                            href={`tel:${phoneNumber}`}
+                            className="text-sm text-muted-foreground iridescent-text hover:text-primary transition-colors cursor-pointer"
+                          >
+                            {phoneNumber}
+                          </a>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              )}
+                  </Card>
+                ) : null;
+              })()}
               
               {profile.website_url && (
                 <Card className="bg-card border-border p-4 hover:border-primary/50 transition-colors">

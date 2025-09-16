@@ -250,22 +250,28 @@ const PublicProfileDetails = () => {
         <Card className="bg-card border-border p-6 mb-6">
           <h2 className="text-2xl font-bold iridescent-text mb-4">Contact</h2>
           <div className="space-y-3">
-            {profile.phone_number && (
-              <div className="flex items-center gap-3 p-3 bg-secondary/20 rounded-lg">
-                <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                  <span className="text-primary text-sm">📞</span>
+            {(() => {
+              const linkPhone = typeof (profile.social_links as any)?.phone === 'string'
+                ? (profile.social_links as any).phone
+                : (profile.social_links as any)?.phone?.url;
+              const phoneNumber = profile.phone_number || linkPhone;
+              return phoneNumber ? (
+                <div className="flex items-center gap-3 p-3 bg-secondary/20 rounded-lg">
+                  <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                    <span className="text-primary text-sm">📞</span>
+                  </div>
+                  <div>
+                    <p className="font-medium iridescent-text">Phone</p>
+                    <a 
+                      href={`tel:${phoneNumber}`}
+                      className="text-muted-foreground iridescent-text hover:text-primary transition-colors"
+                    >
+                      {phoneNumber}
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium iridescent-text">Phone</p>
-                  <a 
-                    href={`tel:${profile.phone_number}`}
-                    className="text-muted-foreground iridescent-text hover:text-primary transition-colors"
-                  >
-                    {profile.phone_number}
-                  </a>
-                </div>
-              </div>
-            )}
+              ) : null;
+            })()}
             {profile.website_url && (
               <div className="flex items-center gap-3 p-3 bg-secondary/20 rounded-lg">
                 <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">

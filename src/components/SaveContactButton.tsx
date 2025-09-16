@@ -9,6 +9,7 @@ interface SaveContactButtonProps {
     first_name?: string;
     last_name?: string;
     phone_number?: string;
+    social_links?: any;
     user_id: string;
     bio?: string;
     company?: string;
@@ -95,6 +96,13 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
       if (profile.avatar_url && !profile.avatar_url.includes('placeholder.svg')) {
         photoData = await imageToBase64(profile.avatar_url);
       }
+
+      // Determine phone from profile or social links
+      const rawPhone = profile.phone_number 
+        || (typeof (profile as any).social_links?.phone === 'string' ? (profile as any).social_links.phone : (profile as any).social_links?.phone?.url) 
+        || '';
+      const phone = String(rawPhone).trim();
+
       // Create comprehensive vCard format with proper person fields
       const esc = (val: string) =>
         (val ?? '')
@@ -113,7 +121,7 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
         profile.job_title ? `TITLE:${esc(profile.job_title)}` : '',
         profile.company ? `ORG:${esc(profile.company)}` : '',
         userEmail ? `EMAIL;TYPE=INTERNET:${esc(userEmail)}` : '',
-        profile.phone_number ? `TEL;TYPE=CELL:${esc(profile.phone_number)}` : '',
+        phone ? `TEL;TYPE=CELL:${esc(phone)}` : '',
         profile.website_url ? `URL:${esc(profile.website_url)}` : '',
         profile.location ? `ADR:;;;;;;${esc(profile.location)}` : '',
         profile.bio ? `NOTE:${esc(profile.bio)}` : '',
