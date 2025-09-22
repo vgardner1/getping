@@ -153,36 +153,43 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ profile, onResumeUpl
           </div>
         </div>
       ) : (
-        <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-          <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Upload Your Resume</h3>
-          <p className="text-muted-foreground mb-4">
-            Upload your resume to automatically extract work experience and skills
+        <div className="border-2 border-dashed border-primary/20 rounded-lg p-8 text-center bg-gradient-to-b from-primary/5 to-transparent">
+          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileText className="w-8 h-8 text-primary" />
+          </div>
+          <h3 className="text-xl font-bold iridescent-text mb-2">Upload Your Resume</h3>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            Upload your resume (PDF or Word) to automatically extract your work experience, skills, and make it easily shareable
           </p>
           <Label htmlFor="resume-upload">
-            <Button disabled={uploading || processing} asChild>
+            <Button 
+              disabled={uploading || processing} 
+              size="lg" 
+              className="hover:scale-105 transition-transform duration-200"
+              asChild
+            >
               <span>
                 {uploading ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                     Uploading...
                   </>
                 ) : processing ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                     Processing...
                   </>
                 ) : (
                   <>
-                    <Upload className="w-4 h-4 mr-2" />
-                    Choose Resume
+                    <Upload className="w-5 h-5 mr-2" />
+                    Choose Resume File
                   </>
                 )}
               </span>
             </Button>
           </Label>
-          <p className="text-xs text-muted-foreground mt-2">
-            Supports PDF and Word documents
+          <p className="text-xs text-muted-foreground mt-3">
+            PDF, DOC, and DOCX files supported • Max 10MB
           </p>
         </div>
       )}

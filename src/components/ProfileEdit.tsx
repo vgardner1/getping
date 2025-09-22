@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Save, X, Camera, MapPin, Building2, Mail, Phone, ExternalLink, Plus, Trash2, Upload, Eye, EyeOff, LogOut, Edit, Briefcase } from 'lucide-react';
+import { Save, X, Camera, MapPin, Building2, Mail, Phone, ExternalLink, Plus, Trash2, Upload, Eye, EyeOff, LogOut, Edit, Briefcase, FileText, Download } from 'lucide-react';
 import { ResumeUpload } from './ResumeUpload';
 import { useNavigate } from 'react-router-dom';
 
@@ -479,8 +479,8 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Upload className="w-5 h-5" />
-            resume upload
+            <FileText className="w-5 h-5" />
+            resume & cv
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -491,6 +491,50 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
               onSave();
             }}
           />
+          
+          {/* Resume Preview Section */}
+          {profile?.resume_url && (
+            <div className="mt-6 pt-6 border-t border-border">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold iridescent-text">Current Resume</h4>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => window.open(profile.resume_url, '_blank')}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    View
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = profile.resume_url;
+                      link.download = profile.resume_filename || 'resume.pdf';
+                      link.target = '_blank';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
+                    variant="default"
+                    size="sm"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Embedded preview */}
+              <div className="border border-border rounded-lg overflow-hidden bg-muted/10">
+                <iframe
+                  src={`${profile.resume_url}#toolbar=0&navpanes=0&scrollbar=0`}
+                  className="w-full h-64 border-0"
+                  title="Resume Preview"
+                />
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

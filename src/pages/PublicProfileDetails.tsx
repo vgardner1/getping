@@ -380,59 +380,75 @@ const PublicProfileDetails = () => {
           </div>
         </Card>
 
-        {/* Resume Section */}
-        {profile?.resume_url && (
-          <Card className="bg-card border-border p-6 mb-6">
-            <h2 className="text-2xl font-bold iridescent-text mb-4 flex items-center gap-2">
-              <FileText className="w-6 h-6 text-primary" />
-              Resume
-            </h2>
-            <div className="flex items-center justify-between p-4 border border-border rounded-lg bg-muted/30">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-primary" />
+        {/* Resume Section - Prominent for easy access */}
+        <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20 p-6 mb-6">
+          <h2 className="text-2xl font-bold iridescent-text mb-6 flex items-center gap-2">
+            <FileText className="w-7 h-7 text-primary" />
+            Resume & CV
+          </h2>
+          
+          {profile?.resume_url ? (
+            <>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-6 border border-primary/20 rounded-lg bg-background/50 backdrop-blur-sm mb-6">
+                <div className="flex items-center gap-4 mb-4 sm:mb-0">
+                  <div className="w-16 h-16 bg-primary/20 rounded-xl flex items-center justify-center">
+                    <FileText className="w-8 h-8 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-lg iridescent-text">
+                      {profile.resume_filename || 'Resume.pdf'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {displayName}'s Professional Resume
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold iridescent-text">
-                    {profile.resume_filename || 'Resume.pdf'}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    PDF Document
-                  </p>
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                  <Button
+                    onClick={viewResume}
+                    variant="outline"
+                    size="lg"
+                    className="hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
+                  >
+                    <Eye className="w-5 h-5 mr-2" />
+                    View Resume
+                  </Button>
+                  <Button
+                    onClick={downloadResume}
+                    variant="default"
+                    size="lg"
+                    className="hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
+                  >
+                    <Download className="w-5 h-5 mr-2" />
+                    Save to Device
+                  </Button>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={viewResume}
-                  variant="outline"
-                  size="sm"
-                  className="hover:scale-105 transition-transform duration-200"
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  View
-                </Button>
-                <Button
-                  onClick={downloadResume}
-                  variant="default"
-                  size="sm"
-                  className="hover:scale-105 transition-transform duration-200"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Save to Phone
-                </Button>
+              
+              {/* Enhanced PDF Preview */}
+              <div className="border border-primary/20 rounded-xl overflow-hidden bg-background/30 backdrop-blur-sm">
+                <div className="p-4 bg-primary/10 border-b border-primary/20">
+                  <p className="font-semibold iridescent-text text-center">Resume Preview</p>
+                </div>
+                <iframe
+                  src={`${profile.resume_url}#toolbar=0&navpanes=0&scrollbar=0`}
+                  className="w-full h-96 border-0"
+                  title="Resume Preview"
+                />
               </div>
+            </>
+          ) : (
+            <div className="text-center p-8 border-2 border-dashed border-primary/30 rounded-lg">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FileText className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold iridescent-text mb-2">Resume Not Available</h3>
+              <p className="text-muted-foreground">
+                {displayName} hasn't uploaded their resume yet
+              </p>
             </div>
-            
-            {/* PDF Preview */}
-            <div className="mt-4 border border-border rounded-lg overflow-hidden">
-              <iframe
-                src={`${profile.resume_url}#toolbar=0&navpanes=0&scrollbar=0`}
-                className="w-full h-96 border-0"
-                title="Resume Preview"
-              />
-            </div>
-          </Card>
-        )}
+          )}
+        </Card>
 
         {/* Endorsements Section */}
         <Card className="bg-card border-border p-6 mb-6">
