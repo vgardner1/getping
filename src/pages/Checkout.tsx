@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { OptimizedImage } from "@/components/OptimizedImage";
 const Checkout = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -79,7 +80,12 @@ const Checkout = () => {
             
             {/* Product Image */}
             <div className="flex justify-center mb-6">
-              <img src="/lovable-uploads/b84bdc7d-10d8-4662-ba10-9a10a8cc6b70.png" alt="NFC Ping Ring - Black ring with silver edges and NFC symbol" className="w-[400px] h-[400px] object-contain" />
+              <OptimizedImage 
+                src="/lovable-uploads/b84bdc7d-10d8-4662-ba10-9a10a8cc6b70.png" 
+                alt="NFC Ping Ring - Black ring with silver edges and NFC symbol" 
+                className="w-[400px] h-[400px]" 
+                priority={true}
+              />
             </div>
             
             <div className="space-y-4 mb-6">

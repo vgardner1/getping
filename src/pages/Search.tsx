@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { usePublicProfileSearch } from "@/hooks/usePublicProfileSearch";
 import { useAuth } from "@/hooks/useAuth";
 import { createChatWithUser } from "@/utils/chatUtils";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 const Search = () => {
   const [q, setQ] = useState("");
@@ -53,7 +54,7 @@ const Search = () => {
       <div className="space-y-2">
         {results.map(p => (
           <Card key={p.user_id} className="bg-card border-border p-3 flex items-center gap-3">
-            <img src={p.avatar_url || "/placeholder.svg"} alt={`${p.display_name || "user"} avatar`} className="w-10 h-10 rounded-full object-cover border border-primary/20" loading="lazy" />
+            <OptimizedImage src={p.avatar_url || "/placeholder.svg"} alt={`${p.display_name || "user"} avatar`} className="w-10 h-10 rounded-full border border-primary/20" />
             <div className="min-w-0 flex-1">
               <div className="font-medium iridescent-text truncate">{p.display_name || "unknown"}</div>
               <div className="text-xs text-muted-foreground iridescent-text truncate">{[p.job_title, p.location].filter(Boolean).join(" • ")}</div>

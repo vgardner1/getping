@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 interface WorkItem {
   id: number;
@@ -94,10 +95,10 @@ export const WorkCarousel = ({ className = "" }: WorkCarouselProps) => {
           <div className="flex items-center justify-center space-x-6">
             {/* Left Side Item */}
             <div className="w-20 h-24 opacity-60 transform scale-90 transition-all duration-500 overflow-hidden rounded-lg border border-border/50 shadow-md">
-              <img
+              <OptimizedImage
                 src={getWorkItemAtIndex(currentWorkIndex - 1).image}
                 alt={getWorkItemAtIndex(currentWorkIndex - 1).title}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
               />
             </div>
 
@@ -114,10 +115,11 @@ export const WorkCarousel = ({ className = "" }: WorkCarouselProps) => {
             >
               <div className="w-full h-full bg-card border-2 border-primary/30 rounded-xl overflow-hidden shimmer shadow-lg">
                 <div className="h-3/4 overflow-hidden">
-                  <img
+                  <OptimizedImage
                     src={getWorkItemAtIndex(currentWorkIndex).image}
                     alt={getWorkItemAtIndex(currentWorkIndex).title}
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                    className="w-full h-full transition-transform duration-500 hover:scale-110"
+                    priority={true}
                   />
                 </div>
                 <div className="p-3 h-1/4 flex flex-col justify-center bg-gradient-to-t from-background/80 to-transparent">
@@ -133,10 +135,10 @@ export const WorkCarousel = ({ className = "" }: WorkCarouselProps) => {
 
             {/* Right Side Item */}
             <div className="w-20 h-24 opacity-60 transform scale-90 transition-all duration-500 overflow-hidden rounded-lg border border-border/50 shadow-md">
-              <img
+              <OptimizedImage
                 src={getWorkItemAtIndex(currentWorkIndex + 1).image}
                 alt={getWorkItemAtIndex(currentWorkIndex + 1).title}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
               />
             </div>
           </div>

@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Heart, Share2, MessageCircle, PlaySquare } from "lucide-react";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 // Authors pool
 const authors = [
@@ -90,7 +91,7 @@ const Feed = () => {
           <Card key={p.id} className="bg-card border-border overflow-hidden">
             {/* Header */}
             <div className="flex items-center gap-3 p-3">
-              <img src={p.author.avatar} alt={`${p.author.name} avatar`} className="w-9 h-9 rounded-full border border-border object-cover" loading="lazy" />
+              <OptimizedImage src={p.author.avatar} alt={`${p.author.name} avatar`} className="w-9 h-9 rounded-full border border-border" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <div>
@@ -104,7 +105,7 @@ const Feed = () => {
 
             {/* Media */}
             <div className="relative aspect-[4/5] bg-muted/20">
-              <img src={p.image} alt={p.title} className="w-full h-full object-cover" loading="lazy" />
+              <OptimizedImage src={p.image} alt={p.title} className="w-full h-full" />
             </div>
 
             {/* Body */}

@@ -8,6 +8,7 @@ import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfileSetup } from "@/components/ProfileSetup";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { ProfileEdit } from "@/components/ProfileEdit";
 import { useToast } from "@/hooks/use-toast";
 import { SaveContactButton } from "@/components/SaveContactButton";
@@ -290,7 +291,7 @@ const Profile = () => {
         {/* Simplified Profile Card */}
         <div className="p-6 text-center">
           <Link to="/profile/details" aria-label="View profile details" className="block w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6 hover:scale-105 transition-transform duration-200">
-            <img src={profile.avatar_url || "/placeholder.svg"} alt={profile.display_name || "Profile"} className="w-full h-full object-cover" />
+            <OptimizedImage src={profile.avatar_url || "/placeholder.svg"} alt={profile.display_name || "Profile"} className="w-full h-full" priority={true} />
           </Link>
           
           <Link to="/profile/details" className="block">

@@ -6,6 +6,7 @@ import { Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { getShareableUrl } from "@/lib/environment";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 interface SearchResult {
   user_id: string;
@@ -93,10 +94,10 @@ const GlobalSearch = ({ isOpen, onClose }: GlobalSearchProps) => {
                   onClick={() => handleProfileClick(profile.user_id)}
                   className="w-full p-3 flex items-center gap-3 hover:bg-secondary/20 rounded-lg transition-colors text-left"
                 >
-                  <img
+                  <OptimizedImage
                     src={profile.avatar_url || "/placeholder.svg"}
                     alt={profile.display_name || "Profile"}
-                    className="w-12 h-12 rounded-full object-cover border border-primary/20"
+                    className="w-12 h-12 rounded-full border border-primary/20"
                   />
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium iridescent-text truncate">

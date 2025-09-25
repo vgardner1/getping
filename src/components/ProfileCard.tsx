@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MapPin, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import profilePhoto from "/lovable-uploads/5cfc116f-36f7-4ba8-9859-4fdb89227406.png";
 
 export const ProfileCard = () => {
@@ -22,10 +23,11 @@ export const ProfileCard = () => {
     <Card className="bg-card border-border p-8 text-center max-w-md mx-auto">
       <Link to="/profile/details" className="block hover:scale-105 transition-transform duration-200">
         <div className="w-32 h-32 mx-auto mb-6 rounded-full border-4 border-primary overflow-hidden">
-          <img
+          <OptimizedImage
             src={profilePhoto}
             alt="Profile Photo"
-            className="w-full h-full object-cover"
+            className="w-full h-full"
+            priority={true}
           />
         </div>
         

@@ -7,6 +7,7 @@ import { ArrowLeft, Compass, Users, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import Globe3D, { type GlobePin } from "@/components/Globe3D";
 import GlobalSearch from "@/components/GlobalSearch";
+import { OptimizedImage } from "@/components/OptimizedImage";
 const Community = () => {
   const [selectedSearchPerson, setSelectedSearchPerson] = useState<any>(null);
   const [showSearch, setShowSearch] = useState(false);
@@ -171,7 +172,7 @@ We just reimagined networking.</p>
           }].map((pinger, index) => <Card key={index} className="bg-card border-border p-4 hover:border-primary/50 transition-colors cursor-pointer shimmer hover:scale-105">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                    <img src={pinger.avatar} alt={pinger.name} className="w-full h-full object-cover" />
+                    <OptimizedImage src={pinger.avatar} alt={pinger.name} className="w-full h-full" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-green-500 truncate">{pinger.name}</h3>

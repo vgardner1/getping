@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Save, X, Camera, MapPin, Building2, Mail, Phone, ExternalLink, Plus, Trash2, Upload, Eye, EyeOff, LogOut, Edit, Briefcase, FileText, Download } from 'lucide-react';
 import { ResumeUpload } from './ResumeUpload';
 import { useNavigate } from 'react-router-dom';
+import { OptimizedImage } from '@/components/OptimizedImage';
 
 
 interface ProfileEditProps {
@@ -280,10 +281,10 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
         <CardContent>
           <div className="flex items-center gap-4">
             <div className="w-24 h-24 rounded-full border-4 border-primary overflow-hidden">
-              <img
+              <OptimizedImage
                 src={formData.avatar_url || "/placeholder.svg"}
                 alt="Profile"
-                className="w-full h-full object-cover"
+                className="w-full h-full"
               />
             </div>
             <div className="flex-1">

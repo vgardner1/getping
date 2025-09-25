@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 interface ProjectCardProps {
   title: string;
@@ -12,10 +13,10 @@ export const ProjectCard = ({ title, image, link }: ProjectCardProps) => {
   return (
     <Card className="bg-card border-border overflow-hidden hover:border-primary/50 transition-all duration-300 group cursor-pointer shimmer hover:scale-105">
       <div className="aspect-square overflow-hidden">
-        <img
+        <OptimizedImage
           src={image}
           alt={title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          className="w-full h-full group-hover:scale-110 transition-transform duration-500"
         />
       </div>
       <div className="p-4">

@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, MapPin, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 interface Pinger {
   id: number;
@@ -129,10 +130,11 @@ export const PingerCarousel = () => {
                 `}
               >
                 <div className={`${isCenter ? 'w-28 h-28' : isAdjacent ? 'w-20 h-20' : 'w-16 h-16'} mx-auto mb-4 rounded-full overflow-hidden border-2 border-primary transition-all duration-700`}>
-                  <img
+                  <OptimizedImage
                     src={pinger.image}
                     alt={pinger.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full"
+                    priority={isCenter}
                   />
                 </div>
                 

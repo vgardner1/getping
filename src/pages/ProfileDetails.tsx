@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { OptimizedImage } from '@/components/OptimizedImage';
 import damChair from '@/assets/dam-chair.jpg';
 import rootsTable from '@/assets/roots-table.jpg';
 import stormRepublic from '@/assets/storm-republic.jpg';
@@ -340,7 +341,7 @@ const ProfileDetails = () => {
               {featuredWork.map((work, index) => (
                 <div key={index} className="p-4 border border-border rounded-lg hover:border-primary/50 transition-colors">
                   <div className="h-36 overflow-hidden rounded-md mb-3">
-                    <img src={work.image} alt={work.title} className="w-full h-full object-cover" loading="lazy" />
+                    <OptimizedImage src={work.image} alt={work.title} className="w-full h-full" />
                   </div>
                   <h4 className="font-semibold iridescent-text">{work.title}</h4>
                   <p className="text-sm text-muted-foreground">{work.type}</p>

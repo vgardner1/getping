@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MapPin, Building2, Globe, Mail, Phone, Download, ExternalLink, Calendar, MessageSquare, Heart } from 'lucide-react';
+import { OptimizedImage } from '@/components/OptimizedImage';
 
 interface ProfileDetailsModalProps {
   isOpen: boolean;
@@ -50,10 +51,11 @@ export const ProfileDetailsModal: React.FC<ProfileDetailsModalProps> = ({
           {/* Header Section */}
           <div className="flex flex-col md:flex-row gap-6 items-start">
             <div className="w-32 h-32 rounded-full border-4 border-primary overflow-hidden flex-shrink-0">
-              <img
+              <OptimizedImage
                 src={profile.avatar_url || "/placeholder.svg"}
                 alt={profile.display_name || "Profile"}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
+                priority={true}
               />
             </div>
             
