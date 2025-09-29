@@ -7,6 +7,8 @@ import { ArrowLeft, MapPin, Building2, ExternalLink, Calendar, Award, MessageSqu
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useConnections } from "@/hooks/useConnections";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PDFViewer } from "@/components/PDFViewer";
 
 interface PublicProfile {
   user_id: string;
@@ -35,6 +37,7 @@ const PublicProfileDetails = () => {
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [resumeOpen, setResumeOpen] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -117,32 +120,9 @@ const PublicProfileDetails = () => {
     }
   };
 
-  const viewResume = async () => {
+  const viewResume = () => {
     if (!profile?.resume_url) return;
-    try {
-      const resp = await fetch(profile.resume_url, { cache: 'no-store', mode: 'cors' });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const blob = await resp.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const win = window.open('', '_blank');
-      if (win) {
-        win.document.title = profile.resume_filename || 'Resume.pdf';
-        win.document.body.style.margin = '0';
-        const iframe = win.document.createElement('iframe');
-        iframe.style.border = '0';
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.src = blobUrl;
-        win.document.body.appendChild(iframe);
-      } else {
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = profile.resume_filename || 'resume.pdf';
-        a.click();
-      }
-    } catch (e) {
-      window.open(profile.resume_url, '_blank');
-    }
+    setResumeOpen(true);
   };
 
   if (loading) {
@@ -444,6 +424,19 @@ const PublicProfileDetails = () => {
           </Card>
         )}
       </main>
+
+      {profile?.resume_url && (
+        <Dialog open={resumeOpen} onOpenChange={setResumeOpen}>
+          <DialogContent className="max-w-5xl w-[95vw] p-0">
+            <DialogHeader className="px-4 pt-4 pb-2">
+              <DialogTitle className="iridescent-text">
+                {profile.resume_filename || 'Resume'}
+              </DialogTitle>
+            </DialogHeader>
+            <PDFViewer url={profile.resume_url} fileName={profile.resume_filename || 'resume.pdf'} height={720} />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
