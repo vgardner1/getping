@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { FileText, ExternalLink, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.js?url';
 
 interface PDFViewerProps {
   url: string;
@@ -51,8 +50,8 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ url, fileName = 'document.
   // Render PDF with PDF.js to avoid Chromium's built-in viewer restrictions
   useEffect(() => {
     if (!blobUrl) return;
-    // @ts-ignore - worker typing isn't perfect in pdfjs-dist
-    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker as any;
+    // Use CDN for PDF.js worker to avoid build issues
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
     let cancelled = false;
 
