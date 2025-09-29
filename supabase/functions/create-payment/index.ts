@@ -36,7 +36,7 @@ serve(async (req) => {
     console.log("Creating Stripe session");
 
     // Create checkout session options
-    const sessionOptions = {
+    const sessionOptions: any = {
       line_items: [
         {
           price_data: {
@@ -75,7 +75,8 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("Payment error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
