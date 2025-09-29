@@ -265,11 +265,33 @@ const ProfileDetails = () => {
                   <div className="p-4 bg-primary/10 border-b border-primary/20">
                     <p className="font-semibold iridescent-text text-center">Resume Preview</p>
                   </div>
-                  <iframe
-                    src={`${profile.resume_url}#toolbar=0&navpanes=0&scrollbar=0`}
-                    className="w-full h-96 border-0"
-                    title="Resume Preview"
-                  />
+                  <div className="relative">
+                    <iframe
+                      src={`${profile.resume_url}#view=FitH&toolbar=0&navpanes=0&scrollbar=1&zoom=100`}
+                      className="w-full h-[600px] border-0"
+                      title="Resume Preview"
+                      loading="lazy"
+                      onError={(e) => {
+                        console.error('Resume iframe failed to load:', e);
+                        const target = e.target as HTMLIFrameElement;
+                        target.style.display = 'none';
+                        const fallbackDiv = target.nextElementSibling as HTMLElement;
+                        if (fallbackDiv) fallbackDiv.style.display = 'block';
+                      }}
+                    />
+                    <div className="hidden p-8 text-center bg-muted/20">
+                      <FileText className="w-12 h-12 text-primary mx-auto mb-4" />
+                      <p className="text-muted-foreground mb-4">Unable to preview PDF in browser</p>
+                      <Button
+                        onClick={viewResume}
+                        variant="outline"
+                        className="hover:scale-105 transition-transform duration-200"
+                      >
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Open in New Tab
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </>
             ) : (
@@ -294,13 +316,13 @@ const ProfileDetails = () => {
         </Card>
 
         {/* Work Experience */}
-        {workExperience && workExperience.length > 0 && (
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="iridescent-text">Experience</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {workExperience.map((job, index) => (
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <CardTitle className="iridescent-text">Professional Experience</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {workExperience && workExperience.length > 0 ? (
+              workExperience.map((job, index) => (
                 <div key={index} className="border-l-2 border-primary/30 pl-6 relative">
                   <div className="absolute w-3 h-3 bg-primary rounded-full -left-[7px] top-1"></div>
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2 mb-2">
@@ -326,10 +348,15 @@ const ProfileDetails = () => {
                     </div>
                   )}
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
+              ))
+            ) : (
+              <div className="text-center p-8 border-2 border-dashed border-muted-foreground/20 rounded-lg">
+                <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No work experience added yet</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Featured Work */}
         <Card className="bg-card border-border">
