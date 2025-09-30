@@ -219,7 +219,7 @@ async function generateProfileWithAI(socialData: any[], seed: any): Promise<Prof
 
 function buildPrompt(socialData: any[], seed: any): string {
   return `
-Analyze the following user-provided data and social media context to create a comprehensive networking profile:
+Analyze the following user-provided data and social media context to create a networking profile:
 
 USER PROVIDED PROFILE DATA (may be partial):
 ${JSON.stringify(seed || {}, null, 2)}
@@ -230,47 +230,45 @@ ${JSON.stringify(socialData || [], null, 2)}
 Generate a JSON response with this exact structure:
 {
   "profile": {
-    "name": "Full name if available, otherwise derive a professional handle",
-    "title": "Professional title/role based on data",
-    "bio": "Engaging 2-3 sentence bio highlighting networking value (use provided bio as a base if present)",
-    "location": "City, State/Country if available or leave generic"
+    "name": "Use the EXACT full name from the provided data, do not make up names",
+    "title": "Professional title/role based on data only",
+    "bio": "Use provided bio as-is, or leave empty if not provided",
+    "location": "Use exact location from data, or leave empty if not provided"
   },
   "experience": [
     {
-      "company": "Company name",
-      "position": "Job title",
-      "duration": "Start - End dates",
-      "description": "Brief description of role and achievements",
-      "skills_used": ["skill1", "skill2"]
+      "company": "Company name from data only",
+      "position": "Job title from data only", 
+      "duration": "Duration from data only",
+      "description": "Description from data only",
+      "skills_used": ["skills from data only"]
     }
   ],
-  "skills": ["skill1", "skill2", "skill3"],
-  "interests": ["interest1", "interest2", "interest3"],
-  "featured_work": [
-    {
-      "title": "Project/Achievement title",
-      "description": "Brief description",
-      "type": "project|achievement|publication",
-      "link": "URL if available"
-    }
-  ],
+  "skills": [],
+  "interests": [],
+  "featured_work": [],
   "social_links": {
-    "linkedin": "LinkedIn URL if provided",
-    "instagram": "Instagram URL if provided",
-    "website": "Website URL if provided"
+    "linkedin": "LinkedIn URL if provided in data",
+    "instagram": "Instagram URL if provided in data", 
+    "website": "Website URL if provided in data"
   }
 }
 
-If some fields are missing, intelligently infer reasonable values without fabricating specific false claims. Prioritize clarity and networking usefulness.
-`;
+CRITICAL RULES:
+- NEVER generate fake skills, interests, or featured work
+- NEVER fabricate endorsements or testimonials
+- Use ONLY the exact data provided by the user
+- Leave arrays empty if no real data is provided
+- Use exact names, do not modify or infer names
+`;}
 }
 
 function createFallbackProfile(): ProfileData {
   return {
     profile: {
-      name: 'Ping User',
-      title: 'Professional',
-      bio: 'Excited to connect and network with like-minded professionals!',
+      name: '',
+      title: '',
+      bio: '',
       location: ''
     },
     experience: [],
