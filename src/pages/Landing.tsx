@@ -3,38 +3,14 @@ import { Button } from "@/components/ui/button";
 import { StarField } from "@/components/StarField";
 import { Link } from "react-router-dom";
 import Ring3D from "@/components/Ring3D";
-import { createVanessaAccount } from "@/utils/createVanessaAccount";
-import { useToast } from "@/hooks/use-toast";
 const Landing = () => {
   const [visibleText, setVisibleText] = useState(false);
-  const [creatingAccount, setCreatingAccount] = useState(false);
-  const { toast } = useToast();
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisibleText(true);
     }, 500);
     return () => clearTimeout(timer);
   }, []);
-
-  const handleCreateVanessaAccount = async () => {
-    setCreatingAccount(true);
-    const result = await createVanessaAccount();
-    
-    if (result.success) {
-      toast({
-        title: "Account created successfully!",
-        description: "Vanessa Gardner's account has been created with the provided details."
-      });
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Account creation failed",
-        description: result.error || "An error occurred while creating the account."
-      });
-    }
-    setCreatingAccount(false);
-  };
   return <div className="min-h-screen bg-background relative overflow-hidden">
       <StarField />
       
@@ -69,23 +45,11 @@ your new network is waiting</p>
 
           {/* CTA Button */}
           <div className={`transition-all duration-1000 delay-500 ${visibleText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="space-y-4">
-              <Link to="/checkout">
-                <Button size="lg" className="shimmer bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-all duration-200 px-12 py-6 text-xl font-semibold">
-                  get your ping! - $9.99
-                </Button>
-              </Link>
-              <div>
-                <Button 
-                  onClick={handleCreateVanessaAccount}
-                  disabled={creatingAccount}
-                  variant="outline"
-                  className="border-primary text-primary hover:bg-primary/10"
-                >
-                  {creatingAccount ? 'Creating Account...' : 'Create Vanessa\'s Account'}
-                </Button>
-              </div>
-            </div>
+            <Link to="/checkout">
+              <Button size="lg" className="shimmer bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-all duration-200 px-12 py-6 text-xl font-semibold">
+                get your ping! - $9.99
+              </Button>
+            </Link>
             <p className="text-sm text-muted-foreground mt-4 iridescent-text">
               7-day free trial • get 1 month free when a friend orders
             </p>
