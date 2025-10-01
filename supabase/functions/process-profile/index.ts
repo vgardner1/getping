@@ -106,10 +106,17 @@ serve(async (req) => {
       .update({ progress: 70 })
       .eq('id', job.id);
 
+    // Split name into first and last name
+    const nameParts = profileData.profile.name.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
     // Update user profile
     const { error: updateError } = await supabaseClient
       .from('profiles')
       .update({
+        first_name: firstName,
+        last_name: lastName,
         display_name: profileData.profile.name,
         bio: profileData.profile.bio,
         location: profileData.profile.location,

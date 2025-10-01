@@ -193,11 +193,13 @@ export type Database = {
           display_name: string | null
           experience: Json | null
           featured_work: Json | null
+          first_name: string | null
           id: string
           instagram_handle: string | null
           interests: string[] | null
           is_public: boolean
           job_title: string | null
+          last_name: string | null
           linkedin_url: string | null
           location: string | null
           phone_number: string | null
@@ -220,11 +222,13 @@ export type Database = {
           display_name?: string | null
           experience?: Json | null
           featured_work?: Json | null
+          first_name?: string | null
           id?: string
           instagram_handle?: string | null
           interests?: string[] | null
           is_public?: boolean
           job_title?: string | null
+          last_name?: string | null
           linkedin_url?: string | null
           location?: string | null
           phone_number?: string | null
@@ -247,11 +251,13 @@ export type Database = {
           display_name?: string | null
           experience?: Json | null
           featured_work?: Json | null
+          first_name?: string | null
           id?: string
           instagram_handle?: string | null
           interests?: string[] | null
           is_public?: boolean
           job_title?: string | null
+          last_name?: string | null
           linkedin_url?: string | null
           location?: string | null
           phone_number?: string | null

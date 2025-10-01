@@ -11,7 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [instagramHandle, setInstagramHandle] = useState('');
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -42,7 +43,8 @@ const redirectUrl = `${window.location.origin}/auth/callback`;
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          display_name: displayName,
+          first_name: firstName,
+          last_name: lastName,
           instagram_handle: instagramHandle,
           linkedin_url: linkedinUrl,
           phone_number: phoneNumber
@@ -98,13 +100,25 @@ const redirectUrl = `${window.location.origin}/auth/callback`;
         <CardContent>
           <form onSubmit={handleSignUp} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="displayName">Display Name</Label>
+              <Label htmlFor="firstName">First Name</Label>
               <Input
-                id="displayName"
+                id="firstName"
                 type="text"
-                placeholder="Enter your name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Enter your first name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input
+                id="lastName"
+                type="text"
+                placeholder="Enter your last name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
                 required
               />
             </div>
