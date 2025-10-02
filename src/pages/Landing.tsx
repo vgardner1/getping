@@ -7,12 +7,21 @@ import { Link } from "react-router-dom";
 import Ring3D from "@/components/Ring3D";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 const Landing = () => {
   const [visibleText, setVisibleText] = useState(false);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -63,6 +72,7 @@ const Landing = () => {
         setFullName('');
         setEmail('');
         setPhoneNumber('');
+        setDialogOpen(false);
       }
     } catch (error) {
       console.error('Waitlist signup error:', error);
@@ -107,59 +117,74 @@ const Landing = () => {
 your new network is waiting</p>
           </div>
 
-          {/* Waitlist Form */}
+          {/* Waitlist Button */}
           <div className={`transition-all duration-1000 delay-500 ${visibleText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <form onSubmit={handleWaitlistSubmit} className="max-w-md mx-auto space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-foreground">Full Name *</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="John Doe"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  className="bg-background/50 border-primary/30"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="john@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="bg-background/50 border-primary/30"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-foreground">Phone Number (optional)</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="+1 (555) 123-4567"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="bg-background/50 border-primary/30"
-                />
-              </div>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  size="lg" 
+                  className="shimmer bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-all duration-200 px-12 py-6 text-xl font-semibold"
+                >
+                  Join the Waitlist
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-bold iridescent-text">Join the Waitlist</DialogTitle>
+                  <DialogDescription className="text-muted-foreground">
+                    Be the first to experience the future of networking
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleWaitlistSubmit} className="space-y-4 mt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName" className="text-foreground">Full Name *</Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="John Doe"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
+                      className="bg-background/50 border-primary/30"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-foreground">Email *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="john@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="bg-background/50 border-primary/30"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-foreground">Phone Number (optional)</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+1 (555) 123-4567"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="bg-background/50 border-primary/30"
+                    />
+                  </div>
 
-              <Button 
-                type="submit"
-                size="lg" 
-                disabled={isSubmitting}
-                className="shimmer w-full bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-all duration-200 px-12 py-6 text-xl font-semibold"
-              >
-                {isSubmitting ? 'Joining...' : 'Join the Waitlist'}
-              </Button>
-            </form>
-            <p className="text-sm text-muted-foreground mt-4 iridescent-text">
-              be the first to experience the future of networking
-            </p>
+                  <Button 
+                    type="submit"
+                    size="lg" 
+                    disabled={isSubmitting}
+                    className="shimmer w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 px-8 py-4 text-lg font-semibold"
+                  >
+                    {isSubmitting ? 'Joining...' : 'Join the Waitlist'}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
 
           {/* Features */}
