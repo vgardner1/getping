@@ -36,8 +36,8 @@ const Landing = () => {
     
     if (!fullName || !email) {
       toast({
-        title: "Missing information",
-        description: "Please provide your name and email",
+        title: "missing information",
+        description: "please provide your name and email",
         variant: "destructive"
       });
       return;
@@ -57,8 +57,8 @@ const Landing = () => {
       if (error) {
         if (error.code === '23505') { // Unique constraint violation
           toast({
-            title: "Already registered",
-            description: "This email is already on the waitlist!",
+            title: "already registered",
+            description: "this email is already on the waitlist!",
             variant: "destructive"
           });
         } else {
@@ -66,8 +66,8 @@ const Landing = () => {
         }
       } else {
         toast({
-          title: "You're on the list! 🎉",
-          description: "We'll notify you when ping! launches"
+          title: "you're on the list! 🎉",
+          description: "we'll notify you when ping! launches"
         });
         setFullName('');
         setEmail('');
@@ -77,8 +77,8 @@ const Landing = () => {
     } catch (error) {
       console.error('Waitlist signup error:', error);
       toast({
-        title: "Something went wrong",
-        description: "Please try again later",
+        title: "something went wrong",
+        description: "please try again later",
         variant: "destructive"
       });
     } finally {
@@ -125,23 +125,23 @@ your new network is waiting</p>
                   size="lg" 
                   className="shimmer bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-all duration-200 px-12 py-6 text-xl font-semibold"
                 >
-                  Join the Waitlist
+                  join the waitlist
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle className="text-2xl font-bold iridescent-text">Join the Waitlist</DialogTitle>
+                  <DialogTitle className="text-2xl font-bold iridescent-text">join the waitlist</DialogTitle>
                   <DialogDescription className="text-muted-foreground">
-                    Be the first to experience the future of networking
+                    be the first to experience the future of networking
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleWaitlistSubmit} className="space-y-4 mt-4">
                   <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-foreground">Full Name *</Label>
+                    <Label htmlFor="fullName" className="text-foreground">full name *</Label>
                     <Input
                       id="fullName"
                       type="text"
-                      placeholder="John Doe"
+                      placeholder="john doe"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
@@ -150,7 +150,7 @@ your new network is waiting</p>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-foreground">Email *</Label>
+                    <Label htmlFor="email" className="text-foreground">email *</Label>
                     <Input
                       id="email"
                       type="email"
@@ -163,7 +163,7 @@ your new network is waiting</p>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-foreground">Phone Number (optional)</Label>
+                    <Label htmlFor="phone" className="text-foreground">phone number (optional)</Label>
                     <Input
                       id="phone"
                       type="tel"
@@ -180,7 +180,7 @@ your new network is waiting</p>
                     disabled={isSubmitting}
                     className="shimmer w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 px-8 py-4 text-lg font-semibold"
                   >
-                    {isSubmitting ? 'Joining...' : 'Join the Waitlist'}
+                    {isSubmitting ? 'joining...' : 'join the waitlist'}
                   </Button>
                 </form>
               </DialogContent>
