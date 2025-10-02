@@ -48,19 +48,13 @@ const PublicProfileDetails = () => {
 
   const fetchPublicProfile = async () => {
     try {
-      console.log("Fetching detailed profile for userId:", userId);
-      
       // Use SECURITY DEFINER RPC for anonymous public access
       const { data: profileData, error: profileError } = await supabase.rpc(
         'get_public_profile_secure',
         { target_user_id: userId }
       );
 
-      console.log("Profile data:", profileData);
-      console.log("Profile error:", profileError);
-
       if (profileError) {
-        console.error("Profile error:", profileError);
         setError("Profile not found");
         setLoading(false);
         return;
@@ -82,15 +76,24 @@ const PublicProfileDetails = () => {
         company: p.company,
         job_title: p.job_title,
         website_url: p.website_url,
-        phone_number: p.phone_number,
         skills: p.skills || [],
         interests: p.interests || [],
         social_links: p.social_links || {},
         resume_url: (p as any).resume_url,
         resume_filename: (p as any).resume_filename,
       });
+
+      // Fetch contact info (phone + email) using secure function
+      // Only returns data if user is connected or viewing own profile
+      const { data: contactData } = await supabase.rpc(
+        'get_user_contact_secure',
+        { target_user_id: userId }
+      );
+
+      if (contactData && contactData.length > 0 && contactData[0].phone_number) {
+        setProfile(prev => prev ? { ...prev, phone_number: contactData[0].phone_number } : null);
+      }
     } catch (error) {
-      console.error("Error fetching public profile:", error);
       setError("Failed to load profile");
     } finally {
       setLoading(false);

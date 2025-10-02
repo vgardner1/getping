@@ -74,7 +74,7 @@ const ProfileSetup = () => {
 
         // No need to check for OAuth social media data - users input links directly
       } catch (e) {
-        console.error('Error preloading profile data', e);
+        // Silent fail - user can enter data manually
       }
     };
     loadExisting();
@@ -92,7 +92,6 @@ const ProfileSetup = () => {
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) {
-      console.log('No file selected or no user');
       return;
     }
 
@@ -116,7 +115,6 @@ const ProfileSetup = () => {
       return;
     }
 
-    console.log('Starting photo upload for file:', file.name);
     setLoading(true);
     
     try {
@@ -132,25 +130,18 @@ const ProfileSetup = () => {
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/avatar.${fileExt}`;
       
-      console.log('Uploading to path:', fileName);
-      
       const { error: uploadError, data } = await supabase.storage
         .from('avatars')
         .upload(fileName, file, { upsert: true });
 
       if (uploadError) {
-        console.error('Upload error:', uploadError);
         throw uploadError;
       }
-
-      console.log('Upload successful:', data);
 
       // Get public URL and replace preview
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName);
-
-      console.log('Public URL:', publicUrl);
 
       // Clean up preview URL and set final URL
       URL.revokeObjectURL(previewUrl);
@@ -164,7 +155,6 @@ const ProfileSetup = () => {
         description: 'your profile photo has been uploaded successfully.'
       });
     } catch (error: any) {
-      console.error('Error uploading photo:', error);
       // Reset the avatar URL on error
       setProfileData(prev => ({
         ...prev,
@@ -196,25 +186,18 @@ const ProfileSetup = () => {
       // Upload cropped image to Supabase storage
       const fileName = `${user.id}/avatar.jpg`;
       
-      console.log('Uploading cropped image to path:', fileName);
-      
       const { error: uploadError, data } = await supabase.storage
         .from('avatars')
         .upload(fileName, croppedImageBlob, { upsert: true });
 
       if (uploadError) {
-        console.error('Upload error:', uploadError);
         throw uploadError;
       }
-
-      console.log('Upload successful:', data);
 
       // Get public URL and replace preview
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName);
-
-      console.log('Public URL:', publicUrl);
 
       // Clean up preview URL and set final URL
       URL.revokeObjectURL(previewUrl);
@@ -229,7 +212,6 @@ const ProfileSetup = () => {
       });
 
     } catch (error) {
-      console.error('Photo upload error:', error);
       toast({
         variant: 'destructive',
         title: 'upload failed',
@@ -270,7 +252,6 @@ const ProfileSetup = () => {
       if (error) throw error;
       return true;
     } catch (error) {
-      console.error('Error saving profile:', error);
       toast({
         variant: 'destructive',
         title: 'Save failed',
@@ -349,7 +330,6 @@ const ProfileSetup = () => {
             description: 'Your profile is ready! You can always edit it later.'
           });
         } catch (e) {
-          console.error('AI generation failed, continuing with saved data', e);
           toast({
             title: 'Profile saved!',
             description: 'Your profile has been created. You can always edit it later.'
@@ -386,7 +366,6 @@ const ProfileSetup = () => {
                     alt="Profile preview" 
                     className="w-full h-full object-cover rounded-full" 
                     onError={(e) => {
-                      console.error('Image failed to load:', profileData.avatarUrl);
                       // Reset avatar URL if image fails to load
                       setProfileData(prev => ({ ...prev, avatarUrl: "" }));
                     }}

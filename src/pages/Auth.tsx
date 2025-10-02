@@ -7,6 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { createChatWithUser } from '@/utils/chatUtils';
+import { z } from 'zod';
+
+// Input validation schemas
+const emailSchema = z.string().email('Invalid email address').max(255, 'Email too long');
+const passwordSchema = z.string().min(6, 'Password must be at least 6 characters').max(128, 'Password too long');
+const nameSchema = z.string().trim().min(1, 'Name is required').max(100, 'Name too long');
+const phoneSchema = z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format').optional().or(z.literal(''));
+const urlSchema = z.string().url('Invalid URL').max(500, 'URL too long').optional().or(z.literal(''));
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -55,6 +63,25 @@ const Auth = () => {
 const handleSignUp = async () => {
   setLoading(true);
 
+  // Validate inputs
+  try {
+    emailSchema.parse(email);
+    passwordSchema.parse(password);
+    nameSchema.parse(displayName);
+    if (phoneNumber) phoneSchema.parse(phoneNumber);
+    if (linkedinUrl) urlSchema.parse(linkedinUrl);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      toast({
+        variant: 'destructive',
+        title: 'Validation Error',
+        description: error.errors[0].message,
+      });
+      setLoading(false);
+      return;
+    }
+  }
+
   const redirectUrl = `${window.location.origin}/auth/callback`;
   const normalizedEmail = email.trim().toLowerCase();
 
@@ -64,10 +91,10 @@ const handleSignUp = async () => {
     options: {
       emailRedirectTo: redirectUrl,
       data: {
-        display_name: displayName,
-        instagram_handle: instagramHandle,
-        linkedin_url: linkedinUrl,
-        phone_number: phoneNumber,
+        display_name: displayName.trim(),
+        instagram_handle: instagramHandle.trim(),
+        linkedin_url: linkedinUrl.trim(),
+        phone_number: phoneNumber.trim(),
       },
     },
   });
@@ -108,6 +135,23 @@ const handleSignUp = async () => {
 
 const handleSignIn = async () => {
   setLoading(true);
+  
+  // Validate inputs
+  try {
+    emailSchema.parse(email);
+    passwordSchema.parse(password);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      toast({
+        variant: 'destructive',
+        title: 'Validation Error',
+        description: error.errors[0].message,
+      });
+      setLoading(false);
+      return;
+    }
+  }
+
   const normalizedEmail = email.trim().toLowerCase();
   const { error } = await supabase.auth.signInWithPassword({
     email: normalizedEmail,

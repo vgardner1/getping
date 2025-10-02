@@ -381,7 +381,6 @@ export type Database = {
           interests: string[]
           job_title: string
           location: string
-          phone_number: string
           profile_completeness: number
           skills: string[]
           social_links: Json
@@ -420,6 +419,13 @@ export type Database = {
           raw_data: Json
           updated_at: string
           user_id: string
+        }[]
+      }
+      get_user_contact_secure: {
+        Args: { target_user_id: string }
+        Returns: {
+          email: string
+          phone_number: string
         }[]
       }
       get_user_email_for_contact: {

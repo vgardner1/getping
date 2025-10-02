@@ -101,20 +101,22 @@ const PublicProfile = () => {
 
       setProfile(profileData[0]);
 
-      // Get user email for contact saving
-      const { data: emailData, error: emailError } = await supabase.rpc(
-        'get_user_email_for_contact',
+      // Get contact info (phone + email) using secure function
+      // Only returns data if user is connected or viewing own profile
+      const { data: contactData, error: contactError } = await supabase.rpc(
+        'get_user_contact_secure',
         { target_user_id: userId }
       );
 
-      if (!emailError && emailData) {
-        setUserEmail(emailData);
-      } else {
-        setUserEmail('contact@pingapp.com'); // Fallback
+      if (!contactError && contactData && contactData.length > 0) {
+        setUserEmail(contactData[0].email || '');
+        // Update phone number in profile if returned
+        if (contactData[0].phone_number) {
+          setProfile(prev => prev ? { ...prev, phone_number: contactData[0].phone_number } : null);
+        }
       }
 
     } catch (error: any) {
-      console.error('Error fetching profile:', error);
       setError('Failed to load profile');
       toast({
         title: "Error",
@@ -146,8 +148,6 @@ const PublicProfile = () => {
 
     setCreatingChat(true);
     try {
-      console.log('Creating chat with user:', userId);
-      
       const conversationId = await createChatWithUser(userId, user.id);
       
       if (!conversationId) {
@@ -163,8 +163,6 @@ const PublicProfile = () => {
       navigate(`/chat/${conversationId}?to=${userId}`);
       
     } catch (error) {
-      console.error('Error creating chat:', error);
-      
       // More specific error messages
       let errorMessage = "Failed to start conversation. Please try again.";
       if (error instanceof Error) {
