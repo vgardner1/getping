@@ -34,10 +34,10 @@ const Landing = () => {
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!fullName || !email) {
+    if (!fullName || !email || !phoneNumber) {
       toast({
         title: "missing information",
-        description: "please provide your name and email",
+        description: "please provide your name, email, and phone number",
         variant: "destructive"
       });
       return;
@@ -51,7 +51,7 @@ const Landing = () => {
         .insert({
           full_name: fullName,
           email: email,
-          phone_number: phoneNumber || null
+          phone_number: phoneNumber
         });
 
       if (error) {
@@ -163,13 +163,14 @@ your new network is waiting</p>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-foreground">phone number (optional)</Label>
+                    <Label htmlFor="phone" className="text-foreground">phone number *</Label>
                     <Input
                       id="phone"
                       type="tel"
                       placeholder="+1 (555) 123-4567"
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
+                      required
                       className="bg-background/50 border-primary/30"
                     />
                   </div>

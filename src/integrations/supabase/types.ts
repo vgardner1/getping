@@ -312,21 +312,21 @@ export type Database = {
           email: string
           full_name: string
           id: string
-          phone_number: string | null
+          phone_number: string
         }
         Insert: {
           created_at?: string
           email: string
           full_name: string
           id?: string
-          phone_number?: string | null
+          phone_number: string
         }
         Update: {
           created_at?: string
           email?: string
           full_name?: string
           id?: string
-          phone_number?: string | null
+          phone_number?: string
         }
         Relationships: []
       }
