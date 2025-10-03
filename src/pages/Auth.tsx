@@ -85,12 +85,18 @@ const handleSignUp = async () => {
   const redirectUrl = `${window.location.origin}/auth/callback`;
   const normalizedEmail = email.trim().toLowerCase();
 
+  const nameParts = displayName.trim().split(' ');
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
   const { data, error } = await supabase.auth.signUp({
     email: normalizedEmail,
     password,
     options: {
       emailRedirectTo: redirectUrl,
       data: {
+        first_name: firstName,
+        last_name: lastName,
         display_name: displayName.trim(),
         instagram_handle: instagramHandle.trim(),
         linkedin_url: linkedinUrl.trim(),

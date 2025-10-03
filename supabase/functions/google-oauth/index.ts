@@ -98,11 +98,17 @@ serve(async (req) => {
         userId = existingUser.user.id;
         console.log('Existing user found:', userId);
       } else {
-        // Create new user
+        // Create new user - split name into first/last for the trigger
+        const nameParts = (googleUser.name || '').split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
         const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
           email: googleUser.email,
           email_confirm: true,
           user_metadata: {
+            first_name: firstName,
+            last_name: lastName,
             full_name: googleUser.name,
             avatar_url: googleUser.picture,
             provider: 'google',
