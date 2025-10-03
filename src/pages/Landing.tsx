@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { StarField } from "@/components/StarField";
 import { Link } from "react-router-dom";
 import Ring3D from "@/components/Ring3D";
-import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -15,6 +15,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+const waitlistSchema = z.object({
+  full_name: z.string().trim().min(2, { message: "name must be at least 2 characters" }).max(120),
+  email: z.string().trim().email({ message: "invalid email address" }).max(255),
+  phone_number: z
+    .string()
+    .trim()
+    .min(7, { message: "phone number looks too short" })
+    .max(20, { message: "phone number looks too long" })
+});
+
 const Landing = () => {
   const [visibleText, setVisibleText] = useState(false);
   const [fullName, setFullName] = useState('');
@@ -33,12 +43,18 @@ const Landing = () => {
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!fullName || !email || !phoneNumber) {
+
+    const parsed = waitlistSchema.safeParse({
+      full_name: fullName.trim(),
+      email: email.trim(),
+      phone_number: phoneNumber.trim(),
+    });
+
+    if (!parsed.success) {
       toast({
-        title: "missing information",
-        description: "please provide your name, email, and phone number",
-        variant: "destructive"
+        title: "invalid input",
+        description: parsed.error.issues[0]?.message ?? "please check your details",
+        variant: "destructive",
       });
       return;
     }
@@ -46,40 +62,39 @@ const Landing = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from('waitlist')
-        .insert({
-          full_name: fullName,
-          email: email,
-          phone_number: phoneNumber
-        });
-
-      if (error) {
-        if (error.code === '23505') { // Unique constraint violation
-          toast({
-            title: "already registered",
-            description: "this email is already on the waitlist!",
-            variant: "destructive"
-          });
-        } else {
-          throw error;
+      const res = await fetch(
+        "https://ahksxziueqkacyaqtgeu.supabase.co/functions/v1/join-waitlist",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(parsed.data),
         }
+      );
+
+      const json = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        toast({
+          title: "signup failed",
+          description: json.error || "please try again later",
+          variant: "destructive",
+        });
       } else {
         toast({
           title: "you're on the list! 🎉",
-          description: "we'll notify you when ping! launches"
+          description: "we'll notify you when ping! launches",
         });
-        setFullName('');
-        setEmail('');
-        setPhoneNumber('');
+        setFullName("");
+        setEmail("");
+        setPhoneNumber("");
         setDialogOpen(false);
       }
     } catch (error) {
-      console.error('Waitlist signup error:', error);
+      console.error("Waitlist signup error:", error);
       toast({
         title: "something went wrong",
         description: "please try again later",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
