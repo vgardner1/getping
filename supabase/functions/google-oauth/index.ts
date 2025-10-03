@@ -97,6 +97,17 @@ serve(async (req) => {
       if (existingUser.user) {
         userId = existingUser.user.id;
         console.log('Existing user found:', userId);
+        // Ensure auth metadata has full_name for display in dashboard
+        const hasFullName = existingUser.user.user_metadata?.full_name;
+        if (!hasFullName && googleUser.name) {
+          await supabaseAdmin.auth.admin.updateUserById(userId, {
+            user_metadata: {
+              full_name: googleUser.name,
+              first_name: googleUser.given_name ?? '',
+              last_name: googleUser.family_name ?? '',
+            },
+          });
+        }
       } else {
         // Create new user - split name into first/last for the trigger
         const nameParts = (googleUser.name || '').split(' ');

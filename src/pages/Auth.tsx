@@ -97,6 +97,7 @@ const handleSignUp = async () => {
       data: {
         first_name: firstName,
         last_name: lastName,
+        full_name: displayName.trim(),
         display_name: displayName.trim(),
         instagram_handle: instagramHandle.trim(),
         linkedin_url: linkedinUrl.trim(),
@@ -212,8 +213,28 @@ const handleSignIn = async () => {
     }
   } else {
     const { data: userData } = await supabase.auth.getUser();
-    const processed = userData.user ? await processPostLoginIntent(userData.user.id) : false;
-    if (!processed) navigate('/profile');
+    const user = userData.user;
+    if (user) {
+      // Backfill auth display name if missing
+      const hasFullName = typeof user.user_metadata?.full_name === 'string' && user.user_metadata.full_name.trim().length > 0;
+      if (!hasFullName) {
+        const { data: profileRow } = await supabase
+          .from('profiles')
+          .select('display_name, first_name, last_name')
+          .eq('user_id', user.id)
+          .single();
+        const computedFullName = (profileRow?.display_name && profileRow.display_name.trim().length > 0)
+          ? profileRow.display_name
+          : [profileRow?.first_name, profileRow?.last_name].filter(Boolean).join(' ').trim();
+        if (computedFullName) {
+          await supabase.auth.updateUser({ data: { full_name: computedFullName } });
+        }
+      }
+      const processed = await processPostLoginIntent(user.id);
+      if (!processed) navigate('/profile');
+    } else {
+      navigate('/profile');
+    }
   }
   setLoading(false);
 };
