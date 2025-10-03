@@ -76,6 +76,7 @@ const PublicProfileDetails = () => {
         company: p.company,
         job_title: p.job_title,
         website_url: p.website_url,
+        phone_number: p.phone_number, // Include phone number from profile data
         skills: p.skills || [],
         interests: p.interests || [],
         social_links: p.social_links || {},
@@ -90,7 +91,8 @@ const PublicProfileDetails = () => {
         { target_user_id: userId }
       );
 
-      if (contactData && contactData.length > 0 && contactData[0].phone_number) {
+      // Only override phone if contact data has a phone and profile doesn't
+      if (contactData && contactData.length > 0 && contactData[0].phone_number && !p.phone_number) {
         setProfile(prev => prev ? { ...prev, phone_number: contactData[0].phone_number } : null);
       }
     } catch (error) {

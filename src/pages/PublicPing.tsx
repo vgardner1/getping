@@ -84,6 +84,7 @@ const PublicPing = () => {
         company: profile.company,
         job_title: profile.job_title,
         website_url: profile.website_url,
+        phone_number: profile.phone_number, // Include phone number from profile data
         skills: profile.skills || [],
         interests: profile.interests || [],
         social_links: profile.social_links || {}
@@ -96,10 +97,11 @@ const PublicPing = () => {
         { target_user_id: userId }
       );
 
+      // Always try to use phone number from profile data first, then from contact data
       if (!contactError && contactData && contactData.length > 0) {
         setUserEmail(contactData[0].email || '');
-        // Update profile with phone number if available
-        if (contactData[0].phone_number) {
+        // Only override phone if contact data has a phone and profile doesn't
+        if (contactData[0].phone_number && !profile.phone_number) {
           setProfile(prev => prev ? { ...prev, phone_number: contactData[0].phone_number } : null);
         }
       }

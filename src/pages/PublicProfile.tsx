@@ -108,10 +108,11 @@ const PublicProfile = () => {
         { target_user_id: userId }
       );
 
+      // Always try to use phone number from profile data first, then from contact data
       if (!contactError && contactData && contactData.length > 0) {
         setUserEmail(contactData[0].email || '');
-        // Update phone number in profile if returned
-        if (contactData[0].phone_number) {
+        // Only override phone if contact data has a phone and profile doesn't
+        if (contactData[0].phone_number && !profileData[0].phone_number) {
           setProfile(prev => prev ? { ...prev, phone_number: contactData[0].phone_number } : null);
         }
       }
