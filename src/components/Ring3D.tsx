@@ -47,8 +47,8 @@ const Ring3D = () => {
     rimLight.position.set(-3, 0, -5);
     scene.add(rimLight);
 
-    // Create thinner ring geometry with higher resolution
-    const ringGeometry = new THREE.TorusGeometry(1.5, 0.2, 64, 128);
+    // Create thinner ring geometry with angular edges (fewer tubular segments = more corners)
+    const ringGeometry = new THREE.TorusGeometry(1.5, 0.15, 16, 128);
     const ringMaterial = new THREE.MeshStandardMaterial({ 
       color: 0x064e3b,
       metalness: 0.95,
