@@ -44,16 +44,10 @@ const Profile = () => {
   const [copied, setCopied] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
 
-  // Redirect if not authenticated - but only after loading is complete and we're sure there's no user
+  // Redirect if not authenticated - but only after loading is complete
   useEffect(() => {
     if (!loading && !user) {
-      // Add a small delay to ensure session is fully resolved
-      const timer = setTimeout(() => {
-        if (!user) {
-          navigate('/auth');
-        }
-      }, 100);
-      return () => clearTimeout(timer);
+      navigate('/auth');
     }
   }, [user, loading, navigate]);
 

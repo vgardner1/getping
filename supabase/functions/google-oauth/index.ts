@@ -218,7 +218,6 @@ serve(async (req) => {
         console.error('Profile update error:', profileError);
       }
 
-      // Generate magic link that will redirect back to our frontend callback
       // Determine the frontend URL from state or request origin
       let frontendUrl = getFrontendUrl(req);
       try {
@@ -228,24 +227,26 @@ serve(async (req) => {
         }
       } catch {}
 
-      const { data: session, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'magiclink',
-        email: googleUser.email,
-        redirect_to: `${frontendUrl}/auth/callback`,
+      // Create Supabase session directly via admin API
+      const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.createSession({
+        user_id: userId,
+        session_not_after: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
       });
 
-      if (sessionError || !session) {
-        console.error('Session generation error:', sessionError);
-        throw new Error('Failed to generate session');
+      if (sessionError || !sessionData) {
+        console.error('Session creation error:', sessionError);
+        throw new Error('Failed to create session');
       }
 
-      // Redirect the browser to Supabase's action link. Supabase will verify the token
-      // and then redirect back to `${frontendUrl}/auth/callback` with the access token hash.
+      // Redirect directly to profile with session tokens
+      const redirectUrl = new URL('/auth/callback', frontendUrl);
+      redirectUrl.hash = `access_token=${sessionData.access_token}&refresh_token=${sessionData.refresh_token}&type=recovery`;
+
       return new Response(null, {
         status: 302,
         headers: {
           ...corsHeaders,
-          Location: session.properties.action_link,
+          Location: redirectUrl.toString(),
         },
       });
     }
