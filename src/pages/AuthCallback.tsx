@@ -12,38 +12,80 @@ const AuthCallback = () => {
 
   useEffect(() => {
     let unsub: (() => void) | undefined;
-    let redirectTimeout: NodeJS.Timeout | undefined;
+    let redirectTimeout: ReturnType<typeof setTimeout> | undefined;
+    let pollInterval: ReturnType<typeof setInterval> | undefined;
+
+    const tryParseHashAndSetSession = async () => {
+      try {
+        const hash = window.location.hash || '';
+        if (hash.startsWith('#')) {
+          const params = new URLSearchParams(hash.slice(1));
+          const access_token = params.get('access_token');
+          const refresh_token = params.get('refresh_token');
+          if (access_token && refresh_token) {
+            const { data, error } = await supabase.auth.setSession({ access_token, refresh_token });
+            if (!error && data.session) {
+              navigate('/profile', { replace: true });
+              return true;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Could not parse auth hash:', e);
+      }
+      return false;
+    };
 
     // Listen for session updates (supabase-js parses tokens from URL automatically)
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        // Clear any pending timeout
         if (redirectTimeout) clearTimeout(redirectTimeout);
-        navigate("/profile", { replace: true });
+        if (pollInterval) clearInterval(pollInterval);
+        navigate('/profile', { replace: true });
       }
     });
-
     unsub = () => listener.subscription.unsubscribe();
 
-    // Initial check in case session is already set
-    supabase.auth.getSession().then(({ data, error }) => {
+    // Initial check or parse hash
+    (async () => {
+      const parsed = await tryParseHashAndSetSession();
+      if (parsed) return;
+
+      const { data, error } = await supabase.auth.getSession();
       if (error) {
-        console.error("Session error:", error);
+        console.error('Session error:', error);
         setError(error.message);
         setChecking(false);
-      } else if (data.session) {
-        navigate("/profile", { replace: true });
-      } else {
-        // Set a timeout to stop checking after 3 seconds
-        redirectTimeout = setTimeout(() => {
-          setChecking(false);
-        }, 3000);
+        return;
       }
-    });
+      if (data.session) {
+        navigate('/profile', { replace: true });
+        return;
+      }
+
+      // Start a short poll (10s) to wait for Supabase to finish parsing URL hash
+      let attempts = 0;
+      pollInterval = setInterval(async () => {
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          clearInterval(pollInterval!);
+          navigate('/profile', { replace: true });
+        } else if (++attempts >= 20) {
+          clearInterval(pollInterval!);
+          setChecking(false);
+        }
+      }, 500);
+
+      // Safety timeout in case polling never resolves
+      redirectTimeout = setTimeout(() => {
+        setChecking(false);
+      }, 12000);
+    })();
 
     return () => {
       unsub?.();
       if (redirectTimeout) clearTimeout(redirectTimeout);
+      if (pollInterval) clearInterval(pollInterval);
     };
   }, [navigate]);
 
