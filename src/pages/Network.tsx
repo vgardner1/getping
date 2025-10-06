@@ -78,27 +78,23 @@ const Network = () => {
       });
       setConnections(dedupedFiltered);
 
-      // Fetch counterpart profiles
+      // Fetch counterpart profiles directly from profiles table (don't filter by experience)
       const otherIds = deduped.map(r => r.user_id === user.id ? r.target_user_id : r.user_id).filter(id => id !== user.id);
       const unique = Array.from(new Set(otherIds));
       if (unique.length) {
-        const { data: profs, error: profError } = await supabase.rpc('get_public_profiles_list', {
-          user_ids: unique
-        });
+        const { data: profs, error: profError } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, first_name, last_name, avatar_url')
+          .in('user_id', unique);
+        
         if (!profError && profs) {
           const map: Record<string, { name: string; avatar: string | null }> = {};
           for (const p of profs) {
             let displayName = p.display_name;
             // Fallback to first_name + last_name if display_name is empty
             if (!displayName || displayName.trim() === '') {
-              const { data: userData } = await supabase
-                .from('profiles')
-                .select('first_name, last_name')
-                .eq('user_id', p.user_id)
-                .single();
-              
-              if (userData?.first_name || userData?.last_name) {
-                displayName = [userData.first_name, userData.last_name].filter(Boolean).join(' ');
+              if (p.first_name || p.last_name) {
+                displayName = [p.first_name, p.last_name].filter(Boolean).join(' ');
               }
             }
             map[p.user_id] = { name: displayName || 'User', avatar: p.avatar_url };
