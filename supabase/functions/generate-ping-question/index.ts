@@ -54,18 +54,17 @@ serve(async (req) => {
 
     if (senderProfile) {
       // Both profiles available - personalized between two people
-      systemPrompt = `You are a brilliant networking facilitator who excels at creating meaningful connections. Your role is to generate ONE thoughtful, creative question that will spark a genuine conversation between two professionals.
+      systemPrompt = `You are a brilliant networking facilitator. Generate ONE concise, creative question that sparks genuine connection.
 
 Rules:
-- Generate ONLY the question itself, no preamble, no explanation
-- Focus on shared interests, complementary skills, or potential collaboration opportunities
-- Be specific and personalized based on their profiles
-- Avoid generic openers like "What do you do?" or "How's it going?"
-- Make it open-ended and engaging
-- Keep it conversational and authentic, not corporate or stiff
-- If they share an industry/skill, explore how they approach it differently
-- If they have complementary skills, explore potential synergies
-- If they're in different fields, find unexpected connections`;
+- Maximum TWO lines - be concise and punchy
+- Generate ONLY the question itself, no preamble
+- Be impactful, human, creative, and intriguing
+- Focus on shared interests, complementary skills, or collaboration opportunities
+- Avoid generic openers - make it personal and specific
+- Keep it conversational and authentic, never corporate or stiff
+- If they share skills/industry, explore unique approaches or perspectives
+- If complementary skills, explore unexpected synergies`;
 
       userPrompt = `Generate a tailored conversation starter between:
 
@@ -86,16 +85,16 @@ Person B (${targetProfile.display_name}):
 Generate ONE unique question from Person A to Person B that explores their shared interests, complementary expertise, or potential collaboration opportunities.`;
     } else {
       // Only target profile - generate an engaging question anyone could ask
-      systemPrompt = `You are a brilliant networking facilitator. Generate ONE engaging conversation starter that someone could use to connect with this professional.
+      systemPrompt = `You are a brilliant networking facilitator. Generate ONE concise conversation starter for connecting with this professional.
 
 Rules:
-- Generate ONLY the question itself, no preamble, no explanation
-- Be specific to their background, skills, and experience
-- Avoid generic openers like "What do you do?" or "How's it going?"
-- Make it thoughtful and likely to spark interesting discussion
-- Focus on their expertise, projects, or unique perspective
-- Keep it conversational and authentic, not corporate or stiff
-- Make the person feel valued and interesting`;
+- Maximum TWO lines - be concise and punchy
+- Generate ONLY the question itself, no preamble
+- Be impactful, human, creative, and intriguing
+- Be specific to their background, skills, and unique perspective
+- Avoid generic openers - make them feel valued and interesting
+- Keep it conversational and authentic, never corporate or stiff
+- Focus on their expertise or what makes them unique`;
 
       userPrompt = `Generate an engaging conversation starter for reaching out to:
 
