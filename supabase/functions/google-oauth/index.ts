@@ -218,10 +218,20 @@ serve(async (req) => {
         console.error('Profile update error:', profileError);
       }
 
-      // Generate session token for the user
+      // Generate magic link that will redirect back to our frontend callback
+      // Determine the frontend URL from state or request origin
+      let frontendUrl = getFrontendUrl(req);
+      try {
+        if (state) {
+          const decoded = JSON.parse(atob(state));
+          if (decoded?.rt) frontendUrl = decoded.rt;
+        }
+      } catch {}
+
       const { data: session, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
         email: googleUser.email,
+        redirect_to: `${frontendUrl}/auth/callback`,
       });
 
       if (sessionError || !session) {
@@ -229,31 +239,13 @@ serve(async (req) => {
         throw new Error('Failed to generate session');
       }
 
-      // Redirect to frontend with session
-      // Prefer frontend URL from encoded state
-      let frontendUrl = '';
-      try {
-        if (state) {
-          const decoded = JSON.parse(atob(state));
-          frontendUrl = decoded?.rt || '';
-        }
-      } catch {}
-      if (!frontendUrl) frontendUrl = getFrontendUrl(req);
-      const redirectUrl = new URL('/auth/callback', frontendUrl);
-      
-      // Extract the hash fragment from the magic link
-      const actionLink = session.properties.action_link;
-      const hashPart = actionLink.split('#')[1];
-      if (hashPart) {
-        // Pass the entire hash as is - let the frontend handle it
-        redirectUrl.hash = hashPart;
-      }
-
+      // Redirect the browser to Supabase's action link. Supabase will verify the token
+      // and then redirect back to `${frontendUrl}/auth/callback` with the access token hash.
       return new Response(null, {
         status: 302,
         headers: {
           ...corsHeaders,
-          Location: redirectUrl.toString(),
+          Location: session.properties.action_link,
         },
       });
     }
