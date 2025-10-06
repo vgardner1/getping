@@ -91,7 +91,12 @@ const AccountSetup = () => {
       if (error) throw error;
       
       if (data?.authUrl) {
-        window.location.href = data.authUrl;
+        // Ensure redirect happens at the top window (Lovable preview runs in an iframe)
+        if (window.top) {
+          window.top.location.href = data.authUrl;
+        } else {
+          window.location.href = data.authUrl;
+        }
       }
     } catch (error: any) {
       toast({

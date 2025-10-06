@@ -290,7 +290,11 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
       if (onLogout) {
         onLogout();
       } else {
-        window.location.href = '/auth';
+        if (window.top) {
+          window.top.location.href = '/auth';
+        } else {
+          window.location.href = '/auth';
+        }
       }
     } catch (error) {
       console.error('Error logging out:', error);

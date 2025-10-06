@@ -45,7 +45,12 @@ const SignIn = () => {
       if (error) throw error;
       
       if (data?.authUrl) {
-        window.location.href = data.authUrl;
+        // Redirect at top window to avoid iframe blocking by Google
+        if (window.top) {
+          window.top.location.href = data.authUrl;
+        } else {
+          window.location.href = data.authUrl;
+        }
       }
     } catch (error: any) {
       toast({

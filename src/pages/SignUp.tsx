@@ -105,7 +105,12 @@ const redirectUrl = `${window.location.origin}/auth/callback`;
       if (error) throw error;
       
       if (data?.authUrl) {
-        window.location.href = data.authUrl;
+        // Redirect at top-level to avoid Google X-Frame-Options
+        if (window.top) {
+          window.top.location.href = data.authUrl;
+        } else {
+          window.location.href = data.authUrl;
+        }
       }
     } catch (error: any) {
       toast({

@@ -251,8 +251,12 @@ const handleSignIn = async () => {
       if (error) throw error;
       
       if (data?.authUrl) {
-        // Redirect to Google's OAuth page
-        window.location.href = data.authUrl;
+        // Redirect at top-level (preview runs in an iframe)
+        if (window.top) {
+          window.top.location.href = data.authUrl;
+        } else {
+          window.location.href = data.authUrl;
+        }
       }
     } catch (error: any) {
       toast({

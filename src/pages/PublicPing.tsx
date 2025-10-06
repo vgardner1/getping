@@ -316,20 +316,12 @@ const PublicPing = () => {
       <main className="max-w-4xl mx-auto p-4 pb-28 space-y-6 relative z-10">
         {/* Simplified Profile Card - Matching internal profile exactly */}
         <div className="p-6 text-center">
-          <div 
-            className="w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6 cursor-pointer hover:scale-105 transition-transform duration-200"
-            onClick={() => window.location.href = getShareableUrl(`/ping/${userId}/details`)}
-          >
-            <img
-              src={profile.avatar_url || "/placeholder.svg"}
-              alt={profile.display_name || "Profile"}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          
           <h1 
             className="text-3xl font-bold iridescent-text mb-2 cursor-pointer story-link animate-enter hover-scale transition-all duration-500 ease-out"
-            onClick={() => window.location.href = getShareableUrl(`/ping/${userId}/details`)}
+            onClick={() => {
+              const url = getShareableUrl(`/ping/${userId}/details`);
+              if (window.top) window.top.location.href = url; else window.location.href = url;
+            }}
           >
             {displayName}
           </h1>

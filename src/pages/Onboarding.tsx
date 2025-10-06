@@ -40,8 +40,12 @@ const Onboarding = () => {
   };
 
   const handleComplete = () => {
-    // Mock account creation - redirect to checkout
-    window.location.href = '/checkout';
+    // Mock account creation - redirect to checkout (top-level to avoid iframe issues)
+    if (window.top) {
+      window.top.location.href = '/checkout';
+    } else {
+      window.location.href = '/checkout';
+    }
   };
 
   const handleGoogleAuth = async () => {
@@ -54,7 +58,12 @@ const Onboarding = () => {
       if (error) throw error;
       
       if (data?.authUrl) {
-        window.location.href = data.authUrl;
+        // Redirect at top-level (Lovable preview runs inside an iframe)
+        if (window.top) {
+          window.top.location.href = data.authUrl;
+        } else {
+          window.location.href = data.authUrl;
+        }
       }
     } catch (error: any) {
       toast({
