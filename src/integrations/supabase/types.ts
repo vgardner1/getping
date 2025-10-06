@@ -356,6 +356,7 @@ export type Database = {
           company: string
           created_at: string
           display_name: string
+          experience: Json
           id: string
           interests: string[]
           job_title: string
@@ -366,6 +367,7 @@ export type Database = {
           updated_at: string
           user_id: string
           website_url: string
+          work_experience: Json
         }[]
       }
       get_public_profile_secure: {
@@ -399,6 +401,7 @@ export type Database = {
           company: string
           created_at: string
           display_name: string
+          experience: Json
           id: string
           interests: string[]
           job_title: string
@@ -408,6 +411,7 @@ export type Database = {
           updated_at: string
           user_id: string
           website_url: string
+          work_experience: Json
         }[]
       }
       get_safe_social_data: {
@@ -442,6 +446,7 @@ export type Database = {
           company: string
           created_at: string
           display_name: string
+          experience: Json
           id: string
           interests: string[]
           job_title: string
@@ -451,6 +456,7 @@ export type Database = {
           updated_at: string
           user_id: string
           website_url: string
+          work_experience: Json
         }[]
       }
     }
