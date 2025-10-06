@@ -36,6 +36,29 @@ const PublicProfileDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  const trackProfileView = async () => {
+    if (!userId) return;
+    
+    try {
+      const viewerIp = await fetch('https://api.ipify.org?format=json')
+        .then(res => res.json())
+        .then(data => data.ip)
+        .catch(() => null);
+
+      await supabase
+        .from('profile_views')
+        .insert({
+          profile_user_id: userId,
+          viewer_user_id: user?.id || null,
+          viewer_ip: viewerIp,
+          user_agent: navigator.userAgent,
+          referrer: document.referrer || null
+        });
+    } catch (error) {
+      // Silent fail for tracking - don't block profile loading
+      console.warn('Profile view tracking failed:', error);
+    }
+  };
 
   useEffect(() => {
     if (userId) {
@@ -48,6 +71,8 @@ const PublicProfileDetails = () => {
 
   const fetchPublicProfile = async () => {
     try {
+      // Track profile view first
+      await trackProfileView();
       // Use SECURITY DEFINER RPC for anonymous public access
       const { data: profileData, error: profileError } = await supabase.rpc(
         'get_public_profile_secure',
