@@ -227,26 +227,26 @@ serve(async (req) => {
         }
       } catch {}
 
-      // Create Supabase session directly via admin API
-      const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.createSession({
-        user_id: userId,
-        session_not_after: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+      // Generate recovery link that will create the session and redirect to profile
+      const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'recovery',
+        email: googleUser.email,
+        options: {
+          redirectTo: `${frontendUrl}/profile`,
+        },
       });
 
-      if (sessionError || !sessionData) {
-        console.error('Session creation error:', sessionError);
-        throw new Error('Failed to create session');
+      if (linkError || !linkData) {
+        console.error('Link generation error:', linkError);
+        throw new Error('Failed to generate recovery link');
       }
 
-      // Redirect directly to profile with session tokens
-      const redirectUrl = new URL('/auth/callback', frontendUrl);
-      redirectUrl.hash = `access_token=${sessionData.access_token}&refresh_token=${sessionData.refresh_token}&type=recovery`;
-
+      // Redirect to the action link which will authenticate and redirect to profile
       return new Response(null, {
         status: 302,
         headers: {
           ...corsHeaders,
-          Location: redirectUrl.toString(),
+          Location: linkData.properties.action_link,
         },
       });
     }
