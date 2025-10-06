@@ -15,23 +15,27 @@ const AuthCallback = () => {
     let redirectTimeout: ReturnType<typeof setTimeout> | undefined;
 
     const handleRedirect = () => {
-      // Use multiple methods to ensure redirect works on all platforms including mobile Safari
+      const hash = window.location.hash || '';
+      const profileUrl = new URL('/profile', window.location.origin);
+      // Preserve auth hash if present so Supabase can parse tokens on next page
+      if (hash && /access_token|refresh_token/.test(hash)) {
+        profileUrl.hash = hash.startsWith('#') ? hash.slice(1) : hash;
+      }
+
+      const target = profileUrl.toString();
+
+      // Try to exit iframe and redirect top-level (important for iOS Safari storage restrictions)
       try {
-        // Method 1: Try top-level navigation (works better in iframes and mobile)
         if (window.top && window.top !== window) {
-          window.top.location.href = '/profile';
+          window.top.location.href = target;
           return;
         }
-      } catch (e) {
-        console.log('Top navigation blocked:', e);
-      }
-      
-      // Method 2: Force full page reload with location.href (works better on mobile)
+      } catch {}
+
+      // Fallbacks
       try {
-        window.location.href = '/profile';
-      } catch (e) {
-        console.log('Location redirect failed:', e);
-        // Method 3: Fallback to router navigation
+        window.location.replace(target);
+      } catch {
         navigate('/profile', { replace: true });
       }
     };
@@ -103,8 +107,18 @@ const AuthCallback = () => {
   }, [navigate]);
 
   const retry = () => {
-    // Force a full page reload to retry authentication
-    window.location.href = '/profile';
+    const hash = window.location.hash || '';
+    const url = new URL('/profile', window.location.origin);
+    if (hash && /access_token|refresh_token/.test(hash)) {
+      url.hash = hash.startsWith('#') ? hash.slice(1) : hash;
+    }
+    try {
+      if (window.top && window.top !== window) {
+        window.top.location.href = url.toString();
+        return;
+      }
+    } catch {}
+    window.location.replace(url.toString());
   };
 
   return (
