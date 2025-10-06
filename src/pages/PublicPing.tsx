@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { StarField } from "@/components/StarField";
-import { MapPin, Building2, ExternalLink, Mail, Phone, MessageCircle, Share2 } from "lucide-react";
+import { MapPin, Building2, ExternalLink, Mail, Phone, MessageCircle, Share2, Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SaveContactButton } from "@/components/SaveContactButton";
 import { getShareableUrl } from "@/lib/environment";
@@ -47,6 +48,9 @@ const PublicPing = () => {
   const [error, setError] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [creatingChat, setCreatingChat] = useState(false);
+  const [showQuestionModal, setShowQuestionModal] = useState(false);
+  const [generatedQuestion, setGeneratedQuestion] = useState('');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -113,20 +117,10 @@ const PublicPing = () => {
   };
 
   const handlePing = async () => {
-    if (!user) {
-      if (userId) {
-        try {
-          localStorage.setItem('postLoginIntent', JSON.stringify({ type: 'ping', targetUserId: userId }));
-        } catch {}
-      }
-      navigate('/auth');
-      return;
-    }
-
     if (!userId) return;
 
     // Prevent pinging yourself
-    if (user.id === userId) {
+    if (user && user.id === userId) {
       toast({
         title: "Cannot ping yourself",
         description: "You can't start a conversation with yourself!",
@@ -137,23 +131,96 @@ const PublicPing = () => {
 
     setCreatingChat(true);
     try {
+      // Generate AI-powered personalized question
+      toast({
+        title: "Crafting your ping!",
+        description: "Generating a personalized conversation starter...",
+      });
+
+      const { data: questionData, error: questionError } = await supabase.functions.invoke(
+        'generate-ping-question',
+        {
+          body: {
+            senderUserId: user?.id || null,
+            targetUserId: userId,
+          }
+        }
+      );
+
+      if (questionError) {
+        console.error('Question generation error:', questionError);
+        throw new Error('Failed to generate conversation starter');
+      }
+
+      const question = questionData?.question;
+      if (!question) {
+        throw new Error('No question generated');
+      }
+
+      // Show modal with question for EVERYONE
+      setGeneratedQuestion(question);
+      setShowQuestionModal(true);
+      
+    } catch (error) {
+      console.error('Ping error:', error);
+      
+      let errorMessage = "Failed to generate question. Please try again.";
+      if (error instanceof Error && error.message.includes('conversation starter')) {
+        errorMessage = "Could not generate question. Please try again.";
+      }
+      
+      toast({
+        title: "Generation failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setCreatingChat(false);
+    }
+  };
+
+  const handleSendQuestion = async () => {
+    if (!user || !userId) {
+      navigate('/signup');
+      return;
+    }
+
+    setCreatingChat(true);
+    try {
+      // Create conversation and send question
       const conversationId = await createChatWithUser(userId, user.id);
       
       if (!conversationId) {
         throw new Error('No conversation ID returned');
       }
 
+      // Send the AI-generated question as the first message
+      const { error: messageError } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: conversationId,
+          sender_id: user.id,
+          content: generatedQuestion,
+        });
+
+      if (messageError) {
+        console.error('Message send error:', messageError);
+      }
+
+      setShowQuestionModal(false);
+      
       toast({
-        title: "ping! successful!",
-        description: `Connected with ${profile?.display_name || 'user'}. They've been added to your tribe!`,
+        title: "ping! sent!",
+        description: `Your personalized question has been sent to ${profile?.display_name || 'user'}!`,
       });
 
       // Navigate to the chat
       navigate(`/chat/${conversationId}?to=${userId}`);
       
     } catch (error) {
-      // More specific error messages
-      let errorMessage = "Failed to start conversation. Please try again.";
+      console.error('Send error:', error);
+      
+      let errorMessage = "Failed to send ping. Please try again.";
       if (error instanceof Error) {
         if (error.message.includes('already exists')) {
           errorMessage = "Conversation already exists. Redirecting...";
@@ -170,6 +237,16 @@ const PublicPing = () => {
     } finally {
       setCreatingChat(false);
     }
+  };
+
+  const copyQuestion = () => {
+    navigator.clipboard.writeText(generatedQuestion);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast({
+      title: "Copied!",
+      description: "Question copied to clipboard",
+    });
   };
 
   if (loading) {
@@ -458,6 +535,62 @@ const PublicPing = () => {
           </div>
         </Card>
       </main>
+
+      {/* Question Modal */}
+      <Dialog open={showQuestionModal} onOpenChange={setShowQuestionModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center iridescent-text text-xl">
+              Consider this question
+            </DialogTitle>
+            <DialogDescription className="sr-only">
+              AI-generated conversation starter for {displayName}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+              <p className="text-foreground text-center leading-relaxed">
+                {generatedQuestion}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={copyQuestion}
+                className="flex-1"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy Question
+                  </>
+                )}
+              </Button>
+              {user ? (
+                <Button
+                  onClick={handleSendQuestion}
+                  disabled={creatingChat}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  {creatingChat ? 'Sending...' : 'Send as Message'}
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => navigate('/signup')}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  Join to Send
+                </Button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <ShareModal
         isOpen={showShareModal}
