@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import SMSModal from "@/components/SMSModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { safeRedirect } from "@/lib/utils";
 
 const Onboarding = () => {
   const [step, setStep] = useState(1);
@@ -58,12 +59,7 @@ const Onboarding = () => {
       if (error) throw error;
       
       if (data?.authUrl) {
-        // Redirect at top-level (Lovable preview runs inside an iframe)
-        if (window.top) {
-          window.top.location.href = data.authUrl;
-        } else {
-          window.location.href = data.authUrl;
-        }
+        safeRedirect(data.authUrl);
       }
     } catch (error: any) {
       toast({

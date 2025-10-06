@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { safeRedirect } from '@/lib/utils';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
@@ -105,12 +106,7 @@ const redirectUrl = `${window.location.origin}/auth/callback`;
       if (error) throw error;
       
       if (data?.authUrl) {
-        // Redirect at top-level to avoid Google X-Frame-Options
-        if (window.top) {
-          window.top.location.href = data.authUrl;
-        } else {
-          window.location.href = data.authUrl;
-        }
+        safeRedirect(data.authUrl);
       }
     } catch (error: any) {
       toast({

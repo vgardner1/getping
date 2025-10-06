@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StarField } from "@/components/StarField";
 import { useToast } from "@/hooks/use-toast";
+import { safeRedirect } from "@/lib/utils";
 
 const AccountSetup = () => {
   const [email, setEmail] = useState("");
@@ -91,12 +92,7 @@ const AccountSetup = () => {
       if (error) throw error;
       
       if (data?.authUrl) {
-        // Ensure redirect happens at the top window (Lovable preview runs in an iframe)
-        if (window.top) {
-          window.top.location.href = data.authUrl;
-        } else {
-          window.location.href = data.authUrl;
-        }
+        safeRedirect(data.authUrl);
       }
     } catch (error: any) {
       toast({

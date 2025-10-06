@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { createChatWithUser } from '@/utils/chatUtils';
+import { safeRedirect } from '@/lib/utils';
 import { z } from 'zod';
 
 // Input validation schemas
@@ -251,12 +252,7 @@ const handleSignIn = async () => {
       if (error) throw error;
       
       if (data?.authUrl) {
-        // Redirect at top-level (preview runs in an iframe)
-        if (window.top) {
-          window.top.location.href = data.authUrl;
-        } else {
-          window.location.href = data.authUrl;
-        }
+        safeRedirect(data.authUrl);
       }
     } catch (error: any) {
       toast({

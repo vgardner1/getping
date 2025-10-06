@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { safeRedirect } from '@/lib/utils';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -45,12 +46,7 @@ const SignIn = () => {
       if (error) throw error;
       
       if (data?.authUrl) {
-        // Redirect at top window to avoid iframe blocking by Google
-        if (window.top) {
-          window.top.location.href = data.authUrl;
-        } else {
-          window.location.href = data.authUrl;
-        }
+        safeRedirect(data.authUrl);
       }
     } catch (error: any) {
       toast({
