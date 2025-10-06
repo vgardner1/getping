@@ -84,25 +84,48 @@ serve(async (req) => {
 });
 
 async function extractTextFromResume(buffer: ArrayBuffer, fileName: string): Promise<string> {
-  // For now, we'll use a simple text extraction approach
-  // In a production environment, you'd want to use a proper PDF/DOC parser
-  
+  // Use pdf.js for better PDF parsing
   if (fileName.toLowerCase().endsWith('.pdf')) {
-    // Simple PDF text extraction (basic approach)
-    const uint8Array = new Uint8Array(buffer);
-    const text = new TextDecoder().decode(uint8Array);
-    
-    // Extract readable text between stream objects (very basic)
-    const textMatches = text.match(/stream(.*?)endstream/gs);
-    if (textMatches) {
-      return textMatches.join(' ').replace(/[^\x20-\x7E]/g, ' ').trim();
+    try {
+      // Import pdfjs-dist
+      const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/+esm');
+      
+      // Load the PDF
+      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+      let fullText = '';
+      
+      // Extract text from each page
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item: any) => item.str).join(' ');
+        fullText += pageText + '\n';
+      }
+      
+      if (fullText.trim().length > 0) {
+        return fullText.trim();
+      }
+      
+      return 'Resume content could not be extracted. Please ensure the file is not password protected or try a different format.';
+    } catch (error) {
+      console.error('PDF parsing error:', error);
+      return 'Failed to parse PDF. Please try a different file format.';
     }
-    
-    return 'Resume content could not be extracted. Please ensure the file is not password protected.';
   }
   
-  // For Word docs, we'd need a proper parser
-  return 'Please upload a PDF file for automatic text extraction.';
+  // For Word docs or other formats, try basic text extraction
+  try {
+    const text = new TextDecoder().decode(buffer);
+    // Try to extract readable ASCII text
+    const readableText = text.match(/[\x20-\x7E\s]{10,}/g);
+    if (readableText && readableText.length > 0) {
+      return readableText.join(' ').trim();
+    }
+  } catch (e) {
+    console.error('Text extraction error:', e);
+  }
+  
+  return 'Could not extract text from this file format. Please upload a PDF file.';
 }
 
 async function parseResumeWithAI(resumeText: string): Promise<ParsedResumeData> {
@@ -149,7 +172,7 @@ IMPORTANT GUIDELINES:
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4.1-2025-04-14',
+      model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',

@@ -18,6 +18,41 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ profile, onResumeUpl
   const [uploading, setUploading] = useState(false);
   const [processing, setProcessing] = useState(false);
 
+  const processExistingResume = async () => {
+    if (!user || !profile?.resume_url) return;
+
+    setProcessing(true);
+    try {
+      const { data: processData, error: processError } = await supabase.functions.invoke('parse-resume', {
+        body: { 
+          userId: user.id,
+          resumeUrl: profile.resume_url,
+          fileName: profile.resume_filename || 'resume.pdf'
+        }
+      });
+
+      if (processError) {
+        throw processError;
+      }
+
+      toast({
+        title: "Resume re-parsed!",
+        description: "Work experience has been updated from your resume."
+      });
+      
+      onResumeUploaded();
+    } catch (error) {
+      console.error('Error re-parsing resume:', error);
+      toast({
+        title: "Re-parsing failed",
+        description: "Could not extract data from resume. Please try uploading again.",
+        variant: "destructive"
+      });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const handleResumeUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !user) return;
@@ -134,6 +169,24 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ profile, onResumeUpl
             </p>
           </div>
           <div className="flex gap-2">
+            <Button
+              onClick={processExistingResume}
+              variant="outline"
+              size="sm"
+              disabled={processing}
+            >
+              {processing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Parsing...
+                </>
+              ) : (
+                <>
+                  <FileText className="w-4 h-4 mr-2" />
+                  Re-parse
+                </>
+              )}
+            </Button>
             <Button
               onClick={downloadResume}
               variant="outline"
