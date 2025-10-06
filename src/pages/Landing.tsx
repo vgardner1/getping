@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Nfc } from "lucide-react";
 const waitlistSchema = z.object({
   full_name: z.string().trim().min(2, { message: "name must be at least 2 characters" }).max(120),
   email: z.string().trim().email({ message: "invalid email address" }).max(255),
@@ -207,7 +208,7 @@ your new network is waiting</p>
           <div className={`grid md:grid-cols-3 gap-8 mt-16 transition-all duration-1000 delay-1000 ${visibleText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="text-center space-y-3">
               <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
-                <span className="text-2xl">📱</span>
+                <Nfc className="w-8 h-8 text-primary" />
               </div>
               <h3 className="text-lg font-semibold iridescent-text">instant share</h3>
               <p className="text-sm text-muted-foreground iridescent-text">
