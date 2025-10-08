@@ -409,31 +409,6 @@ const PublicProfileDetails = () => {
           </div>
         </Card>
 
-        {/* Endorsements Section */}
-        <Card className="bg-card border-border p-6 mb-6">
-          <h2 className="text-2xl font-bold iridescent-text mb-4 flex items-center gap-2">
-            <Award className="w-6 h-6 text-primary" />
-            Endorsements
-          </h2>
-          <div className="space-y-4">
-            {detailedProfile.endorsements.map((endorsement, index) => (
-              <div key={index} className="bg-secondary/20 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <MessageSquare className="w-5 h-5 text-primary mt-1" />
-                  <div className="flex-1">
-                    <p className="text-muted-foreground iridescent-text mb-2 break-words text-pretty">
-                      "{endorsement.message}"
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium iridescent-text">{endorsement.name}</span>
-                      <span className="text-sm text-muted-foreground iridescent-text">{endorsement.timeAgo}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
 
         {/* CTA Section - Only show for non-signed in users */}
         {!user && (

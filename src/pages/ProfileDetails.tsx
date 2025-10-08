@@ -136,21 +136,6 @@ const ProfileDetails = () => {
   const skills = profile?.skills || ["AI Design", "Sustainable Architecture", "Biomimicry", "Creative Direction", "Digital Art", "Innovation Strategy"];
   const interests = profile?.interests || ["Philosophy", "Museum Curation", "Environmental Art", "Technology Ethics", "Future Design"];
 
-  // Mock endorsements
-  const endorsements = [
-    {
-      name: "Sarah Johnson",
-      time: "2 days ago",
-      comment: "Amazing work on the Dam Chair! The AI integration is revolutionary.",
-      avatar: "/placeholder.svg"
-    },
-    {
-      name: "Michael Chen",
-      time: "1 week ago", 
-      comment: "Love the sustainable design approach. Can't wait to see Republic 2.0 in museums!",
-      avatar: "/placeholder.svg"
-    }
-  ];
 
   const displayName = profile.display_name || 'User';
 
@@ -360,58 +345,6 @@ const ProfileDetails = () => {
           </Card>
         </div>
 
-        {/* Endorsements */}
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <CardTitle className="iridescent-text">Endorsements</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {endorsements.map((endorsement, index) => (
-              <div key={index} className="flex gap-3 p-3 border border-border rounded-lg">
-                <Avatar className="w-10 h-10">
-                  <AvatarImage src={endorsement.avatar} />
-                  <AvatarFallback>{endorsement.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium iridescent-text">{endorsement.name}</span>
-                    <span className="text-xs text-muted-foreground">{endorsement.time}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground break-words text-pretty">{endorsement.comment}</p>
-                </div>
-              </div>
-            ))}
-
-            {/* Post Comment */}
-            <div className="mt-6 pt-4 border-t border-border">
-              <h4 className="font-medium iridescent-text mb-3 flex items-center gap-2">
-                <MessageCircle className="w-4 h-4 text-primary" />
-                Post Comment
-              </h4>
-              <div className="flex flex-wrap gap-3">
-                <Avatar className="w-8 h-8">
-                  <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 space-y-2 min-w-0">
-                  <Textarea
-                    placeholder="Write an endorsement or comment..."
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="min-h-[80px]"
-                  />
-                  <Button 
-                    onClick={handleSubmitComment}
-                    disabled={!comment.trim() || submittingComment}
-                    className="w-full md:w-auto"
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    {submittingComment ? 'Posting...' : 'Post Comment'}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </main>
 
     </div>
