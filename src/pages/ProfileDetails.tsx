@@ -274,34 +274,36 @@ const ProfileDetails = () => {
             <CardTitle className="iridescent-text">Professional Experience</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {workExperience && workExperience.length > 0 ? (
-              workExperience.map((job, index) => (
-                <div key={index} className="border-l-2 border-primary/30 pl-6 relative">
-                  <div className="absolute w-3 h-3 bg-primary rounded-full -left-[7px] top-1"></div>
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2 mb-2">
-                    <div>
-                      <h3 className="font-semibold text-lg iridescent-text">{job.company}</h3>
-                      <p className="text-primary font-medium">{job.position}</p>
+            {workExperience && Array.isArray(workExperience) && workExperience.length > 0 && workExperience.some((job: any) => job.company || job.position) ? (
+              workExperience
+                .filter((job: any) => job.company || job.position)
+                .map((job, index) => (
+                  <div key={index} className="border-l-2 border-primary/30 pl-6 relative">
+                    <div className="absolute w-3 h-3 bg-primary rounded-full -left-[7px] top-1"></div>
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2 mb-2">
+                      <div>
+                        <h3 className="font-semibold text-lg iridescent-text">{job.company}</h3>
+                        <p className="text-primary font-medium">{job.position}</p>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        <p>{job.duration}</p>
+                        {job.location && <p>{job.location}</p>}
+                      </div>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      <p>{job.duration}</p>
-                      {job.location && <p>{job.location}</p>}
-                    </div>
+                    {job.description && (
+                      <p className="text-muted-foreground mb-3 leading-relaxed break-words text-pretty">{job.description}</p>
+                    )}
+                    {job.skills_used && job.skills_used.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {job.skills_used.map((skill: string, skillIndex: number) => (
+                          <Badge key={skillIndex} variant="secondary" className="text-xs break-words max-w-full">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  {job.description && (
-                    <p className="text-muted-foreground mb-3 leading-relaxed break-words text-pretty">{job.description}</p>
-                  )}
-                  {job.skills_used && job.skills_used.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {job.skills_used.map((skill: string, skillIndex: number) => (
-                        <Badge key={skillIndex} variant="secondary" className="text-xs break-words max-w-full">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))
+                ))
             ) : (
               <div className="text-center p-8 border-2 border-dashed border-muted-foreground/20 rounded-lg">
                 <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />

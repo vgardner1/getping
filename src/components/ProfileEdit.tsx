@@ -641,18 +641,19 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
       {/* Work Experience */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3">
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="w-5 h-5" />
               work experience
             </CardTitle>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               {profile?.resume_url && (
                 <Button 
                   onClick={populateFromResume} 
                   variant="outline" 
                   size="sm"
                   disabled={parsingResume}
+                  className="w-full sm:w-auto"
                 >
                   {parsingResume ? (
                     <>
@@ -667,7 +668,7 @@ export const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onSave, onCan
                   )}
                 </Button>
               )}
-              <Button onClick={addWorkExperience} variant="outline" size="sm">
+              <Button onClick={addWorkExperience} variant="outline" size="sm" className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 add experience
               </Button>
