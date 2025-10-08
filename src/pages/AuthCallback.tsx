@@ -9,6 +9,7 @@ const AuthCallback = () => {
   const navigate = useNavigate();
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
     let unsub: (() => void) | undefined;
@@ -56,8 +57,8 @@ const AuthCallback = () => {
             });
             
             if (!error) {
-              // Give session a moment to propagate
-              setTimeout(handleRedirect, 500);
+              setSignedIn(true);
+              setChecking(false);
               return;
             }
           }
@@ -74,7 +75,8 @@ const AuthCallback = () => {
         }
 
         if (session) {
-          handleRedirect();
+          setSignedIn(true);
+          setChecking(false);
         } else {
           // Wait for auth to complete
           redirectTimeout = setTimeout(() => {

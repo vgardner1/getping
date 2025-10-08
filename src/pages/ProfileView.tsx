@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
+import { OptimizedImage } from "@/components/OptimizedImage";
 interface AnalyticsData {
   profileViews: number;
   todayViews: number;
@@ -230,11 +230,23 @@ const ProfileView = () => {
           </div>
           
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
-            <img 
-              src={profile?.avatar_url || "/placeholder.svg"} 
-              alt={displayName}
-              className="w-24 h-24 rounded-full object-cover border-2 border-primary"
-            />
+            <div className="w-24 h-24 rounded-full border-2 border-primary overflow-hidden">
+              <OptimizedImage
+                src={(() => {
+                  const url = profile?.avatar_url || "";
+                  if (!url) return "/placeholder.svg";
+                  if (/^(https?:|data:)/i.test(url)) return url;
+                  try {
+                    const { data } = supabase.storage.from('avatars').getPublicUrl(url);
+                    return data.publicUrl || "/placeholder.svg";
+                  } catch {
+                    return "/placeholder.svg";
+                  }
+                })()}
+                alt={displayName}
+                className="w-full h-full"
+              />
+            </div>
             <div className="flex-1 text-center md:text-left">
               <h3 className="text-2xl font-bold iridescent-text">{displayName}</h3>
               <p className="text-muted-foreground iridescent-text mt-2">{profile?.bio || "No bio added yet"}</p>

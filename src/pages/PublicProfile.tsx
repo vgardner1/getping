@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { createChatWithUser } from "@/utils/chatUtils";
 import { useConnections } from "@/hooks/useConnections";
-
+import { OptimizedImage } from "@/components/OptimizedImage";
 interface PublicProfile {
   id: string;
   user_id: string;
@@ -346,10 +346,21 @@ const PublicProfile = () => {
           <Card className="bg-card border-border p-8 text-center w-full max-w-2xl">
             <Link to={`/ping/${userId}/details`} className="block">
               <div className="w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6 hover:scale-105 transition-transform duration-200 cursor-pointer">
-                <img
-                  src={profile.avatar_url || "/placeholder.svg"}
+                <OptimizedImage
+                  src={(() => {
+                    const url = profile.avatar_url || "";
+                    if (!url) return "/placeholder.svg";
+                    if (/^(https?:|data:)/i.test(url)) return url;
+                    // Resolve potential storage path to public URL
+                    try {
+                      const { data } = supabase.storage.from('avatars').getPublicUrl(url);
+                      return data.publicUrl || "/placeholder.svg";
+                    } catch {
+                      return "/placeholder.svg";
+                    }
+                  })()}
                   alt={profile.display_name || "Profile"}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full"
                 />
               </div>
             </Link>

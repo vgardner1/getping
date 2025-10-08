@@ -7,7 +7,7 @@ import { ArrowLeft, MapPin, Building2, ExternalLink, Calendar, Award, MessageSqu
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useConnections } from "@/hooks/useConnections";
-
+import { OptimizedImage } from "@/components/OptimizedImage";
 interface PublicProfile {
   user_id: string;
   display_name: string;
@@ -252,10 +252,20 @@ const PublicProfileDetails = () => {
         {/* Profile Header */}
         <div className="text-center mb-8">
           <div className="w-32 h-32 mx-auto rounded-full border-4 border-primary overflow-hidden mb-6">
-            <img
-              src={profile.avatar_url || "/placeholder.svg"}
+            <OptimizedImage
+              src={(() => {
+                const url = profile.avatar_url || "";
+                if (!url) return "/placeholder.svg";
+                if (/^(https?:|data:)/i.test(url)) return url;
+                try {
+                  const { data } = supabase.storage.from('avatars').getPublicUrl(url);
+                  return data.publicUrl || "/placeholder.svg";
+                } catch {
+                  return "/placeholder.svg";
+                }
+              })()}
               alt={profile.display_name || "Profile"}
-              className="w-full h-full object-cover"
+              className="w-full h-full"
             />
           </div>
           

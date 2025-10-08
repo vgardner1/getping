@@ -127,7 +127,7 @@ const Chat = () => {
     })();
   }, [conversationId, user]);
 
-  const loadMessages = async (convId: string) => {
+  async function loadMessages(convId: string) {
     const { data, error } = await supabase
       .from('messages')
       .select('*')
