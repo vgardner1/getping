@@ -40,14 +40,15 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     scene.background = new THREE.Color(0x0a0a0a);
     sceneRef.current = scene;
 
-    // Camera setup
+    // Camera setup - positioned at an angle for better initial view
     const camera = new THREE.PerspectiveCamera(
       60,
       containerRef.current.clientWidth / containerRef.current.clientHeight,
       0.1,
       1000
     );
-    camera.position.z = 15;
+    camera.position.set(5, 8, 12); // Angled view instead of straight-on
+    camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
     // Renderer setup
@@ -64,7 +65,7 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
 
-    // Create Earth globe - clean black sphere
+    // Create Earth globe - clean black sphere with initial tilt
     const globeRadius = 5;
     const globeGeometry = new THREE.SphereGeometry(globeRadius, 64, 64);
     const globeMaterial = new THREE.MeshPhongMaterial({
@@ -73,6 +74,7 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
       shininess: 10,
     });
     const globe = new THREE.Mesh(globeGeometry, globeMaterial);
+    globe.rotation.x = 0.3; // Initial tilt for better view
     scene.add(globe);
 
     // Add subtle green edge glow using a slightly larger transparent sphere
@@ -211,25 +213,31 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
       }
     });
 
-    // Add floating background dots
+    // Add floating background dots - more dots closer to the globe area
     const floatingDots: THREE.Mesh[] = [];
-    for (let i = 0; i < 50; i++) {
-      const dotGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+    for (let i = 0; i < 150; i++) {
+      const dotGeometry = new THREE.SphereGeometry(0.04, 8, 8);
       const dotMaterial = new THREE.MeshBasicMaterial({
         color: 0x4ade80,
         transparent: true,
-        opacity: 0.3,
+        opacity: 0.4,
       });
       const dot = new THREE.Mesh(dotGeometry, dotMaterial);
+      
+      // Distribute dots both close to globe and in far background
+      const distance = i < 100 ? (Math.random() * 8 + 6) : (Math.random() * 20 + 10);
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI;
+      
       dot.position.set(
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 30
+        distance * Math.sin(phi) * Math.cos(theta),
+        distance * Math.sin(phi) * Math.sin(theta),
+        distance * Math.cos(phi)
       );
       dot.userData.velocity = {
-        x: (Math.random() - 0.5) * 0.02,
-        y: (Math.random() - 0.5) * 0.02,
-        z: (Math.random() - 0.5) * 0.02,
+        x: (Math.random() - 0.5) * 0.01,
+        y: (Math.random() - 0.5) * 0.01,
+        z: (Math.random() - 0.5) * 0.01,
       };
       scene.add(dot);
       floatingDots.push(dot);
@@ -320,10 +328,10 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
         dot.position.y += dot.userData.velocity.y;
         dot.position.z += dot.userData.velocity.z;
 
-        // Wrap around
-        if (Math.abs(dot.position.x) > 15) dot.userData.velocity.x *= -1;
-        if (Math.abs(dot.position.y) > 15) dot.userData.velocity.y *= -1;
-        if (Math.abs(dot.position.z) > 15) dot.userData.velocity.z *= -1;
+        // Wrap around with larger boundaries
+        if (Math.abs(dot.position.x) > 25) dot.userData.velocity.x *= -1;
+        if (Math.abs(dot.position.y) > 25) dot.userData.velocity.y *= -1;
+        if (Math.abs(dot.position.z) > 25) dot.userData.velocity.z *= -1;
       });
 
       renderer.render(scene, camera);
