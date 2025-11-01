@@ -17,6 +17,7 @@ import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 import Network from "./pages/Network";
+import NetworkVisualization from "./pages/NetworkVisualization";
 import PublicProfile from "./pages/PublicProfile";
 import PublicPing from "./pages/PublicPing";
 import PublicProfileDetails from "./pages/PublicProfileDetails";
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/ping/:userId" element={<PublicRouteHandler />} />
             <Route path="/ping/:userId/:view" element={<PublicRouteHandler />} />
             <Route path="/network" element={<Network />} />
+            <Route path="/network/visualize" element={<NetworkVisualization />} />
             <Route path="/tribe" element={<Network />} />
             <Route path="/chat/:conversationId" element={<Chat />} />
             <Route path="*" element={<NotFound />} />

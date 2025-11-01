@@ -47,6 +47,7 @@ export const BottomNav = () => {
   const items = [
     { to: "/feed", label: "feed", icon: PlaySquare },
     { to: "/network", label: "tribe", icon: Users },
+    { to: "/network/visualize", label: "network", icon: Search },
     { to: "/chat", label: "chat", icon: MessageCircle, hasNotification: unreadMessageCount > 0 },
     { to: "/profile", label: "profile", icon: User },
   ];
