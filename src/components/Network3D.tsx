@@ -23,6 +23,8 @@ const CIRCLES = [
   { id: 'friends', label: 'Close friends', radius: 3.5, color: 0x4ade80 },
   { id: 'business', label: 'Business partners', radius: 5, color: 0x4ade80 },
   { id: 'acquaintances', label: 'Associates', radius: 6.5, color: 0x4ade80 },
+  { id: 'network', label: 'Network', radius: 8, color: 0x4ade80 },
+  { id: 'extended', label: 'Extended', radius: 9.5, color: 0x4ade80 },
 ];
 
 export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
@@ -152,6 +154,9 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
     // Create people spheres and connections
     const spheres = new Map<string, THREE.Mesh>();
     const lineMaterial = new THREE.LineBasicMaterial({ color: 0x4ade80, transparent: true, opacity: 0.3 });
+    const interConnectionMaterial = new THREE.LineBasicMaterial({ color: 0x4ade80, transparent: true, opacity: 0.15 });
+
+    const peopleByCircle = new Map<string, Array<{person: NetworkPerson, position: THREE.Vector3}>>();
 
     people.forEach((person) => {
       const circle = CIRCLES.find((c) => c.id === person.circle);
@@ -162,6 +167,8 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
       const x = radius * Math.cos(angle);
       const z = radius * Math.sin(angle);
       const y = 0; // Keep on horizontal plane
+
+      const position = new THREE.Vector3(x, y, z);
 
       // Create person sphere with pulsing glow
       const sphereGeometry = new THREE.SphereGeometry(0.15, 16, 16);
@@ -176,6 +183,12 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
       scene.add(sphere);
       spheres.set(person.id, sphere);
 
+      // Track people by circle for interconnections
+      if (!peopleByCircle.has(person.circle)) {
+        peopleByCircle.set(person.circle, []);
+      }
+      peopleByCircle.get(person.circle)!.push({ person, position });
+
       // Create connection line to center
       const points = [];
       points.push(new THREE.Vector3(0, 0, 0));
@@ -183,6 +196,66 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
       const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
       const line = new THREE.Line(lineGeometry, lineMaterial);
       scene.add(line);
+    });
+
+    // Create interconnections between people on different circles
+    people.forEach((person) => {
+      const circle = CIRCLES.find((c) => c.id === person.circle);
+      if (!circle) return;
+
+      const personSphere = spheres.get(person.id);
+      if (!personSphere) return;
+
+      // For friends circle, create more interconnections
+      if (person.circle === 'friends') {
+        // Connect to some people in business circle
+        const businessPeople = peopleByCircle.get('business') || [];
+        businessPeople.slice(0, 2).forEach((bp) => {
+          const points = [personSphere.position.clone(), bp.position.clone()];
+          const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+          const line = new THREE.Line(lineGeometry, interConnectionMaterial);
+          scene.add(line);
+        });
+
+        // Connect to other friends (create a web within the circle)
+        const friendsPeople = peopleByCircle.get('friends') || [];
+        const currentIndex = friendsPeople.findIndex(f => f.person.id === person.id);
+        if (currentIndex !== -1) {
+          // Connect to next 2 friends in the circle
+          const nextIndex = (currentIndex + 1) % friendsPeople.length;
+          const next2Index = (currentIndex + 2) % friendsPeople.length;
+          
+          if (friendsPeople[nextIndex]) {
+            const points = [personSphere.position.clone(), friendsPeople[nextIndex].position.clone()];
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+            const line = new THREE.Line(lineGeometry, interConnectionMaterial);
+            scene.add(line);
+          }
+          
+          if (friendsPeople[next2Index] && friendsPeople.length > 2) {
+            const points = [personSphere.position.clone(), friendsPeople[next2Index].position.clone()];
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+            const line = new THREE.Line(lineGeometry, interConnectionMaterial);
+            scene.add(line);
+          }
+        }
+      }
+
+      // Create some random interconnections between adjacent circles
+      if (Math.random() > 0.6) {
+        const circleIndex = CIRCLES.findIndex(c => c.id === person.circle);
+        if (circleIndex > 0) {
+          const prevCircle = CIRCLES[circleIndex - 1];
+          const prevPeople = peopleByCircle.get(prevCircle.id) || [];
+          if (prevPeople.length > 0) {
+            const randomPerson = prevPeople[Math.floor(Math.random() * prevPeople.length)];
+            const points = [personSphere.position.clone(), randomPerson.position.clone()];
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+            const line = new THREE.Line(lineGeometry, interConnectionMaterial);
+            scene.add(line);
+          }
+        }
+      }
     });
 
     spheresRef.current = spheres;
