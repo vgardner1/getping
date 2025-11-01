@@ -26,13 +26,9 @@ export default function NetworkVisualization() {
   const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
     // Initialize with sample data for demonstration
     initializeSampleNetwork();
-  }, [user, navigate]);
+  }, []);
 
   const initializeSampleNetwork = () => {
     // Sample network for visualization
@@ -91,15 +87,6 @@ export default function NetworkVisualization() {
     return { x, y };
   };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-pulse text-primary text-xl">Loading your network...</div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background pb-20">
