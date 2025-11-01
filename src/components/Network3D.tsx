@@ -35,6 +35,7 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
   const isDraggingRef = useRef(false);
   const previousMousePositionRef = useRef({ x: 0, y: 0 });
   const spheresRef = useRef<Map<string, THREE.Mesh>>(new Map());
+  const touchDistanceRef = useRef<number | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<NetworkPerson | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const navigate = useNavigate();
@@ -310,7 +311,44 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
       camera.position.z += event.deltaY * 0.01;
+      camera.position.y = camera.position.z * CAMERA_ANGLE_RATIO;
       camera.position.z = Math.max(5, Math.min(20, camera.position.z));
+      camera.position.y = Math.max(5 * CAMERA_ANGLE_RATIO, Math.min(20 * CAMERA_ANGLE_RATIO, camera.position.y));
+    };
+
+    // Touch events for pinch-to-zoom
+    const getTouchDistance = (touches: TouchList) => {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length === 2) {
+        event.preventDefault();
+        touchDistanceRef.current = getTouchDistance(event.touches);
+      }
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (event.touches.length === 2 && touchDistanceRef.current !== null) {
+        event.preventDefault();
+        const currentDistance = getTouchDistance(event.touches);
+        const delta = currentDistance - touchDistanceRef.current;
+        
+        camera.position.z -= delta * 0.02;
+        camera.position.y = camera.position.z * CAMERA_ANGLE_RATIO;
+        camera.position.z = Math.max(5, Math.min(20, camera.position.z));
+        camera.position.y = Math.max(5 * CAMERA_ANGLE_RATIO, Math.min(20 * CAMERA_ANGLE_RATIO, camera.position.y));
+        
+        touchDistanceRef.current = currentDistance;
+      }
+    };
+
+    const onTouchEnd = (event: TouchEvent) => {
+      if (event.touches.length < 2) {
+        touchDistanceRef.current = null;
+      }
     };
 
     renderer.domElement.addEventListener('mousedown', onMouseDown);
@@ -318,6 +356,9 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
     renderer.domElement.addEventListener('mouseup', onMouseUp);
     renderer.domElement.addEventListener('click', onClick);
     renderer.domElement.addEventListener('wheel', onWheel);
+    renderer.domElement.addEventListener('touchstart', onTouchStart, { passive: false });
+    renderer.domElement.addEventListener('touchmove', onTouchMove, { passive: false });
+    renderer.domElement.addEventListener('touchend', onTouchEnd);
 
     // Animation loop
     const animate = () => {
@@ -367,6 +408,9 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
       renderer.domElement.removeEventListener('mouseup', onMouseUp);
       renderer.domElement.removeEventListener('click', onClick);
       renderer.domElement.removeEventListener('wheel', onWheel);
+      renderer.domElement.removeEventListener('touchstart', onTouchStart);
+      renderer.domElement.removeEventListener('touchmove', onTouchMove);
+      renderer.domElement.removeEventListener('touchend', onTouchEnd);
       containerRef.current?.removeChild(renderer.domElement);
       renderer.dispose();
     };
