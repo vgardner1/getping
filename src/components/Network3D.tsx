@@ -43,16 +43,22 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
     // Scene setup
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0a0a0a);
+    // Strong initial tilt so it never starts flat
+    scene.rotation.x = -0.55;
+    scene.rotation.y = 0.25;
     sceneRef.current = scene;
 
-    // Camera setup
+    // Camera setup - start at a high, top-down angle (~55°)
+    const CAMERA_ANGLE_RATIO = 1.4; // y = ratio * z
     const camera = new THREE.PerspectiveCamera(
       75,
       containerRef.current.clientWidth / containerRef.current.clientHeight,
       0.1,
       1000
     );
-    camera.position.z = 12;
+    const initialZ = 10;
+    camera.position.set(0, CAMERA_ANGLE_RATIO * initialZ, initialZ);
+    camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
     // Renderer setup
@@ -115,6 +121,33 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
         scene.add(sprite);
       }
     });
+
+    // Background floating dots for depth
+    const backgroundDots: THREE.Mesh[] = [];
+    for (let i = 0; i < 120; i++) {
+      const dotGeometry = new THREE.SphereGeometry(0.04, 8, 8);
+      const dotMaterial = new THREE.MeshBasicMaterial({
+        color: 0x4ade80,
+        transparent: true,
+        opacity: 0.35,
+      });
+      const dot = new THREE.Mesh(dotGeometry, dotMaterial);
+      const r = Math.random() * 18 + 4; // distance from center
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI;
+      dot.position.set(
+        r * Math.sin(phi) * Math.cos(theta),
+        (Math.random() - 0.5) * 6, // near the ring plane but varied
+        r * Math.sin(phi) * Math.sin(theta)
+      );
+      dot.userData.velocity = {
+        x: (Math.random() - 0.5) * 0.01,
+        y: (Math.random() - 0.5) * 0.01,
+        z: (Math.random() - 0.5) * 0.01,
+      };
+      scene.add(dot);
+      backgroundDots.push(dot);
+    }
 
     // Create people spheres and connections
     const spheres = new Map<string, THREE.Mesh>();
@@ -228,6 +261,17 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
         const material = sphere.material as THREE.MeshPhongMaterial;
         const baseEmissive = sphere.userData.baseEmissive || 0.5;
         material.emissiveIntensity = baseEmissive + Math.sin(time * 2) * 0.3;
+      });
+
+      // Subtle motion for background dots
+      backgroundDots.forEach((dot) => {
+        dot.position.x += dot.userData.velocity.x;
+        dot.position.y += dot.userData.velocity.y;
+        dot.position.z += dot.userData.velocity.z;
+        const limit = 25;
+        if (Math.abs(dot.position.x) > limit) dot.userData.velocity.x *= -1;
+        if (Math.abs(dot.position.y) > limit) dot.userData.velocity.y *= -1;
+        if (Math.abs(dot.position.z) > limit) dot.userData.velocity.z *= -1;
       });
 
       renderer.render(scene, camera);
