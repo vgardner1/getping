@@ -63,7 +63,7 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
 
-    // Create Earth globe - all black with green outline
+    // Create Earth globe - clean black sphere
     const globeRadius = 5;
     const globeGeometry = new THREE.SphereGeometry(globeRadius, 64, 64);
     const globeMaterial = new THREE.MeshPhongMaterial({
@@ -74,16 +74,35 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     const globe = new THREE.Mesh(globeGeometry, globeMaterial);
     scene.add(globe);
 
-    // Add green wireframe outline to make it pop
-    const wireframeGeometry = new THREE.SphereGeometry(globeRadius + 0.02, 32, 32);
-    const wireframeMaterial = new THREE.MeshBasicMaterial({
-      color: 0x4ade80,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.15,
+    // Add subtle green edge glow using a slightly larger transparent sphere
+    const glowGeometry = new THREE.SphereGeometry(globeRadius + 0.05, 64, 64);
+    const glowMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        c: { value: 0.4 },
+        p: { value: 4.5 }
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float c;
+        uniform float p;
+        varying vec3 vNormal;
+        void main() {
+          float intensity = pow(c - dot(vNormal, vec3(0.0, 0.0, 1.0)), p);
+          gl_FragColor = vec4(0.29, 0.87, 0.5, 1.0) * intensity;
+        }
+      `,
+      side: THREE.BackSide,
+      blending: THREE.AdditiveBlending,
+      transparent: true
     });
-    const wireframe = new THREE.Mesh(wireframeGeometry, wireframeMaterial);
-    globe.add(wireframe);
+    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+    globe.add(glow);
 
     // Create a group for all markers and connections that will rotate with the globe
     const globeGroup = new THREE.Group();
@@ -104,36 +123,38 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     const lineMaterial = new THREE.LineBasicMaterial({
       color: 0x4ade80,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.7,
+      linewidth: 2,
     });
 
     people.forEach((person, index) => {
-      const position = latLngToVector3(person.lat, person.lng, globeRadius + 0.25);
+      // Position markers slightly above globe surface
+      const position = latLngToVector3(person.lat, person.lng, globeRadius + 0.3);
 
-      // Create person marker - slightly larger and brighter
+      // Create person marker
       const markerGeometry = new THREE.SphereGeometry(0.12, 16, 16);
       const markerMaterial = new THREE.MeshPhongMaterial({
         color: 0x4ade80,
         emissive: 0x4ade80,
-        emissiveIntensity: 1.0,
+        emissiveIntensity: 1.2,
       });
       const marker = new THREE.Mesh(markerGeometry, markerMaterial);
       marker.position.copy(position);
-      marker.userData = { person, baseEmissive: 1.0 };
+      marker.userData = { person, baseEmissive: 1.2 };
       globeGroup.add(marker);
       spheres.set(person.id, marker);
 
-      // Ensure every person has at least one connection
-      // Connect to previous person
+      // Connect to previous person (ensures all dots are connected)
       if (index > 0) {
         const prevPerson = people[index - 1];
-        const prevPosition = latLngToVector3(prevPerson.lat, prevPerson.lng, globeRadius + 0.25);
+        const prevPosition = latLngToVector3(prevPerson.lat, prevPerson.lng, globeRadius + 0.3);
         
+        // Create arc that stays above globe surface
         const midPoint = new THREE.Vector3()
           .addVectors(position, prevPosition)
           .multiplyScalar(0.5)
           .normalize()
-          .multiplyScalar(globeRadius * 1.2);
+          .multiplyScalar(globeRadius * 1.25); // Arc height above surface
         
         const curve = new THREE.QuadraticBezierCurve3(position, midPoint, prevPosition);
         const points = curve.getPoints(50);
@@ -142,18 +163,19 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
         globeGroup.add(line);
       }
 
-      // Add 1-3 additional connections per person for a denser network
-      const numConnections = Math.floor(Math.random() * 3) + 1;
-      for (let i = 0; i < numConnections && index > 1; i++) {
+      // Add 1-2 random connections for network density
+      const numConnections = Math.floor(Math.random() * 2) + 1;
+      for (let i = 0; i < numConnections && index > 2; i++) {
         const randomIndex = Math.floor(Math.random() * index);
         const randomPerson = people[randomIndex];
-        const randomPosition = latLngToVector3(randomPerson.lat, randomPerson.lng, globeRadius + 0.25);
+        const randomPosition = latLngToVector3(randomPerson.lat, randomPerson.lng, globeRadius + 0.3);
         
+        // Create arc above globe
         const midPoint = new THREE.Vector3()
           .addVectors(position, randomPosition)
           .multiplyScalar(0.5)
           .normalize()
-          .multiplyScalar(globeRadius * 1.15);
+          .multiplyScalar(globeRadius * 1.2);
         
         const curve = new THREE.QuadraticBezierCurve3(position, midPoint, randomPosition);
         const points = curve.getPoints(50);
