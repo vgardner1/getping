@@ -63,29 +63,20 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
 
-    // Create Earth globe
+    // Create Earth globe - all black
     const globeRadius = 5;
     const globeGeometry = new THREE.SphereGeometry(globeRadius, 64, 64);
     const globeMaterial = new THREE.MeshPhongMaterial({
-      color: 0x1a1a1a,
-      emissive: 0x0a0a0a,
-      shininess: 5,
-      transparent: true,
-      opacity: 0.9,
+      color: 0x000000,
+      emissive: 0x000000,
+      shininess: 10,
     });
     const globe = new THREE.Mesh(globeGeometry, globeMaterial);
     scene.add(globe);
 
-    // Add wireframe for globe
-    const wireframeGeometry = new THREE.SphereGeometry(globeRadius + 0.01, 32, 32);
-    const wireframeMaterial = new THREE.MeshBasicMaterial({
-      color: 0x4ade80,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.1,
-    });
-    const wireframe = new THREE.Mesh(wireframeGeometry, wireframeMaterial);
-    scene.add(wireframe);
+    // Create a group for all markers and connections that will rotate with the globe
+    const globeGroup = new THREE.Group();
+    globe.add(globeGroup);
 
     // Convert lat/lng to 3D position
     const latLngToVector3 = (lat: number, lng: number, radius: number) => {
@@ -113,12 +104,12 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
       const markerMaterial = new THREE.MeshPhongMaterial({
         color: 0x4ade80,
         emissive: 0x4ade80,
-        emissiveIntensity: 0.6,
+        emissiveIntensity: 0.8,
       });
       const marker = new THREE.Mesh(markerGeometry, markerMaterial);
       marker.position.copy(position);
-      marker.userData = { person, baseEmissive: 0.6 };
-      scene.add(marker);
+      marker.userData = { person, baseEmissive: 0.8 };
+      globeGroup.add(marker); // Add to globe group so it rotates with the globe
       spheres.set(person.id, marker);
 
       // Create connections to previous markers (create network)
@@ -130,9 +121,9 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
         const curve = new THREE.QuadraticBezierCurve3(
           position,
           new THREE.Vector3(
-            (position.x + prevPosition.x) / 2,
-            (position.y + prevPosition.y) / 2 + 1,
-            (position.z + prevPosition.z) / 2
+            (position.x + prevPosition.x) / 2 * 1.3,
+            (position.y + prevPosition.y) / 2 * 1.3,
+            (position.z + prevPosition.z) / 2 * 1.3
           ),
           prevPosition
         );
@@ -140,7 +131,7 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
         const points = curve.getPoints(50);
         const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
         const line = new THREE.Line(lineGeometry, lineMaterial);
-        scene.add(line);
+        globeGroup.add(line); // Add to globe group so it rotates with the globe
       }
 
       // Add some connections to random other people
@@ -152,9 +143,9 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
         const curve = new THREE.QuadraticBezierCurve3(
           position,
           new THREE.Vector3(
-            (position.x + randomPosition.x) / 2,
-            (position.y + randomPosition.y) / 2 + 1.5,
-            (position.z + randomPosition.z) / 2
+            (position.x + randomPosition.x) / 2 * 1.4,
+            (position.y + randomPosition.y) / 2 * 1.4,
+            (position.z + randomPosition.z) / 2 * 1.4
           ),
           randomPosition
         );
@@ -162,7 +153,7 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
         const points = curve.getPoints(50);
         const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
         const line = new THREE.Line(lineGeometry, lineMaterial);
-        scene.add(line);
+        globeGroup.add(line); // Add to globe group so it rotates with the globe
       }
     });
 
@@ -207,10 +198,9 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
         const deltaX = event.clientX - previousMousePositionRef.current.x;
         const deltaY = event.clientY - previousMousePositionRef.current.y;
 
+        // Rotate the entire globe (markers and connections will rotate with it)
         globe.rotation.y += deltaX * 0.005;
-        wireframe.rotation.y += deltaX * 0.005;
         globe.rotation.x += deltaY * 0.005;
-        wireframe.rotation.x += deltaY * 0.005;
 
         previousMousePositionRef.current = { x: event.clientX, y: event.clientY };
       }
@@ -259,16 +249,15 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
 
       // Gentle rotation when not dragging
       if (!isDraggingRef.current) {
-        globe.rotation.y += 0.001;
-        wireframe.rotation.y += 0.001;
+        globe.rotation.y += 0.002; // Rotate globe and everything on it
       }
 
       // Pulsing glow effect for markers
       const time = Date.now() * 0.001;
       spheres.forEach((sphere) => {
         const material = sphere.material as THREE.MeshPhongMaterial;
-        const baseEmissive = sphere.userData.baseEmissive || 0.6;
-        material.emissiveIntensity = baseEmissive + Math.sin(time * 2) * 0.3;
+        const baseEmissive = sphere.userData.baseEmissive || 0.8;
+        material.emissiveIntensity = baseEmissive + Math.sin(time * 2 + sphere.position.x) * 0.2;
       });
 
       // Animate floating dots
