@@ -19,10 +19,10 @@ interface Network3DProps {
 }
 
 const CIRCLES = [
-  { id: 'family', label: 'Family', radius: 2, color: 0x22c55e },
-  { id: 'friends', label: 'Close Friends', radius: 3.5, color: 0x22c55e },
-  { id: 'business', label: 'Business Partners', radius: 5, color: 0x22c55e },
-  { id: 'acquaintances', label: 'Acquaintances', radius: 6.5, color: 0x22c55e },
+  { id: 'family', label: 'Family', radius: 2, color: 0x4ade80 },
+  { id: 'friends', label: 'Close Friends', radius: 3.5, color: 0x4ade80 },
+  { id: 'business', label: 'Business Partners', radius: 5, color: 0x4ade80 },
+  { id: 'acquaintances', label: 'Acquaintances', radius: 6.5, color: 0x4ade80 },
 ];
 
 export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
@@ -69,32 +69,32 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
     pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
 
-    // Center sphere (user)
+    // Center sphere (user) with glow
     const centerGeometry = new THREE.SphereGeometry(0.3, 32, 32);
     const centerMaterial = new THREE.MeshPhongMaterial({
-      color: 0x22c55e,
-      emissive: 0x22c55e,
-      emissiveIntensity: 0.5,
+      color: 0x4ade80,
+      emissive: 0x4ade80,
+      emissiveIntensity: 0.8,
     });
     const centerSphere = new THREE.Mesh(centerGeometry, centerMaterial);
     scene.add(centerSphere);
 
-    // Create concentric circles
+    // Create horizontal concentric circles (torus rings)
     CIRCLES.forEach((circle) => {
-      const circleGeometry = new THREE.RingGeometry(circle.radius - 0.05, circle.radius + 0.05, 64);
-      const circleMaterial = new THREE.MeshBasicMaterial({
+      const torusGeometry = new THREE.TorusGeometry(circle.radius, 0.02, 16, 100);
+      const torusMaterial = new THREE.MeshBasicMaterial({
         color: circle.color,
         transparent: true,
-        opacity: 0.3,
-        side: THREE.DoubleSide,
+        opacity: 0.4,
       });
-      const circleMesh = new THREE.Mesh(circleGeometry, circleMaterial);
-      scene.add(circleMesh);
+      const torus = new THREE.Mesh(torusGeometry, torusMaterial);
+      torus.rotation.x = Math.PI / 2; // Make horizontal
+      scene.add(torus);
     });
 
     // Create people spheres and connections
     const spheres = new Map<string, THREE.Mesh>();
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x22c55e, transparent: true, opacity: 0.4 });
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x4ade80, transparent: true, opacity: 0.3 });
 
     people.forEach((person) => {
       const circle = CIRCLES.find((c) => c.id === person.circle);
@@ -104,24 +104,25 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
       const angle = (person.angle * Math.PI) / 180;
       const x = radius * Math.cos(angle);
       const z = radius * Math.sin(angle);
+      const y = 0; // Keep on horizontal plane
 
-      // Create person sphere
+      // Create person sphere with pulsing glow
       const sphereGeometry = new THREE.SphereGeometry(0.15, 16, 16);
       const sphereMaterial = new THREE.MeshPhongMaterial({
-        color: 0x22c55e,
-        emissive: 0x22c55e,
-        emissiveIntensity: 0.3,
+        color: 0x4ade80,
+        emissive: 0x4ade80,
+        emissiveIntensity: 0.5,
       });
       const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-      sphere.position.set(x, 0, z);
-      sphere.userData = { person };
+      sphere.position.set(x, y, z);
+      sphere.userData = { person, baseEmissive: 0.5 };
       scene.add(sphere);
       spheres.set(person.id, sphere);
 
       // Create connection line to center
       const points = [];
       points.push(new THREE.Vector3(0, 0, 0));
-      points.push(new THREE.Vector3(x, 0, z));
+      points.push(new THREE.Vector3(x, y, z));
       const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
       const line = new THREE.Line(lineGeometry, lineMaterial);
       scene.add(line);
@@ -196,6 +197,14 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
       if (!isDraggingRef.current) {
         scene.rotation.y += 0.001;
       }
+
+      // Pulsing glow effect for all spheres
+      const time = Date.now() * 0.001;
+      spheres.forEach((sphere) => {
+        const material = sphere.material as THREE.MeshPhongMaterial;
+        const baseEmissive = sphere.userData.baseEmissive || 0.5;
+        material.emissiveIntensity = baseEmissive + Math.sin(time * 2) * 0.3;
+      });
 
       renderer.render(scene, camera);
     };
