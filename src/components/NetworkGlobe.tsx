@@ -40,14 +40,14 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     scene.background = new THREE.Color(0x0a0a0a);
     sceneRef.current = scene;
 
-    // Camera setup - positioned at an angle for better initial view
+    // Camera setup - positioned at 45-degree angle looking down
     const camera = new THREE.PerspectiveCamera(
       60,
       containerRef.current.clientWidth / containerRef.current.clientHeight,
       0.1,
       1000
     );
-    camera.position.set(5, 8, 12); // Angled view instead of straight-on
+    camera.position.set(0, 12, 12); // High angle, looking down at 45 degrees
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
@@ -65,7 +65,7 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
 
-    // Create Earth globe - clean black sphere with initial tilt
+    // Create Earth globe - clean black sphere
     const globeRadius = 5;
     const globeGeometry = new THREE.SphereGeometry(globeRadius, 64, 64);
     const globeMaterial = new THREE.MeshPhongMaterial({
@@ -74,7 +74,6 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
       shininess: 10,
     });
     const globe = new THREE.Mesh(globeGeometry, globeMaterial);
-    globe.rotation.x = 0.3; // Initial tilt for better view
     scene.add(globe);
 
     // Add subtle green edge glow using a slightly larger transparent sphere
