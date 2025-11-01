@@ -27,35 +27,35 @@ export default function NetworkVisualization() {
   }, []);
 
   const initializeSampleNetwork = () => {
-    // Sample network for visualization with global coordinates
+    // Sample network for visualization - dots evenly distributed globally
     const samplePeople: NetworkPerson[] = [
-      // Family circle
-      { id: '1', name: 'Mom', circle: 'family', angle: 0, lat: 40.7128, lng: -74.0060 }, // NYC
-      { id: '2', name: 'Dad', circle: 'family', angle: 90, lat: 34.0522, lng: -118.2437 }, // LA
-      { id: '3', name: 'Sister', circle: 'family', angle: 180, lat: 41.8781, lng: -87.6298 }, // Chicago
-      { id: '4', name: 'Brother', circle: 'family', angle: 270, lat: 51.5074, lng: -0.1278 }, // London
+      // Northern Hemisphere - spread across different longitudes
+      { id: '1', name: 'Mom', circle: 'family', angle: 0, lat: 40.7128, lng: -74.0060 }, // New York
+      { id: '2', name: 'Dad', circle: 'family', angle: 90, lat: 51.5074, lng: -0.1278 }, // London
+      { id: '3', name: 'Sister', circle: 'family', angle: 180, lat: 48.8566, lng: 2.3522 }, // Paris
+      { id: '4', name: 'Brother', circle: 'family', angle: 270, lat: 35.6762, lng: 139.6503 }, // Tokyo
       
-      // Friends circle
-      { id: '5', name: 'Best Friend', circle: 'friends', angle: 30, lat: 48.8566, lng: 2.3522 }, // Paris
-      { id: '6', name: 'College Friend', circle: 'friends', angle: 90, lat: 35.6762, lng: 139.6503 }, // Tokyo
-      { id: '7', name: 'Gym Buddy', circle: 'friends', angle: 150, lat: -33.8688, lng: 151.2093 }, // Sydney
-      { id: '8', name: 'Roommate', circle: 'friends', angle: 210, lat: 52.5200, lng: 13.4050 }, // Berlin
-      { id: '9', name: 'Childhood Friend', circle: 'friends', angle: 270, lat: 37.7749, lng: -122.4194 }, // SF
-      { id: '10', name: 'Travel Buddy', circle: 'friends', angle: 330, lat: 55.7558, lng: 37.6173 }, // Moscow
+      // Mid-latitude spread
+      { id: '5', name: 'Best Friend', circle: 'friends', angle: 30, lat: 37.7749, lng: -122.4194 }, // San Francisco
+      { id: '6', name: 'College Friend', circle: 'friends', angle: 90, lat: 55.7558, lng: 37.6173 }, // Moscow
+      { id: '7', name: 'Gym Buddy', circle: 'friends', angle: 150, lat: 52.5200, lng: 13.4050 }, // Berlin
+      { id: '8', name: 'Roommate', circle: 'friends', angle: 210, lat: 25.2048, lng: 55.2708 }, // Dubai
+      { id: '9', name: 'Childhood Friend', circle: 'friends', angle: 270, lat: 1.3521, lng: 103.8198 }, // Singapore
+      { id: '10', name: 'Travel Buddy', circle: 'friends', angle: 330, lat: 19.4326, lng: -99.1332 }, // Mexico City
       
-      // Business circle
-      { id: '11', name: 'Co-founder', circle: 'business', angle: 45, lat: -23.5505, lng: -46.6333 }, // Sao Paulo
-      { id: '12', name: 'Investor', circle: 'business', angle: 135, lat: 1.3521, lng: 103.8198 }, // Singapore
-      { id: '13', name: 'Mentor', circle: 'business', angle: 225, lat: 19.4326, lng: -99.1332 }, // Mexico City
-      { id: '14', name: 'Business Partner', circle: 'business', angle: 315, lat: 25.2048, lng: 55.2708 }, // Dubai
-      { id: '15', name: 'Client', circle: 'business', angle: 90, lat: -34.6037, lng: -58.3816 }, // Buenos Aires
+      // Southern Hemisphere - balanced distribution
+      { id: '11', name: 'Co-founder', circle: 'business', angle: 45, lat: -23.5505, lng: -46.6333 }, // São Paulo
+      { id: '12', name: 'Investor', circle: 'business', angle: 135, lat: -33.8688, lng: 151.2093 }, // Sydney
+      { id: '13', name: 'Mentor', circle: 'business', angle: 225, lat: -34.6037, lng: -58.3816 }, // Buenos Aires
+      { id: '14', name: 'Business Partner', circle: 'business', angle: 315, lat: -26.2041, lng: 28.0473 }, // Johannesburg
       
-      // Acquaintances circle
-      { id: '16', name: 'Neighbor', circle: 'acquaintances', angle: 60, lat: 59.3293, lng: 18.0686 }, // Stockholm
-      { id: '17', name: 'Old Classmate', circle: 'acquaintances', angle: 120, lat: 45.4215, lng: -75.6972 }, // Ottawa
-      { id: '18', name: 'Coffee Shop Regular', circle: 'acquaintances', angle: 180, lat: 41.9028, lng: 12.4964 }, // Rome
+      // Arctic/tropical mix for global coverage
+      { id: '15', name: 'Client', circle: 'business', angle: 90, lat: 59.3293, lng: 18.0686 }, // Stockholm
+      { id: '16', name: 'Neighbor', circle: 'acquaintances', angle: 60, lat: -41.2865, lng: 174.7762 }, // Wellington
+      { id: '17', name: 'Old Classmate', circle: 'acquaintances', angle: 120, lat: 13.7563, lng: 100.5018 }, // Bangkok
+      { id: '18', name: 'Coffee Shop Regular', circle: 'acquaintances', angle: 180, lat: 30.0444, lng: 31.2357 }, // Cairo
       { id: '19', name: 'Book Club Member', circle: 'acquaintances', angle: 240, lat: 39.9042, lng: 116.4074 }, // Beijing
-      { id: '20', name: 'Dog Park Friend', circle: 'acquaintances', angle: 300, lat: -26.2041, lng: 28.0473 }, // Johannesburg
+      { id: '20', name: 'Dog Park Friend', circle: 'acquaintances', angle: 300, lat: 37.5665, lng: 126.9780 }, // Seoul
     ];
     setPeople(samplePeople);
   };

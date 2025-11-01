@@ -63,7 +63,7 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
 
-    // Create Earth globe - all black
+    // Create Earth globe - all black with green outline
     const globeRadius = 5;
     const globeGeometry = new THREE.SphereGeometry(globeRadius, 64, 64);
     const globeMaterial = new THREE.MeshPhongMaterial({
@@ -73,6 +73,17 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     });
     const globe = new THREE.Mesh(globeGeometry, globeMaterial);
     scene.add(globe);
+
+    // Add green wireframe outline to make it pop
+    const wireframeGeometry = new THREE.SphereGeometry(globeRadius + 0.02, 32, 32);
+    const wireframeMaterial = new THREE.MeshBasicMaterial({
+      color: 0x4ade80,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.15,
+    });
+    const wireframe = new THREE.Mesh(wireframeGeometry, wireframeMaterial);
+    globe.add(wireframe);
 
     // Create a group for all markers and connections that will rotate with the globe
     const globeGroup = new THREE.Group();
@@ -93,67 +104,62 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     const lineMaterial = new THREE.LineBasicMaterial({
       color: 0x4ade80,
       transparent: true,
-      opacity: 0.4,
+      opacity: 0.6,
     });
 
     people.forEach((person, index) => {
-      const position = latLngToVector3(person.lat, person.lng, globeRadius + 0.2);
+      const position = latLngToVector3(person.lat, person.lng, globeRadius + 0.25);
 
-      // Create person marker
-      const markerGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+      // Create person marker - slightly larger and brighter
+      const markerGeometry = new THREE.SphereGeometry(0.12, 16, 16);
       const markerMaterial = new THREE.MeshPhongMaterial({
         color: 0x4ade80,
         emissive: 0x4ade80,
-        emissiveIntensity: 0.8,
+        emissiveIntensity: 1.0,
       });
       const marker = new THREE.Mesh(markerGeometry, markerMaterial);
       marker.position.copy(position);
-      marker.userData = { person, baseEmissive: 0.8 };
-      globeGroup.add(marker); // Add to globe group so it rotates with the globe
+      marker.userData = { person, baseEmissive: 1.0 };
+      globeGroup.add(marker);
       spheres.set(person.id, marker);
 
-      // Create connections to previous markers (create network)
+      // Ensure every person has at least one connection
+      // Connect to previous person
       if (index > 0) {
         const prevPerson = people[index - 1];
-        const prevPosition = latLngToVector3(prevPerson.lat, prevPerson.lng, globeRadius + 0.2);
+        const prevPosition = latLngToVector3(prevPerson.lat, prevPerson.lng, globeRadius + 0.25);
         
-        // Create curved line between points
-        const curve = new THREE.QuadraticBezierCurve3(
-          position,
-          new THREE.Vector3(
-            (position.x + prevPosition.x) / 2 * 1.3,
-            (position.y + prevPosition.y) / 2 * 1.3,
-            (position.z + prevPosition.z) / 2 * 1.3
-          ),
-          prevPosition
-        );
+        const midPoint = new THREE.Vector3()
+          .addVectors(position, prevPosition)
+          .multiplyScalar(0.5)
+          .normalize()
+          .multiplyScalar(globeRadius * 1.2);
         
+        const curve = new THREE.QuadraticBezierCurve3(position, midPoint, prevPosition);
         const points = curve.getPoints(50);
         const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
         const line = new THREE.Line(lineGeometry, lineMaterial);
-        globeGroup.add(line); // Add to globe group so it rotates with the globe
+        globeGroup.add(line);
       }
 
-      // Add some connections to random other people
-      if (index > 2 && Math.random() > 0.6) {
-        const randomIndex = Math.floor(Math.random() * (index - 1));
+      // Add 1-3 additional connections per person for a denser network
+      const numConnections = Math.floor(Math.random() * 3) + 1;
+      for (let i = 0; i < numConnections && index > 1; i++) {
+        const randomIndex = Math.floor(Math.random() * index);
         const randomPerson = people[randomIndex];
-        const randomPosition = latLngToVector3(randomPerson.lat, randomPerson.lng, globeRadius + 0.2);
+        const randomPosition = latLngToVector3(randomPerson.lat, randomPerson.lng, globeRadius + 0.25);
         
-        const curve = new THREE.QuadraticBezierCurve3(
-          position,
-          new THREE.Vector3(
-            (position.x + randomPosition.x) / 2 * 1.4,
-            (position.y + randomPosition.y) / 2 * 1.4,
-            (position.z + randomPosition.z) / 2 * 1.4
-          ),
-          randomPosition
-        );
+        const midPoint = new THREE.Vector3()
+          .addVectors(position, randomPosition)
+          .multiplyScalar(0.5)
+          .normalize()
+          .multiplyScalar(globeRadius * 1.15);
         
+        const curve = new THREE.QuadraticBezierCurve3(position, midPoint, randomPosition);
         const points = curve.getPoints(50);
         const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
         const line = new THREE.Line(lineGeometry, lineMaterial);
-        globeGroup.add(line); // Add to globe group so it rotates with the globe
+        globeGroup.add(line);
       }
     });
 
