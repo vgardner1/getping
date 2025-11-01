@@ -58,7 +58,7 @@ export const BottomNav = () => {
     }`;
 
   return (
-    <nav className="fixed bottom-2 left-1/2 -translate-x-1/2 z-40 w-[min(640px,92%)] bg-card/90 backdrop-blur border border-border rounded-2xl shadow-lg px-2 py-2">
+    <nav className="fixed bottom-2 left-1/2 -translate-x-1/2 z-40 w-[min(480px,88%)] bg-card/90 backdrop-blur border border-border rounded-2xl shadow-lg px-2 py-1.5">
       <ul className="flex items-center justify-between">
         {items.map(({ to, label, icon: Icon, hasNotification }) => (
           <li key={to} className="flex-1">
@@ -76,7 +76,8 @@ export const BottomNav = () => {
               }}
             >
               <div className="relative">
-                <Icon className="h-6 w-6" />
+                <Icon className="h-5 w-5" />
+
                 {hasNotification && (
                   <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
                     <span className="text-white text-xs font-bold">!</span>
