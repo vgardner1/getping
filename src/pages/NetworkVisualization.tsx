@@ -4,7 +4,9 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Globe, Circle } from 'lucide-react';
 import { Network3D } from '@/components/Network3D';
 import { NetworkGlobe } from '@/components/NetworkGlobe';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { ChatList } from '@/components/ChatList';
+import { MessageCircle } from 'lucide-react';
 
 interface NetworkPerson {
   id: string;
@@ -19,7 +21,7 @@ interface NetworkPerson {
 export default function NetworkVisualization() {
   const navigate = useNavigate();
   const [people, setPeople] = useState<NetworkPerson[]>([]);
-  const [viewMode, setViewMode] = useState<'circles' | 'globe'>('circles');
+  const [viewMode, setViewMode] = useState<'chats' | 'circles' | 'globe'>('chats');
 
   useEffect(() => {
     // Initialize with sample data for demonstration
@@ -78,18 +80,26 @@ export default function NetworkVisualization() {
         <h1 className="text-4xl font-bold iridescent-text">visualize your network</h1>
       </div>
 
-      <div className="flex-1 w-full h-full">
-        {viewMode === 'circles' ? (
+      <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'chats' | 'circles' | 'globe')} className="flex-1 flex flex-col w-full h-full">
+        <TabsContent value="chats" className="flex-1 m-0 h-full">
+          <ChatList />
+        </TabsContent>
+        
+        <TabsContent value="circles" className="flex-1 m-0 h-full">
           <Network3D people={people} onPersonClick={handlePersonClick} />
-        ) : (
+        </TabsContent>
+        
+        <TabsContent value="globe" className="flex-1 m-0 h-full">
           <NetworkGlobe people={people} onPersonClick={handlePersonClick} />
-        )}
-      </div>
+        </TabsContent>
 
-      {/* View toggle at bottom */}
-      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50">
-        <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'circles' | 'globe')}>
+        {/* View toggle at bottom */}
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50">
           <TabsList className="bg-card/95 backdrop-blur border border-border">
+            <TabsTrigger value="chats" className="gap-2">
+              <MessageCircle className="h-4 w-4" />
+              Chats
+            </TabsTrigger>
             <TabsTrigger value="circles" className="gap-2">
               <Circle className="h-4 w-4" />
               Circles
@@ -99,8 +109,8 @@ export default function NetworkVisualization() {
               Globe
             </TabsTrigger>
           </TabsList>
-        </Tabs>
-      </div>
+        </div>
+      </Tabs>
     </div>
   );
 }
