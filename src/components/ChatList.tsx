@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
-import { MessageCircle, X } from 'lucide-react';
+import { MessageCircle, X, ArrowLeft, Send, Search as SearchIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -42,6 +42,7 @@ export function ChatList() {
   const [newMessage, setNewMessage] = useState('');
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [chatLoading, setChatLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     loadConnections();
@@ -235,7 +236,7 @@ export function ChatList() {
                 setNewMessage('');
               }}
             >
-              <X className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5" />
             </Button>
             <Avatar className="w-10 h-10">
               <AvatarImage src={profile.avatar || ''} alt={profile.name} />
@@ -295,13 +296,25 @@ export function ChatList() {
               disabled={!newMessage.trim() || chatLoading}
               size="icon"
             >
-              <MessageCircle className="w-4 h-4" />
+              <Send className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </div>
     );
   }
+
+  // Get other user IDs from connections
+  const otherUserIds = connections.map(c => c.user_id === user?.id ? c.target_user_id : c.user_id);
+
+  // Filter connections based on search
+  const filteredUserIds = otherUserIds.filter(otherId => {
+    const profile = profiles[otherId];
+    if (!profile) return false;
+    
+    const query = searchQuery.toLowerCase();
+    return profile.name.toLowerCase().includes(query);
+  });
   // List view
   if (loading) {
     return (
@@ -314,56 +327,81 @@ export function ChatList() {
     );
   }
 
-  const otherUserIds = connections.map(c => c.user_id === user?.id ? c.target_user_id : c.user_id);
   
-  if (otherUserIds.length === 0) {
+  if (filteredUserIds.length === 0 && searchQuery) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center max-w-md px-4">
-          <MessageCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-xl font-semibold mb-2">No conversations yet</h3>
-          <p className="text-muted-foreground">
-            Start connecting with people in your network to begin chatting
-          </p>
+      <div className="h-full flex flex-col">
+        <div className="p-4 border-b border-border">
+          <div className="relative">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search conversations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+        <div className="flex items-center justify-center flex-1">
+          <div className="text-center max-w-md px-4">
+            <SearchIcon className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-xl font-semibold mb-2">No results found</h3>
+            <p className="text-muted-foreground">
+              Try a different search term
+            </p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full overflow-y-auto p-4 space-y-2">
-      {otherUserIds.map((otherId) => {
-        const profile = profiles[otherId];
-        if (!profile) return null;
-        
-        return (
-          <Card
-            key={otherId}
-            className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
-            onClick={() => handleChatClick(otherId)}
-          >
-            <div className="flex items-center gap-3">
-              <Avatar className="w-12 h-12">
-                <AvatarImage src={profile.avatar || ''} alt={profile.name} />
-                <AvatarFallback>{profile.name[0]}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-semibold text-foreground truncate">
-                    {profile.name}
-                  </h4>
-                  {unreadCounts[otherId] > 0 && (
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  )}
+    <div className="h-full flex flex-col">
+      <div className="p-4 border-b border-border">
+        <div className="relative">
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search conversations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+        {filteredUserIds.map((otherId) => {
+          const profile = profiles[otherId];
+          if (!profile) return null;
+          
+          return (
+            <Card
+              key={otherId}
+              className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
+              onClick={() => handleChatClick(otherId)}
+            >
+              <div className="flex items-center gap-3">
+                <Avatar className="w-12 h-12">
+                  <AvatarImage src={profile.avatar || ''} alt={profile.name} />
+                  <AvatarFallback>{profile.name[0]}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold text-foreground truncate">
+                      {profile.name}
+                    </h4>
+                    {unreadCounts[otherId] > 0 && (
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Tap to chat
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Tap to chat
-                </p>
               </div>
-            </div>
-          </Card>
-        );
-      })}
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -77,10 +77,10 @@ export default function NetworkVisualization() {
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-4xl font-bold iridescent-text">visualize your network</h1>
+        <h1 className="text-4xl font-bold iridescent-text">visualize your circle</h1>
       </div>
 
-      <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'chats' | 'circles' | 'globe')} className="flex-1 flex flex-col w-full h-full">
+      <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'chats' | 'circles' | 'globe')} className="flex-1 flex flex-col w-full h-full pt-20">
         <TabsContent value="chats" className="flex-1 m-0 h-full">
           <ChatList />
         </TabsContent>
