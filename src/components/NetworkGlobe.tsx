@@ -43,13 +43,15 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     sceneRef.current = scene;
 
     // Camera setup - positioned at 45-degree angle looking down at the network
+    const isMobile = window.innerWidth < 768;
     const camera = new THREE.PerspectiveCamera(
       60,
       containerRef.current.clientWidth / containerRef.current.clientHeight,
       0.1,
       1000
     );
-    camera.position.set(0, 15, 10); // High position, looking down at network circles
+    const initialZ = isMobile ? 15 : 10;
+    camera.position.set(0, 15, initialZ); // High position, looking down at network circles
     camera.lookAt(0, 2, 0); // Look at slightly above center to focus on network
     cameraRef.current = camera;
 
@@ -263,8 +265,10 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
         const deltaY = event.clientY - previousMousePositionRef.current.y;
 
         // Rotate the entire globe (markers and connections will rotate with it)
-        globe.rotation.y += deltaX * 0.005;
-        globe.rotation.x += deltaY * 0.005;
+        if (globe) {
+          globe.rotation.y += deltaX * 0.005;
+          globe.rotation.x += deltaY * 0.005;
+        }
 
         previousMousePositionRef.current = { x: event.clientX, y: event.clientY };
       }
@@ -292,38 +296,54 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
         const worldPosition = new THREE.Vector3();
         clickedSphere.getWorldPosition(worldPosition);
         
-        // Animate camera zoom to the clicked marker
-        isZoomingRef.current = true;
-        const startPosition = camera.position.clone();
-        const startZ = camera.position.z;
-        const targetZ = 8; // Closer zoom
+        // Calculate direction from globe center to marker
+        const direction = worldPosition.clone().normalize();
         
-        let animationProgress = 0;
-        const animationDuration = 1000; // 1 second
-        const startTime = Date.now();
-        
-        const animateZoom = () => {
-          const elapsed = Date.now() - startTime;
-          animationProgress = Math.min(elapsed / animationDuration, 1);
+        // Rotate globe to bring the marker to the front
+        const globe = globeRef.current;
+        if (globe) {
+          // Calculate target rotation
+          const targetRotationY = Math.atan2(direction.x, direction.z);
+          const targetRotationX = -Math.asin(direction.y);
           
-          // Smooth easing function
-          const easeProgress = 1 - Math.pow(1 - animationProgress, 3);
+          const startRotationY = globe.rotation.y;
+          const startRotationX = globe.rotation.x;
           
-          // Interpolate camera zoom
-          camera.position.z = startZ + (targetZ - startZ) * easeProgress;
+          // Animate camera zoom and globe rotation
+          isZoomingRef.current = true;
+          const startZ = camera.position.z;
+          const targetZ = 8; // Closer zoom
           
-          camera.lookAt(0, 2, 0);
+          let animationProgress = 0;
+          const animationDuration = 1000;
+          const startTime = Date.now();
           
-          if (animationProgress < 1) {
-            requestAnimationFrame(animateZoom);
-          } else {
-            isZoomingRef.current = false;
-            setSelectedPerson(person);
-            setShowMenu(true);
-          }
-        };
-        
-        animateZoom();
+          const animateZoom = () => {
+            const elapsed = Date.now() - startTime;
+            animationProgress = Math.min(elapsed / animationDuration, 1);
+            
+            // Smooth easing
+            const easeProgress = 1 - Math.pow(1 - animationProgress, 3);
+            
+            // Rotate globe to bring marker to front
+            globe.rotation.y = startRotationY + (targetRotationY - startRotationY) * easeProgress;
+            globe.rotation.x = startRotationX + (targetRotationX - startRotationX) * easeProgress;
+            
+            // Zoom camera
+            camera.position.z = startZ + (targetZ - startZ) * easeProgress;
+            camera.lookAt(0, 2, 0);
+            
+            if (animationProgress < 1) {
+              requestAnimationFrame(animateZoom);
+            } else {
+              isZoomingRef.current = false;
+              setSelectedPerson(person);
+              setShowMenu(true);
+            }
+          };
+          
+          animateZoom();
+        }
         
         if (onPersonClick) {
           onPersonClick(person);
@@ -341,7 +361,43 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     renderer.domElement.addEventListener('mousemove', onMouseMove);
     renderer.domElement.addEventListener('mouseup', onMouseUp);
     renderer.domElement.addEventListener('click', onClick);
-    renderer.domElement.addEventListener('wheel', onWheel);
+    // Touch events for mobile
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length === 1) {
+        // Single finger drag
+        isDraggingRef.current = true;
+        previousMousePositionRef.current = { 
+          x: event.touches[0].clientX, 
+          y: event.touches[0].clientY 
+        };
+      }
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (event.touches.length === 1 && isDraggingRef.current) {
+        // Single finger rotation
+        const deltaX = event.touches[0].clientX - previousMousePositionRef.current.x;
+        const deltaY = event.touches[0].clientY - previousMousePositionRef.current.y;
+
+        if (globe) {
+          globe.rotation.y += deltaX * 0.005;
+          globe.rotation.x += deltaY * 0.005;
+        }
+
+        previousMousePositionRef.current = { 
+          x: event.touches[0].clientX, 
+          y: event.touches[0].clientY 
+        };
+      }
+    };
+
+    const onTouchEnd = () => {
+      isDraggingRef.current = false;
+    };
+
+    renderer.domElement.addEventListener('touchstart', onTouchStart);
+    renderer.domElement.addEventListener('touchmove', onTouchMove);
+    renderer.domElement.addEventListener('touchend', onTouchEnd);
 
     // Animation loop
     const animate = () => {
@@ -392,6 +448,9 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
       renderer.domElement.removeEventListener('mouseup', onMouseUp);
       renderer.domElement.removeEventListener('click', onClick);
       renderer.domElement.removeEventListener('wheel', onWheel);
+      renderer.domElement.removeEventListener('touchstart', onTouchStart);
+      renderer.domElement.removeEventListener('touchmove', onTouchMove);
+      renderer.domElement.removeEventListener('touchend', onTouchEnd);
       containerRef.current?.removeChild(renderer.domElement);
       renderer.dispose();
     };

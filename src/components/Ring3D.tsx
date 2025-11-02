@@ -59,7 +59,7 @@ const Ring3D = () => {
     ringRef.current = ring;
     scene.add(ring);
 
-    // Mouse interaction
+    // Mouse and touch interaction
     let isDragging = false;
     let previousMousePosition = { x: 0, y: 0 };
     let userInteracting = false;
@@ -91,9 +91,49 @@ const Ring3D = () => {
       }, 1000);
     };
 
+    // Touch events for mobile
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length === 1) {
+        isDragging = true;
+        userInteracting = true;
+        previousMousePosition = { 
+          x: event.touches[0].clientX, 
+          y: event.touches[0].clientY 
+        };
+      }
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (event.touches.length === 1 && isDragging && ring) {
+        event.preventDefault();
+        const deltaMove = {
+          x: event.touches[0].clientX - previousMousePosition.x,
+          y: event.touches[0].clientY - previousMousePosition.y
+        };
+
+        ring.rotation.y += deltaMove.x * 0.01;
+        ring.rotation.x += deltaMove.y * 0.01;
+
+        previousMousePosition = { 
+          x: event.touches[0].clientX, 
+          y: event.touches[0].clientY 
+        };
+      }
+    };
+
+    const onTouchEnd = () => {
+      isDragging = false;
+      setTimeout(() => {
+        userInteracting = false;
+      }, 1000);
+    };
+
     renderer.domElement.addEventListener('mousedown', onMouseDown);
+    renderer.domElement.addEventListener('touchstart', onTouchStart, { passive: false });
     document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
     document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('touchend', onTouchEnd);
 
     // Animation loop
     const animate = () => {
@@ -111,8 +151,11 @@ const Ring3D = () => {
     // Cleanup
     return () => {
       renderer.domElement.removeEventListener('mousedown', onMouseDown);
+      renderer.domElement.removeEventListener('touchstart', onTouchStart);
       document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('touchmove', onTouchMove);
       document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('touchend', onTouchEnd);
       
       if (mountRef.current && renderer.domElement) {
         mountRef.current.removeChild(renderer.domElement);

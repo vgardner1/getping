@@ -91,7 +91,9 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
       0.1,
       1000
     );
-    const initialZ = 10;
+    // Start further back on mobile to avoid cutoff
+    const isMobile = window.innerWidth < 768;
+    const initialZ = isMobile ? 15 : 10;
     camera.position.set(0, CAMERA_ANGLE_RATIO * initialZ, initialZ);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
@@ -333,13 +335,20 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
         const clickedSphere = intersects[0].object as THREE.Mesh;
         const person = clickedSphere.userData.person as NetworkPerson;
         
+        // Get the sphere's world position
+        const targetWorldPos = new THREE.Vector3();
+        clickedSphere.getWorldPosition(targetWorldPos);
+        
+        // Calculate camera target position to focus on the dot
+        const startPosition = camera.position.clone();
+        const distance = 3; // Distance from the dot
+        const direction = targetWorldPos.clone().normalize();
+        const targetPosition = targetWorldPos.clone().add(
+          new THREE.Vector3(direction.x * distance, distance * 1.5, direction.z * distance)
+        );
+        
         // Animate camera zoom to the clicked sphere
         isZoomingRef.current = true;
-        const targetPosition = clickedSphere.position.clone();
-        const startPosition = camera.position.clone();
-        const startZ = camera.position.z;
-        const targetZ = 4; // Zoom in closer
-        const targetY = targetPosition.y + 2; // Position above the target
         
         let animationProgress = 0;
         const animationDuration = 1000; // 1 second
@@ -353,10 +362,8 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
           const easeProgress = 1 - Math.pow(1 - animationProgress, 3);
           
           // Interpolate camera position
-          camera.position.z = startZ + (targetZ - startZ) * easeProgress;
-          camera.position.y = camera.position.z * CAMERA_ANGLE_RATIO;
-          
-          camera.lookAt(0, 0, 0);
+          camera.position.lerp(targetPosition, easeProgress * 0.1);
+          camera.lookAt(targetWorldPos);
           
           if (animationProgress < 1) {
             requestAnimationFrame(animateZoom);
@@ -391,14 +398,33 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
     };
 
     const onTouchStart = (event: TouchEvent) => {
-      if (event.touches.length === 2) {
+      if (event.touches.length === 1) {
+        // Single finger drag
+        isDraggingRef.current = true;
+        previousMousePositionRef.current = { 
+          x: event.touches[0].clientX, 
+          y: event.touches[0].clientY 
+        };
+      } else if (event.touches.length === 2) {
         event.preventDefault();
         touchDistanceRef.current = getTouchDistance(event.touches);
       }
     };
 
     const onTouchMove = (event: TouchEvent) => {
-      if (event.touches.length === 2 && touchDistanceRef.current !== null) {
+      if (event.touches.length === 1 && isDraggingRef.current) {
+        // Single finger rotation
+        const deltaX = event.touches[0].clientX - previousMousePositionRef.current.x;
+        const deltaY = event.touches[0].clientY - previousMousePositionRef.current.y;
+
+        scene.rotation.y += deltaX * 0.005;
+        scene.rotation.x += deltaY * 0.005;
+
+        previousMousePositionRef.current = { 
+          x: event.touches[0].clientX, 
+          y: event.touches[0].clientY 
+        };
+      } else if (event.touches.length === 2 && touchDistanceRef.current !== null) {
         event.preventDefault();
         const currentDistance = getTouchDistance(event.touches);
         const delta = currentDistance - touchDistanceRef.current;
@@ -413,6 +439,9 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
     };
 
     const onTouchEnd = (event: TouchEvent) => {
+      if (event.touches.length < 1) {
+        isDraggingRef.current = false;
+      }
       if (event.touches.length < 2) {
         touchDistanceRef.current = null;
       }
