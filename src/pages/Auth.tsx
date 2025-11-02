@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { createChatWithUser } from '@/utils/chatUtils';
 import { safeRedirect } from '@/lib/utils';
 import { z } from 'zod';
+import { Eye, EyeOff } from 'lucide-react';
 
 // Input validation schemas
 const emailSchema = z.string().email('Invalid email address').max(255, 'Email too long');
@@ -21,6 +22,7 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [instagramHandle, setInstagramHandle] = useState('');
   const [linkedinUrl, setLinkedinUrl] = useState('');
@@ -377,15 +379,31 @@ const handleSubmit = (e: React.FormEvent) => {
 
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </div>
             </div>
 
             <Button 
