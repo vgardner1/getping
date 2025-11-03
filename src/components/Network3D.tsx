@@ -322,7 +322,7 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
     };
 
     const onClick = (event: MouseEvent) => {
-      if (!containerRef.current || !camera) return;
+      if (!containerRef.current || !camera || !scene) return;
 
       const rect = containerRef.current.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -335,10 +335,50 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
         const clickedSphere = intersects[0].object as THREE.Mesh;
         const person = clickedSphere.userData.person as NetworkPerson;
         
-        // Navigate to profile immediately
-        if (person.userId) {
-          navigate(`/ping/${person.userId}`);
-        }
+        // Show popup with person details
+        setSelectedPerson(person);
+        setShowMenu(true);
+        
+        // Zoom and center on the clicked sphere
+        isZoomingRef.current = true;
+        const targetPosition = clickedSphere.position.clone();
+        const startCameraPosition = camera.position.clone();
+        const startSceneRotation = { x: scene.rotation.x, y: scene.rotation.y };
+        
+        // Calculate target camera position (zoom in closer)
+        const direction = targetPosition.clone().normalize();
+        const targetCameraPosition = direction.multiplyScalar(6);
+        targetCameraPosition.y = CAMERA_ANGLE_RATIO * 6;
+        
+        // Calculate target scene rotation to center the sphere
+        const targetSceneRotation = {
+          x: -targetPosition.y * 0.3,
+          y: -Math.atan2(targetPosition.x, targetPosition.z)
+        };
+        
+        let progress = 0;
+        const duration = 1000;
+        const startTime = Date.now();
+        
+        const animateZoom = () => {
+          const elapsed = Date.now() - startTime;
+          progress = Math.min(elapsed / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          
+          camera.position.lerpVectors(startCameraPosition, targetCameraPosition, eased);
+          camera.lookAt(0, 0, 0);
+          
+          scene.rotation.x = startSceneRotation.x + (targetSceneRotation.x - startSceneRotation.x) * eased;
+          scene.rotation.y = startSceneRotation.y + (targetSceneRotation.y - startSceneRotation.y) * eased;
+          
+          if (progress < 1) {
+            requestAnimationFrame(animateZoom);
+          } else {
+            isZoomingRef.current = false;
+          }
+        };
+        
+        animateZoom();
         
         if (onPersonClick) {
           onPersonClick(person);

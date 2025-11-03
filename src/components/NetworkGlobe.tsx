@@ -279,7 +279,7 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
     };
 
     const onClick = (event: MouseEvent) => {
-      if (!containerRef.current || !camera) return;
+      if (!containerRef.current || !camera || !globe) return;
 
       const rect = containerRef.current.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -292,10 +292,47 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
         const clickedSphere = intersects[0].object as THREE.Mesh;
         const person = clickedSphere.userData.person as NetworkPerson;
         
-        // Navigate to profile immediately
-        if (person.userId) {
-          navigate(`/ping/${person.userId}`);
-        }
+        // Show popup with person details
+        setSelectedPerson(person);
+        setShowMenu(true);
+        
+        // Zoom and rotate globe to center on the clicked marker
+        isZoomingRef.current = true;
+        const startCameraZ = camera.position.z;
+        const startGlobeRotation = { x: globe.rotation.x, y: globe.rotation.y };
+        
+        // Get marker position in world space
+        const worldPosition = new THREE.Vector3();
+        clickedSphere.getWorldPosition(worldPosition);
+        
+        // Calculate target rotation to bring marker to front
+        const targetRotationY = Math.atan2(worldPosition.x, worldPosition.z);
+        const targetRotationX = -Math.asin(worldPosition.y / globeRadius);
+        
+        let progress = 0;
+        const duration = 1000;
+        const startTime = Date.now();
+        
+        const animateZoom = () => {
+          const elapsed = Date.now() - startTime;
+          progress = Math.min(elapsed / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          
+          // Zoom camera closer
+          camera.position.z = startCameraZ - (startCameraZ - 8) * eased;
+          
+          // Rotate globe to center the marker
+          globe.rotation.y = startGlobeRotation.y + (targetRotationY - startGlobeRotation.y) * eased;
+          globe.rotation.x = startGlobeRotation.x + (targetRotationX - startGlobeRotation.x) * eased;
+          
+          if (progress < 1) {
+            requestAnimationFrame(animateZoom);
+          } else {
+            isZoomingRef.current = false;
+          }
+        };
+        
+        animateZoom();
         
         if (onPersonClick) {
           onPersonClick(person);
