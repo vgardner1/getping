@@ -167,7 +167,7 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
       className="bg-transparent border-none text-primary hover:bg-transparent hover:text-primary/80 text-sm font-medium w-full py-3 animate-pulse-scale"
     >
       <Download className="w-4 h-4 mr-2" />
-      save contact
+      transfer contact
     </Button>
   );
 };

@@ -241,7 +241,13 @@ export function ChatList({ searchQuery = '' }: ChatListProps) {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <Avatar className="w-10 h-10">
+            <Avatar 
+              className="w-10 h-10 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/profile/${activeChatUserId}`);
+              }}
+            >
               <AvatarImage src={profile.avatar || ''} alt={profile.name} />
               <AvatarFallback>{profile.name[0]}</AvatarFallback>
             </Avatar>
