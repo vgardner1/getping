@@ -60,11 +60,11 @@ serve(async (req) => {
     if (!resumeText || resumeText.length < 100) {
       console.warn('Resume text extraction yielded insufficient content');
       return new Response(JSON.stringify({ 
-        success: false,
-        error: 'Could not extract sufficient text from resume. Please ensure the file is a valid PDF with selectable text.',
-        message: resumeText
+        success: true,
+        message: 'Resume received but text extraction was insufficient; no structured data extracted.',
+        data: { work_experience: [], skills: [], interests: [] }
       }), {
-        status: 400,
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -84,11 +84,11 @@ serve(async (req) => {
     if (!hasData) {
       console.warn('AI parsing returned no data');
       return new Response(JSON.stringify({ 
-        success: false,
-        error: 'Could not extract structured information from resume. The resume may not contain standard sections for work experience, skills, or interests.',
+        success: true,
+        message: 'No standard resume sections detected; stored the file successfully with no extracted data.',
         data: parsedData
       }), {
-        status: 400,
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
