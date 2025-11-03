@@ -142,18 +142,8 @@ const PublicProfileDetails = () => {
   const downloadResume = () => {
     if (profile?.resume_url) {
       const filename = profile.resume_filename || 'resume.pdf';
-      const FUNCTIONS_BASE = 'https://ahksxziueqkacyaqtgeu.supabase.co/functions/v1';
-      let url = profile.resume_url;
-      
-      // Route through proxy if it's a Supabase storage URL
-      if (/supabase\.co\/storage\/v1\//i.test(url)) {
-        url = `${FUNCTIONS_BASE}/get-resume?url=${encodeURIComponent(url)}&download=1`;
-      } else {
-        url = url.includes('?') ? `${url}&download=1` : `${url}?download=1`;
-      }
-      
       const link = document.createElement('a');
-      link.href = url;
+      link.href = profile.resume_url;
       link.setAttribute('download', filename);
       link.rel = 'noopener';
       document.body.appendChild(link);
@@ -164,9 +154,7 @@ const PublicProfileDetails = () => {
 
   const viewResume = () => {
     if (profile?.resume_url) {
-      const filename = encodeURIComponent(profile.resume_filename || 'resume.pdf');
-      const url = encodeURIComponent(profile.resume_url);
-      navigate(`/resume?url=${url}&filename=${filename}`);
+      setShowResume(true);
     }
   };
 

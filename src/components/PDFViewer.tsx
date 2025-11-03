@@ -14,10 +14,6 @@ interface PDFViewerProps {
 const FUNCTIONS_BASE = 'https://ahksxziueqkacyaqtgeu.supabase.co/functions/v1';
 const buildFetchUrl = (rawUrl: string) => {
   try {
-    // Always proxy Supabase storage and signed public URLs
-    if (/supabase\.co\/storage\/v1\//i.test(rawUrl)) {
-      return `${FUNCTIONS_BASE}/get-resume?url=${encodeURIComponent(rawUrl)}`;
-    }
     return rawUrl;
   } catch {
     return rawUrl;
