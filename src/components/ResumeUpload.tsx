@@ -72,10 +72,13 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ profile, onResumeUpl
     if (!file || !user) return;
 
     // Validate file type
-    if (!file.type.includes('image')) {
+    const isImage = file.type.includes('image');
+    const isDoc = file.type.includes('document') || file.name.endsWith('.docx');
+    
+    if (!isImage && !isDoc) {
       toast({
         title: "Invalid file type",
-        description: "Please upload a JPEG or PNG image.",
+        description: "Please upload a JPEG, PNG, or DOCX file.",
         variant: "destructive"
       });
       return;
@@ -306,7 +309,7 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ profile, onResumeUpl
           </div>
           <h3 className="text-xl font-bold iridescent-text mb-2">Upload Your Resume</h3>
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            Upload an image of your resume (JPEG or PNG) to make it easily shareable
+            Upload your resume as an image (JPEG/PNG) or document (DOCX) to make it easily shareable
           </p>
           <Label htmlFor="resume-upload">
             <Button 
@@ -336,7 +339,7 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ profile, onResumeUpl
             </Button>
           </Label>
           <p className="text-xs text-muted-foreground mt-3">
-            JPEG and PNG files supported • Max 10MB
+            JPEG, PNG, and DOCX files supported • Max 10MB
           </p>
         </div>
       )}
@@ -344,7 +347,7 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ profile, onResumeUpl
       <input
         id="resume-upload"
         type="file"
-        accept="image/jpeg,image/jpg,image/png"
+        accept="image/jpeg,image/jpg,image/png,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         onChange={handleResumeUpload}
         disabled={uploading || processing}
         className="hidden"
@@ -353,7 +356,7 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ profile, onResumeUpl
       <input
         id="resume-upload-replace"
         type="file"
-        accept="image/jpeg,image/jpg,image/png"
+        accept="image/jpeg,image/jpg,image/png,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         onChange={handleResumeUpload}
         disabled={uploading || processing}
         className="hidden"
