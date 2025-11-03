@@ -379,6 +379,50 @@ const PublicProfileDetails = () => {
           ))}
         </Card>
 
+        {/* Resume Section */}
+        {profile.resume_url && (
+          <Card className="bg-card border-border p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold iridescent-text flex items-center gap-2">
+                <FileText className="w-6 h-6 text-primary" />
+                Resume
+              </h2>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={viewResume}
+                  className="border-primary text-primary hover:bg-primary/10"
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  View
+                </Button>
+                <Button
+                  onClick={downloadResume}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+              </div>
+            </div>
+            <div className="bg-secondary/20 rounded-lg p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium iridescent-text">
+                    {profile.resume_filename || 'Resume.pdf'}
+                  </p>
+                  <p className="text-sm text-muted-foreground iridescent-text">
+                    Available for download
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {/* Core Skills Section */}
         <Card className="bg-card border-border p-6 mb-6">
           <h2 className="text-2xl font-bold iridescent-text mb-4">Core Skills</h2>
