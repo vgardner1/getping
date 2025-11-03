@@ -1,185 +1,96 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
-import { FileText, ExternalLink, Loader2 } from 'lucide-react';
+import { FileText, ExternalLink, Download, Loader2, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import * as pdfjsLib from 'pdfjs-dist';
-import { supabase } from '@/integrations/supabase/client';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
+
+// CRITICAL: Configure PDF.js worker from CDN
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface PDFViewerProps {
   url: string;
   fileName?: string;
-  height?: number; // pixels
+  height?: number;
   className?: string;
 }
 
-const FUNCTIONS_BASE = 'https://ahksxziueqkacyaqtgeu.supabase.co/functions/v1';
-const buildFetchUrl = (rawUrl: string) => {
-  try {
-    return rawUrl;
-  } catch {
-    return rawUrl;
-  }
-};
-
-export const PDFViewer: React.FC<PDFViewerProps> = ({ url, fileName = 'document.pdf', height = 600, className }) => {
-  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+export const PDFViewer: React.FC<PDFViewerProps> = ({ 
+  url, 
+  fileName = 'document.pdf', 
+  height = 600, 
+  className 
+}) => {
+  const [numPages, setNumPages] = useState<number>(0);
+  const [pageNumber, setPageNumber] = useState<number>(1);
+  const [scale, setScale] = useState<number>(1.0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const [pages, setPages] = useState<number>(0);
 
-  useEffect(() => {
-    let revoked = false;
-    let objectUrl: string | null = null;
-
-    const fetchPdf = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const fetchUrl = buildFetchUrl(url);
-        console.log('Fetching PDF from:', fetchUrl);
-
-        let blob: Blob | null = null;
-
-        // If this is a Supabase public storage URL, prefer SDK download to avoid CORS quirks
-        const supaMatch = fetchUrl.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)/i);
-        if (supaMatch) {
-          const bucket = supaMatch[1];
-          const objectPath = decodeURIComponent(supaMatch[2]);
-          console.log('Attempting Supabase Storage SDK download:', { bucket, objectPath });
-          const { data, error } = await supabase.storage.from(bucket).download(objectPath);
-          if (!error && data) {
-            blob = data as Blob;
-          } else {
-            console.warn('SDK download failed, falling back to fetch:', error);
-          }
-        }
-
-        if (!blob) {
-          const resp = await fetch(fetchUrl, {
-            cache: 'no-store',
-            credentials: 'omit'
-          });
-          console.log('PDF fetch response:', resp.status, resp.statusText);
-          if (!resp.ok) {
-            const errorText = await resp.text().catch(() => '');
-            console.error('PDF fetch error response:', errorText);
-            throw new Error(`HTTP ${resp.status}: ${errorText || resp.statusText}`);
-          }
-          blob = await resp.blob();
-        }
-
-        console.log('PDF blob received:', blob.size, 'bytes, type:', (blob as any).type);
-        objectUrl = URL.createObjectURL(blob);
-        if (!revoked) {
-          console.log('Setting blob URL for rendering');
-          setBlobUrl(objectUrl);
-        }
-      } catch (e: any) {
-        console.error('PDF fetch failed:', e);
-        setError(e.message || 'Unable to load preview');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPdf();
-
-    return () => {
-      revoked = true;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [url]);
-
-  // Render PDF with PDF.js to avoid Chromium's built-in viewer restrictions
-  useEffect(() => {
-    if (!blobUrl) return;
-    // Use CDN worker fallback (more reliable than bundling worker here)
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-
-    let cancelled = false;
-
-    const render = async () => {
-      try {
-        const loadingTask = pdfjsLib.getDocument(blobUrl);
-        const pdf = await loadingTask.promise;
-        if (cancelled) return;
-        setPages(pdf.numPages);
-
-        const container = containerRef.current;
-        if (!container) return;
-        container.innerHTML = '';
-
-        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-          if (cancelled) return;
-          const page = await pdf.getPage(pageNum);
-          if (cancelled) return;
-          const viewport = page.getViewport({ scale: 1.5 });
-
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          if (!context) continue;
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          canvas.className = 'mx-auto shadow-lg';
-
-          const wrapper = document.createElement('div');
-          wrapper.className = 'mb-6 flex justify-center bg-white p-4 rounded-lg';
-          wrapper.appendChild(canvas);
-          container.appendChild(wrapper);
-
-          await (page as any).render({ 
-            canvasContext: context, 
-            viewport 
-          }).promise;
-        }
-        console.log(`Successfully rendered ${pdf.numPages} pages`);
-      } catch (e) {
-        console.error('PDF.js render failed:', e);
-        setError('Unable to load preview');
-      }
-    };
-
-    render();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [blobUrl]);
-
-  if (loading) {
-    return (
-      <div className={cn('w-full border border-primary/20 rounded-xl overflow-hidden', className)}>
-        <div className="p-4 bg-primary/10 border-b border-primary/20">
-          <p className="font-semibold iridescent-text text-center">Resume Preview</p>
-        </div>
-        <div className="flex items-center justify-center bg-muted/30" style={{ height }}>
-          <Loader2 className="w-6 h-6 text-primary animate-spin" />
-        </div>
-      </div>
-    );
+  function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
+    setNumPages(numPages);
+    setLoading(false);
+    setError(null);
+    console.log('PDF loaded successfully:', numPages, 'pages');
   }
 
-  if (error || !blobUrl) {
+  function onDocumentLoadError(error: Error) {
+    console.error('PDF load error:', error);
+    setError(error.message || 'Failed to load PDF');
+    setLoading(false);
+  }
+
+  const handleDownload = async () => {
+    try {
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      link.rel = 'noopener';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
+  };
+
+  const handleOpenNewTab = () => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  if (loading) {
     return (
       <div className={cn('w-full border border-primary/20 rounded-xl overflow-hidden bg-background/30', className)}>
         <div className="p-4 bg-primary/10 border-b border-primary/20">
           <p className="font-semibold iridescent-text text-center">Resume Preview</p>
         </div>
-        <div className="p-8 text-center flex flex-col items-center justify-center" style={{ height }}>
+        <div className="flex flex-col items-center justify-center bg-muted/30 gap-4" style={{ height }}>
+          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          <p className="text-muted-foreground text-sm">Loading PDF...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={cn('w-full border border-primary/20 rounded-xl overflow-hidden bg-background/30', className)}>
+        <div className="p-4 bg-primary/10 border-b border-primary/20">
+          <p className="font-semibold iridescent-text text-center">Resume Preview</p>
+        </div>
+        <div className="p-8 text-center flex flex-col items-center justify-center bg-muted/30" style={{ height }}>
           <FileText className="w-12 h-12 text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground mb-4">Preview blocked by browser. Open the file instead.</p>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <p className="text-sm text-muted-foreground mb-4">Try downloading or opening in a new tab instead.</p>
           <div className="flex gap-2">
-            <Button asChild variant="outline">
-              <a href={url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Open in New Tab
-              </a>
+            <Button onClick={handleOpenNewTab} variant="outline">
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Open in New Tab
             </Button>
-            <Button asChild>
-              <a href={url} download={fileName} target="_blank" rel="noopener noreferrer">
-                Download
-              </a>
+            <Button onClick={handleDownload}>
+              <Download className="w-4 h-4 mr-2" />
+              Download
             </Button>
           </div>
         </div>
@@ -188,18 +99,105 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ url, fileName = 'document.
   }
 
   return (
-    <div className={cn('w-full border border-primary/20 rounded-xl overflow-hidden bg-background/30 backdrop-blur-sm mt-6', className)}>
-      <div className="p-4 bg-primary/10 border-b border-primary/20">
-        <p className="font-semibold iridescent-text text-center">Resume Preview</p>
+    <div className={cn('w-full border border-primary/20 rounded-xl overflow-hidden bg-background/30 backdrop-blur-sm', className)}>
+      {/* Header with Controls */}
+      <div className="p-4 bg-primary/10 border-b border-primary/20 flex items-center justify-between flex-wrap gap-3">
+        <p className="font-semibold iridescent-text">Resume Preview</p>
+        
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Zoom Controls */}
+          <div className="flex items-center gap-2 bg-background/50 rounded-lg p-1">
+            <Button
+              onClick={() => setScale(s => Math.max(0.5, s - 0.1))}
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              title="Zoom Out"
+            >
+              <ZoomOut className="w-3 h-3" />
+            </Button>
+            <span className="text-xs font-medium w-12 text-center">{Math.round(scale * 100)}%</span>
+            <Button
+              onClick={() => setScale(s => Math.min(2, s + 0.1))}
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              title="Zoom In"
+            >
+              <ZoomIn className="w-3 h-3" />
+            </Button>
+          </div>
+
+          {/* Action Buttons */}
+          <Button onClick={handleOpenNewTab} variant="outline" size="sm">
+            <ExternalLink className="w-3 h-3 mr-1" />
+            <span className="hidden sm:inline">Open</span>
+          </Button>
+          <Button onClick={handleDownload} size="sm">
+            <Download className="w-3 h-3 mr-1" />
+            <span className="hidden sm:inline">Download</span>
+          </Button>
+        </div>
       </div>
-      <div
-        ref={containerRef}
-        className="relative w-full overflow-auto bg-muted/30"
+
+      {/* PDF Viewer */}
+      <div 
+        className="relative w-full overflow-auto bg-muted/30 flex flex-col items-center p-6"
         style={{ height }}
-        aria-label={`PDF preview with ${pages} pages`}
       >
-        {/* Ensure an element exists for screen readers even before render */}
-        {!pages && <div className="p-4 text-muted-foreground">Preparing preview…</div>}
+        <Document
+          file={url}
+          onLoadSuccess={onDocumentLoadSuccess}
+          onLoadError={onDocumentLoadError}
+          loading={
+            <div className="flex flex-col items-center justify-center h-full">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+              <p className="mt-4 text-muted-foreground text-sm">Loading PDF...</p>
+            </div>
+          }
+          options={{
+            cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
+            cMapPacked: true,
+            standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts`,
+          }}
+        >
+          <Page
+            pageNumber={pageNumber}
+            scale={scale}
+            renderTextLayer={true}
+            renderAnnotationLayer={true}
+            className="shadow-lg mb-4"
+          />
+        </Document>
+
+        {/* Page Navigation */}
+        {numPages > 1 && (
+          <div className="mt-4 flex items-center gap-4 bg-background/80 backdrop-blur-sm px-6 py-3 rounded-lg shadow-lg border border-primary/20">
+            <Button
+              onClick={() => setPageNumber(p => Math.max(1, p - 1))}
+              disabled={pageNumber <= 1}
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            
+            <span className="text-sm font-medium whitespace-nowrap">
+              Page {pageNumber} of {numPages}
+            </span>
+            
+            <Button
+              onClick={() => setPageNumber(p => Math.min(numPages, p + 1))}
+              disabled={pageNumber >= numPages}
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
