@@ -299,15 +299,20 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
         // Zoom and rotate globe to center on the clicked marker
         isZoomingRef.current = true;
         const startCameraZ = camera.position.z;
+        const startCameraY = camera.position.y;
         const startGlobeRotation = { x: globe.rotation.x, y: globe.rotation.y };
         
         // Get marker position in world space
         const worldPosition = new THREE.Vector3();
         clickedSphere.getWorldPosition(worldPosition);
         
-        // Calculate target rotation to bring marker to front
+        // Calculate target rotation to bring marker to front (center horizontally)
         const targetRotationY = Math.atan2(worldPosition.x, worldPosition.z);
-        const targetRotationX = -Math.asin(worldPosition.y / globeRadius);
+        const targetRotationX = -Math.asin(worldPosition.y / globeRadius) * 0.3; // Subtle tilt only
+        
+        // Target zoom - keep similar Y to maintain viewing angle
+        const targetZ = 7;
+        const targetY = 15; // Keep the high viewing angle
         
         let progress = 0;
         const duration = 1000;
@@ -318,10 +323,12 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
           progress = Math.min(elapsed / duration, 1);
           const eased = 1 - Math.pow(1 - progress, 3);
           
-          // Zoom camera closer
-          camera.position.z = startCameraZ - (startCameraZ - 8) * eased;
+          // Zoom camera closer while maintaining viewing angle
+          camera.position.z = startCameraZ + (targetZ - startCameraZ) * eased;
+          camera.position.y = startCameraY + (targetY - startCameraY) * eased;
+          camera.lookAt(0, 2, 0);
           
-          // Rotate globe to center the marker
+          // Rotate globe to center the marker horizontally
           globe.rotation.y = startGlobeRotation.y + (targetRotationY - startGlobeRotation.y) * eased;
           globe.rotation.x = startGlobeRotation.x + (targetRotationX - startGlobeRotation.x) * eased;
           

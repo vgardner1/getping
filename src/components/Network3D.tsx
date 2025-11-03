@@ -339,21 +339,20 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
         setSelectedPerson(person);
         setShowMenu(true);
         
-        // Zoom and center on the clicked sphere
+        // Zoom in while maintaining the top-down viewing angle
         isZoomingRef.current = true;
         const targetPosition = clickedSphere.position.clone();
         const startCameraPosition = camera.position.clone();
         const startSceneRotation = { x: scene.rotation.x, y: scene.rotation.y };
         
-        // Calculate target camera position (zoom in closer)
-        const direction = targetPosition.clone().normalize();
-        const targetCameraPosition = direction.multiplyScalar(6);
-        targetCameraPosition.y = CAMERA_ANGLE_RATIO * 6;
+        // Calculate target camera position - zoom in but maintain the angle ratio
+        const targetZ = 4;
+        const targetCameraPosition = new THREE.Vector3(0, CAMERA_ANGLE_RATIO * targetZ, targetZ);
         
-        // Calculate target scene rotation to center the sphere
+        // Calculate target scene rotation to center the sphere horizontally
         const targetSceneRotation = {
-          x: -targetPosition.y * 0.3,
-          y: -Math.atan2(targetPosition.x, targetPosition.z)
+          x: startSceneRotation.x, // Keep the same tilt
+          y: -Math.atan2(targetPosition.x, targetPosition.z) // Rotate horizontally to center
         };
         
         let progress = 0;
@@ -368,7 +367,7 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
           camera.position.lerpVectors(startCameraPosition, targetCameraPosition, eased);
           camera.lookAt(0, 0, 0);
           
-          scene.rotation.x = startSceneRotation.x + (targetSceneRotation.x - startSceneRotation.x) * eased;
+          scene.rotation.x = startSceneRotation.x;
           scene.rotation.y = startSceneRotation.y + (targetSceneRotation.y - startSceneRotation.y) * eased;
           
           if (progress < 1) {
