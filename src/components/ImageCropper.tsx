@@ -112,11 +112,19 @@ const ImageCropper = ({ isOpen, onClose, imageSrc, onCropComplete }: ImageCroppe
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <DialogTitle>Crop Your Profile Photo</DialogTitle>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose} size="sm">
+              Cancel
+            </Button>
+            <Button onClick={handleCropComplete} size="sm" className="bg-primary text-primary-foreground">
+              Save Crop
+            </Button>
+          </div>
         </DialogHeader>
         
-        <div className="flex flex-col items-center space-y-4 max-h-[70vh] overflow-auto">
+        <div className="flex flex-col items-center max-h-[70vh] overflow-auto">
           <ReactCrop
             crop={crop}
             onChange={(c) => setCrop(c)}
@@ -132,15 +140,6 @@ const ImageCropper = ({ isOpen, onClose, imageSrc, onCropComplete }: ImageCroppe
               className="max-w-full max-h-[50vh] object-contain"
             />
           </ReactCrop>
-          
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button onClick={handleCropComplete}>
-              Apply Crop
-            </Button>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
