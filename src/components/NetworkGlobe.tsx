@@ -294,7 +294,7 @@ export const NetworkGlobe = ({ people, onPersonClick }: NetworkGlobeProps) => {
         
         // Navigate to profile immediately
         if (person.userId) {
-          navigate(`/profile/${person.userId}`);
+          navigate(`/ping/${person.userId}`);
         }
         
         if (onPersonClick) {
