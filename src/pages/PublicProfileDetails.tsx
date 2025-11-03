@@ -78,7 +78,7 @@ const PublicProfileDetails = () => {
       await trackProfileView();
       // Use SECURITY DEFINER RPC for anonymous public access
       const { data: profileData, error: profileError } = await supabase.rpc(
-        'get_public_profile_secure',
+        'get_public_profile_data',
         { target_user_id: userId }
       );
 
@@ -95,6 +95,15 @@ const PublicProfileDetails = () => {
       }
 
       const p = profileData[0];
+      
+      // Parse experience data
+      let experienceData: any[] = [];
+      if (p.experience && typeof p.experience === 'object' && Array.isArray(p.experience)) {
+        experienceData = p.experience;
+      } else if (p.work_experience && typeof p.work_experience === 'object' && Array.isArray(p.work_experience)) {
+        experienceData = p.work_experience;
+      }
+      
       setProfile({
         user_id: p.user_id,
         display_name: p.display_name,
@@ -104,10 +113,11 @@ const PublicProfileDetails = () => {
         company: p.company,
         job_title: p.job_title,
         website_url: p.website_url,
-        phone_number: p.phone_number, // Include phone number from profile data
+        phone_number: (p as any).phone_number || null,
         skills: p.skills || [],
         interests: p.interests || [],
         social_links: p.social_links || {},
+        experience: experienceData,
         resume_url: (p as any).resume_url,
         resume_filename: (p as any).resume_filename,
       });
@@ -120,7 +130,7 @@ const PublicProfileDetails = () => {
       );
 
       // Only override phone if contact data has a phone and profile doesn't
-      if (contactData && contactData.length > 0 && contactData[0].phone_number && !p.phone_number) {
+      if (contactData && contactData.length > 0 && contactData[0].phone_number && !(p as any).phone_number) {
         setProfile(prev => prev ? { ...prev, phone_number: contactData[0].phone_number } : null);
       }
     } catch (error) {
@@ -191,38 +201,16 @@ const PublicProfileDetails = () => {
 
   const displayName = profile.display_name || "User";
 
-  // Use actual profile work experience data or empty array
+  // Use actual profile data
   const workExperience = profile?.experience || [];
+  const skills = profile?.skills || [];
+  const interests = profile?.interests || [];
   
   const detailedProfile = {
     fullBio: profile.bio || "No bio available yet.",
     experience: workExperience,
-    featuredWork: [
-      {
-        title: "Dam Chair",
-        type: "Furniture Design",
-        image: "/src/assets/dam-chair.jpg"
-      },
-      {
-        title: "Roots Table",
-        type: "Sustainable Design", 
-        image: "/src/assets/roots-table.jpg"
-      }
-    ],
-    coreSkills: ["creative technology", "web development", "digital strategy"],
-    interests: ["digital innovation", "collaborative projects", "emerging technology"],
-    endorsements: [
-      {
-        name: "Sarah Johnson",
-        timeAgo: "2 days ago",
-        message: "Amazing work on the Dam Chair! The AI integration is revolutionary."
-      },
-      {
-        name: "Michael Chen", 
-        timeAgo: "1 week ago",
-        message: "Great work on sustainable design innovations!"
-      }
-    ]
+    coreSkills: skills,
+    interests: interests,
   };
 
   return (
@@ -349,9 +337,10 @@ const PublicProfileDetails = () => {
         </Card>
 
         {/* Experience Section */}
-        <Card className="bg-card border-border p-6 mb-6">
-          <h2 className="text-2xl font-bold iridescent-text mb-4">Experience</h2>
-          {detailedProfile.experience.map((exp, index) => (
+        {detailedProfile.experience.length > 0 && (
+          <Card className="bg-card border-border p-6 mb-6">
+            <h2 className="text-2xl font-bold iridescent-text mb-4">Professional Experience</h2>
+            {detailedProfile.experience.map((exp, index) => (
             <div key={index} className="border-l-2 border-primary/20 pl-6 relative">
               <div className="absolute w-3 h-3 bg-primary rounded-full -left-2 top-2"></div>
               <div className="mb-4">
@@ -376,8 +365,9 @@ const PublicProfileDetails = () => {
                 </div>
               </div>
             </div>
-          ))}
-        </Card>
+            ))}
+          </Card>
+        )}
 
         {/* Resume Section */}
         {profile.resume_url && (
@@ -424,34 +414,38 @@ const PublicProfileDetails = () => {
         )}
 
         {/* Core Skills Section */}
-        <Card className="bg-card border-border p-6 mb-6">
-          <h2 className="text-2xl font-bold iridescent-text mb-4">Core Skills</h2>
-          <div className="flex flex-wrap gap-3">
-            {detailedProfile.coreSkills.map((skill, index) => (
+        {detailedProfile.coreSkills.length > 0 && (
+          <Card className="bg-card border-border p-6 mb-6">
+            <h2 className="text-2xl font-bold iridescent-text mb-4">Skills</h2>
+            <div className="flex flex-wrap gap-3">
+              {detailedProfile.coreSkills.map((skill, index) => (
               <span
                 key={index}
                 className="px-4 py-2 bg-primary/20 text-primary rounded-full font-medium break-words max-w-full"
               >
                 {skill}
               </span>
-            ))}
-          </div>
-        </Card>
+              ))}
+            </div>
+          </Card>
+        )}
 
         {/* Interests Section */}
-        <Card className="bg-card border-border p-6 mb-6">
-          <h2 className="text-2xl font-bold iridescent-text mb-4">Interests</h2>
-          <div className="flex flex-wrap gap-3">
-            {detailedProfile.interests.map((interest, index) => (
+        {detailedProfile.interests.length > 0 && (
+          <Card className="bg-card border-border p-6 mb-6">
+            <h2 className="text-2xl font-bold iridescent-text mb-4">Interests</h2>
+            <div className="flex flex-wrap gap-3">
+              {detailedProfile.interests.map((interest, index) => (
               <span
                 key={index}
                 className="px-4 py-2 bg-secondary/20 text-muted-foreground rounded-full break-words max-w-full"
               >
                 {interest}
               </span>
-            ))}
-          </div>
-        </Card>
+              ))}
+            </div>
+          </Card>
+        )}
 
 
         {/* CTA Section - Only show for non-signed in users */}
