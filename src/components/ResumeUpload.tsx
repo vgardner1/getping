@@ -23,6 +23,11 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ profile, onResumeUpl
 
     setProcessing(true);
     try {
+      toast({
+        title: "Processing resume...",
+        description: "Extracting work experience from your resume."
+      });
+
       const { data: processData, error: processError } = await supabase.functions.invoke('parse-resume', {
         body: { 
           userId: user.id,
@@ -35,17 +40,25 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ profile, onResumeUpl
         throw processError;
       }
 
+      if (processData && !processData.success) {
+        throw new Error(processData.error || 'Failed to parse resume');
+      }
+
+      const workExpCount = processData?.data?.work_experience?.length || 0;
+      const skillsCount = processData?.data?.skills?.length || 0;
+
       toast({
         title: "Resume re-parsed!",
-        description: "Work experience has been updated from your resume."
+        description: `Extracted ${workExpCount} work experiences and ${skillsCount} skills.`
       });
       
       onResumeUploaded();
     } catch (error) {
       console.error('Error re-parsing resume:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Re-parsing failed",
-        description: "Could not extract data from resume. Please try uploading again.",
+        description: errorMsg,
         variant: "destructive"
       });
     } finally {
@@ -120,13 +133,23 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ profile, onResumeUpl
         console.error('Resume processing error:', processError);
         toast({
           title: "Resume uploaded",
-          description: "Resume uploaded successfully, but automatic processing failed. You can manually add work experience.",
+          description: "Resume uploaded but AI parsing encountered an issue. You can try re-parsing or manually add work experience.",
+          variant: "default"
+        });
+      } else if (processData && !processData.success) {
+        console.error('Resume processing returned error:', processData.error);
+        toast({
+          title: "Partial success",
+          description: processData.error || "Resume uploaded but couldn't extract all information.",
           variant: "default"
         });
       } else {
+        const workExpCount = processData?.data?.work_experience?.length || 0;
+        const skillsCount = processData?.data?.skills?.length || 0;
+        
         toast({
           title: "Resume processed!",
-          description: "Work experience extracted and added to your profile."
+          description: `Extracted ${workExpCount} work experiences and ${skillsCount} skills from your resume.`
         });
       }
 
