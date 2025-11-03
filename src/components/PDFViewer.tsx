@@ -5,7 +5,7 @@ import { FileText, ExternalLink, Download, Loader2, ChevronLeft, ChevronRight, Z
 import { cn } from '@/lib/utils';
 
 // CRITICAL: Configure PDF.js worker from CDN
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface PDFViewerProps {
   url: string;
@@ -25,6 +25,37 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
   const [scale, setScale] = useState<number>(1.0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [source, setSource] = useState<string | Blob>(url);
+
+  // Prefetch PDF as Blob to avoid CORS/cache issues
+  React.useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+
+    async function prefetch() {
+      try {
+        setLoading(true);
+        const resp = await fetch(url, {
+          signal: controller.signal,
+          cache: 'no-store',
+          mode: 'cors',
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const blob = await resp.blob();
+        if (!cancelled) setSource(blob);
+      } catch (e) {
+        console.warn('PDF prefetch failed, using direct URL', e);
+        if (!cancelled) setSource(url);
+      }
+    }
+
+    if (url) prefetch();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [url]);
 
   // Add timeout to prevent infinite loading
   React.useEffect(() => {
@@ -157,7 +188,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
         style={{ height }}
       >
         <Document
-          file={url}
+          file={source}
           onLoadSuccess={onDocumentLoadSuccess}
           onLoadError={onDocumentLoadError}
           loading={
@@ -169,7 +200,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
           options={{
             cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
             cMapPacked: true,
-            standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts`,
+            standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
             isEvalSupported: false,
             disableStream: false,
             disableAutoFetch: false,
