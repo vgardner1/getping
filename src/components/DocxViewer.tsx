@@ -12,27 +12,52 @@ export const DocxViewer: React.FC<DocxViewerProps> = ({ url, height = 600, class
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [mode, setMode] = React.useState<'office' | 'gview' | 'html'>('office');
 
+  // Attempt high-fidelity viewers first (Office, then Google), then fall back to HTML renderer
+  React.useEffect(() => {
+    let cancelled = false;
+    let timeoutId: number | undefined;
+
+    setLoading(true);
+    setError(null);
+
+    const tryNext = (next: 'office' | 'gview' | 'html') => {
+      if (cancelled) return;
+      setMode(next);
+      setLoading(true);
+      setError(null);
+    };
+
+    // If a viewer doesn't load within 6s, fall back to the next option
+    timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
+      if (mode === 'office') tryNext('gview');
+      else if (mode === 'gview') tryNext('html');
+    }, 6000);
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
+  }, [url]);
+
+  // HTML fallback using docx-preview when mode === 'html'
   React.useEffect(() => {
     let cancelled = false;
     let cleanup: (() => void) | undefined;
 
-    async function renderDocx() {
-      if (!containerRef.current) return;
+    const run = async () => {
+      if (mode !== 'html' || !containerRef.current) return;
       setLoading(true);
       setError(null);
-
       try {
         const resp = await fetch(url, { cache: 'no-store', mode: 'cors' });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const arrayBuffer = await resp.arrayBuffer();
-
         const docxModule: any = await import('docx-preview');
         const { renderAsync } = docxModule;
-
-        // Clear previous content
         containerRef.current.innerHTML = '';
-
         await renderAsync(arrayBuffer, containerRef.current, undefined, {
           className: 'docx-wrapper',
           inWrapper: true,
@@ -41,9 +66,7 @@ export const DocxViewer: React.FC<DocxViewerProps> = ({ url, height = 600, class
           useMathML: true,
           experimental: true,
         });
-
         if (!cancelled) setLoading(false);
-
         cleanup = () => {
           if (containerRef.current) containerRef.current.innerHTML = '';
         };
@@ -54,19 +77,22 @@ export const DocxViewer: React.FC<DocxViewerProps> = ({ url, height = 600, class
           setLoading(false);
         }
       }
-    }
+    };
 
-    renderDocx();
+    run();
 
     return () => {
       cancelled = true;
       cleanup?.();
     };
-  }, [url]);
+  }, [mode, url]);
+
+  const officeSrc = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}&wdAllowInteractivity=True`;
+  const gviewSrc = `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(url)}`;
 
   return (
     <div className={cn('w-full border border-primary/20 rounded-lg bg-background/30', className)} style={{ height }}>
-      {loading && !error && (
+      {(loading && !error) && (
         <div className="w-full h-full flex flex-col items-center justify-center">
           <Loader2 className="w-6 h-6 text-primary animate-spin" />
           <p className="mt-3 text-sm text-muted-foreground">Loading document…</p>
@@ -80,11 +106,24 @@ export const DocxViewer: React.FC<DocxViewerProps> = ({ url, height = 600, class
         </div>
       )}
 
-      <div
-        ref={containerRef}
-        className={cn('w-full h-full overflow-auto px-4 py-6 docx-container')}
-        style={{ display: loading || error ? 'none' : 'block' }}
-      />
+      {/* Office/Google viewers */}
+      {mode !== 'html' && !error && (
+        <iframe
+          src={mode === 'office' ? officeSrc : gviewSrc}
+          className={cn('w-full h-full border-0', (loading ? 'opacity-0' : 'opacity-100'))}
+          title="DOCX Preview"
+          onLoad={() => setLoading(false)}
+        />
+      )}
+
+      {/* HTML fallback */}
+      {mode === 'html' && !error && (
+        <div
+          ref={containerRef}
+          className={cn('w-full h-full overflow-auto px-4 py-6 docx-container')}
+          style={{ display: loading ? 'none' : 'block' }}
+        />
+      )}
 
       <style>{`
         .docx-container .docx-wrapper { 
