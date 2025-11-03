@@ -18,3 +18,6 @@ verify_jwt = false
 [functions.parse-resume]
 verify_jwt = true
 
+[functions.get-resume]
+verify_jwt = false
+

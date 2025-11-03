@@ -11,6 +11,18 @@ interface PDFViewerProps {
   className?: string;
 }
 
+const FUNCTIONS_BASE = 'https://ahksxziueqkacyaqtgeu.supabase.co/functions/v1';
+const buildFetchUrl = (rawUrl: string) => {
+  try {
+    if (/supabase\.co\/storage\/v1\//i.test(rawUrl)) {
+      return `${FUNCTIONS_BASE}/get-resume?url=${encodeURIComponent(rawUrl)}`;
+    }
+    return rawUrl;
+  } catch {
+    return rawUrl;
+  }
+};
+
 export const PDFViewer: React.FC<PDFViewerProps> = ({ url, fileName = 'document.pdf', height = 600, className }) => {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -26,7 +38,8 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ url, fileName = 'document.
       try {
         setLoading(true);
         setError(null);
-        const resp = await fetch(url, { cache: 'no-store', mode: 'cors' });
+        const fetchUrl = buildFetchUrl(url);
+        const resp = await fetch(fetchUrl, { cache: 'no-store', mode: 'cors' });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const blob = await resp.blob();
         objectUrl = URL.createObjectURL(blob);
@@ -51,7 +64,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ url, fileName = 'document.
   useEffect(() => {
     if (!blobUrl) return;
     // Use CDN for PDF.js worker to avoid build issues
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
     let cancelled = false;
 
