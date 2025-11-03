@@ -287,9 +287,7 @@ const PublicPing = () => {
   const linkPhone = typeof (profile.social_links as any)?.phone === 'string'
     ? (profile.social_links as any).phone
     : (profile.social_links as any)?.phone?.url;
-  // SECURITY: Only show phone number if user is authenticated and viewing own profile
-  const canViewPhone = user && user.id === userId;
-  const phoneNumber = canViewPhone ? String((profile as any).phone_number || linkPhone || '').trim() : '';
+  const phoneNumber = String((profile as any).phone_number || linkPhone || '').trim();
 
   return (
     <div className="min-h-screen bg-background relative">
