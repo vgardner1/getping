@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { FileText, ExternalLink, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as pdfjsLib from 'pdfjs-dist';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PDFViewerProps {
   url: string;
@@ -37,19 +38,38 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ url, fileName = 'document.
         setError(null);
         const fetchUrl = buildFetchUrl(url);
         console.log('Fetching PDF from:', fetchUrl);
-        const resp = await fetch(fetchUrl, { 
-          cache: 'no-store', 
-          mode: 'cors',
-          credentials: 'omit'
-        });
-        console.log('PDF fetch response:', resp.status, resp.statusText);
-        if (!resp.ok) {
-          const errorText = await resp.text().catch(() => '');
-          console.error('PDF fetch error response:', errorText);
-          throw new Error(`HTTP ${resp.status}: ${errorText || resp.statusText}`);
+
+        let blob: Blob | null = null;
+
+        // If this is a Supabase public storage URL, prefer SDK download to avoid CORS quirks
+        const supaMatch = fetchUrl.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)/i);
+        if (supaMatch) {
+          const bucket = supaMatch[1];
+          const objectPath = decodeURIComponent(supaMatch[2]);
+          console.log('Attempting Supabase Storage SDK download:', { bucket, objectPath });
+          const { data, error } = await supabase.storage.from(bucket).download(objectPath);
+          if (!error && data) {
+            blob = data as Blob;
+          } else {
+            console.warn('SDK download failed, falling back to fetch:', error);
+          }
         }
-        const blob = await resp.blob();
-        console.log('PDF blob received:', blob.size, 'bytes, type:', blob.type);
+
+        if (!blob) {
+          const resp = await fetch(fetchUrl, {
+            cache: 'no-store',
+            credentials: 'omit'
+          });
+          console.log('PDF fetch response:', resp.status, resp.statusText);
+          if (!resp.ok) {
+            const errorText = await resp.text().catch(() => '');
+            console.error('PDF fetch error response:', errorText);
+            throw new Error(`HTTP ${resp.status}: ${errorText || resp.statusText}`);
+          }
+          blob = await resp.blob();
+        }
+
+        console.log('PDF blob received:', blob.size, 'bytes, type:', (blob as any).type);
         objectUrl = URL.createObjectURL(blob);
         if (!revoked) {
           console.log('Setting blob URL for rendering');
