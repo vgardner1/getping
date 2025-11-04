@@ -41,23 +41,29 @@ export function RelationshipHealthPanel({ person, onClose }: RelationshipHealthP
   const [messageGoal, setMessageGoal] = useState(20); // Messages per month
   const { toast } = useToast();
 
-  // Initialize editable metrics when person changes
-  const [editableMetrics, setEditableMetrics] = useState<HealthMetrics>(() => ({
-    lastInteractionAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000),
-    msgsSent30d: Math.floor(Math.random() * 50),
-    msgsRecv30d: Math.floor(Math.random() * 50),
-    calls30d: Math.floor(Math.random() * 10),
-    callMinutes30d: Math.floor(Math.random() * 200),
-    meetings30d: Math.floor(Math.random() * 8),
-    streakDays: Math.floor(Math.random() * 30),
-    sentiment30d: 0.5 + Math.random() * 0.5,
-  }));
+  // Store metrics per person so they persist
+  const [metricsCache, setMetricsCache] = useState<Map<string, HealthMetrics>>(new Map());
+  const [editableMetrics, setEditableMetrics] = useState<HealthMetrics>({
+    lastInteractionAt: new Date(),
+    msgsSent30d: 0,
+    msgsRecv30d: 0,
+    calls30d: 0,
+    callMinutes30d: 0,
+    meetings30d: 0,
+    streakDays: 0,
+    sentiment30d: 0.5,
+  });
 
-
-  // Reset metrics when person changes
+  // Initialize or load metrics for the current person
   useEffect(() => {
-    if (person) {
-      setEditableMetrics({
+    if (!person) return;
+
+    // Check if we already have metrics for this person
+    if (metricsCache.has(person.id)) {
+      setEditableMetrics(metricsCache.get(person.id)!);
+    } else {
+      // Generate new metrics only once for this person
+      const newMetrics: HealthMetrics = {
         lastInteractionAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000),
         msgsSent30d: Math.floor(Math.random() * 50),
         msgsRecv30d: Math.floor(Math.random() * 50),
@@ -66,9 +72,18 @@ export function RelationshipHealthPanel({ person, onClose }: RelationshipHealthP
         meetings30d: Math.floor(Math.random() * 8),
         streakDays: Math.floor(Math.random() * 30),
         sentiment30d: 0.5 + Math.random() * 0.5,
-      });
+      };
+      setEditableMetrics(newMetrics);
+      setMetricsCache(prev => new Map(prev).set(person.id, newMetrics));
     }
-  }, [person?.id]);
+  }, [person?.id, metricsCache]);
+
+  // Update cache whenever metrics change via sliders
+  useEffect(() => {
+    if (person && editableMetrics.msgsSent30d !== 0) {
+      setMetricsCache(prev => new Map(prev).set(person.id, editableMetrics));
+    }
+  }, [editableMetrics, person?.id]);
 
   if (!person) return null;
 
