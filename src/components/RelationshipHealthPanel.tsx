@@ -54,13 +54,14 @@ export function RelationshipHealthPanel({ person, onClose }: RelationshipHealthP
     sentiment30d: 0.5,
   });
 
-  // Initialize or load metrics for the current person
+  // Initialize or load metrics for the current person - only runs when person changes
   useEffect(() => {
     if (!person) return;
 
     // Check if we already have metrics for this person
-    if (metricsCache.has(person.id)) {
-      setEditableMetrics(metricsCache.get(person.id)!);
+    const cached = metricsCache.get(person.id);
+    if (cached) {
+      setEditableMetrics(cached);
     } else {
       // Generate new metrics only once for this person
       const newMetrics: HealthMetrics = {
@@ -76,14 +77,8 @@ export function RelationshipHealthPanel({ person, onClose }: RelationshipHealthP
       setEditableMetrics(newMetrics);
       setMetricsCache(prev => new Map(prev).set(person.id, newMetrics));
     }
-  }, [person?.id, metricsCache]);
-
-  // Update cache whenever metrics change via sliders
-  useEffect(() => {
-    if (person && editableMetrics.msgsSent30d !== 0) {
-      setMetricsCache(prev => new Map(prev).set(person.id, editableMetrics));
-    }
-  }, [editableMetrics, person?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [person?.id]); // Only re-run when person ID changes
 
   if (!person) return null;
 
@@ -128,7 +123,14 @@ export function RelationshipHealthPanel({ person, onClose }: RelationshipHealthP
   };
 
   const updateMetric = (key: keyof HealthMetrics, value: number | Date) => {
-    setEditableMetrics(prev => ({ ...prev, [key]: value }));
+    setEditableMetrics(prev => {
+      const updated = { ...prev, [key]: value };
+      // Update cache immediately when slider changes
+      if (person) {
+        setMetricsCache(cache => new Map(cache).set(person.id, updated));
+      }
+      return updated;
+    });
   };
 
   const getDaysSinceLastInteraction = () => {
