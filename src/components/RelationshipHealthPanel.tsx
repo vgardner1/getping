@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { X, Pin, PinOff, Phone, MessageCircle, Calendar, TrendingUp, Activity, Clock, Heart } from 'lucide-react';
+import { X, Pin, PinOff, Phone, MessageCircle, Calendar, TrendingUp, Activity, Clock, Heart, Target, Sliders as SlidersIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Slider } from '@/components/ui/slider';
+import { useToast } from '@/hooks/use-toast';
 
 interface NetworkPerson {
   id: string;
@@ -32,6 +34,11 @@ interface RelationshipHealthPanelProps {
 
 export function RelationshipHealthPanel({ person, onClose }: RelationshipHealthPanelProps) {
   const [isPinned, setIsPinned] = useState(false);
+  const [showGoals, setShowGoals] = useState(false);
+  const [contactGoal, setContactGoal] = useState(14); // Days between contacts
+  const [callGoal, setCallGoal] = useState(60); // Minutes per month
+  const [messageGoal, setMessageGoal] = useState(20); // Messages per month
+  const { toast } = useToast();
 
   if (!person) return null;
 
@@ -55,15 +62,34 @@ export function RelationshipHealthPanel({ person, onClose }: RelationshipHealthP
   );
 
   const getScoreColor = (score: number) => {
-    if (score >= 70) return 'hsl(142, 76%, 36%)'; // green
-    if (score >= 40) return 'hsl(48, 96%, 53%)'; // yellow
-    return 'hsl(0, 84%, 60%)'; // red
+    if (score >= 70) return 'hsl(142, 76%, 50%)'; // vibrant green
+    if (score >= 40) return 'hsl(45, 93%, 55%)'; // vibrant yellow
+    return 'hsl(0, 84%, 60%)'; // vibrant red
   };
 
   const getScoreGradient = (score: number) => {
-    if (score >= 70) return 'from-green-500 to-emerald-600';
-    if (score >= 40) return 'from-yellow-500 to-amber-600';
-    return 'from-red-500 to-rose-600';
+    if (score >= 70) return 'from-green-500 via-green-400 to-emerald-500';
+    if (score >= 40) return 'from-yellow-500 via-yellow-400 to-amber-500';
+    return 'from-red-500 via-red-400 to-rose-500';
+  };
+
+  const getMetricColor = (value: number) => {
+    if (value >= 70) return 'text-green-500';
+    if (value >= 40) return 'text-yellow-500';
+    return 'text-red-500';
+  };
+
+  const getMetricBg = (value: number) => {
+    if (value >= 70) return 'bg-green-500/10 border-green-500/30';
+    if (value >= 40) return 'bg-yellow-500/10 border-yellow-500/30';
+    return 'bg-red-500/10 border-red-500/30';
+  };
+
+  const handleGoalUpdate = () => {
+    toast({
+      title: "Goals Updated",
+      description: "Your relationship goals have been saved.",
+    });
   };
 
   return (
@@ -176,33 +202,138 @@ export function RelationshipHealthPanel({ person, onClose }: RelationshipHealthP
           </div>
         </Card>
 
+        {/* Goal Setting Sliders */}
+        {showGoals && (
+          <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10 backdrop-blur border-primary/20 space-y-4 animate-in slide-in-from-top">
+            <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
+              <SlidersIcon className="h-4 w-4" />
+              Set Your Goals
+            </h4>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <label className="text-muted-foreground">Contact Frequency</label>
+                  <span className="font-semibold text-foreground">Every {contactGoal} days</span>
+                </div>
+                <Slider
+                  value={[contactGoal]}
+                  onValueChange={(value) => setContactGoal(value[0])}
+                  min={1}
+                  max={90}
+                  step={1}
+                  className="py-2"
+                />
+                <p className="text-xs text-muted-foreground">How often you want to stay in touch</p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <label className="text-muted-foreground">Monthly Call Time</label>
+                  <span className="font-semibold text-foreground">{callGoal} minutes</span>
+                </div>
+                <Slider
+                  value={[callGoal]}
+                  onValueChange={(value) => setCallGoal(value[0])}
+                  min={0}
+                  max={300}
+                  step={15}
+                  className="py-2"
+                />
+                <p className="text-xs text-muted-foreground">Target call minutes per month</p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <label className="text-muted-foreground">Monthly Messages</label>
+                  <span className="font-semibold text-foreground">{messageGoal} messages</span>
+                </div>
+                <Slider
+                  value={[messageGoal]}
+                  onValueChange={(value) => setMessageGoal(value[0])}
+                  min={0}
+                  max={100}
+                  step={5}
+                  className="py-2"
+                />
+                <p className="text-xs text-muted-foreground">Target messages per month</p>
+              </div>
+
+              <Button 
+                onClick={handleGoalUpdate}
+                className="w-full"
+                size="sm"
+              >
+                Save Goals
+              </Button>
+            </div>
+          </Card>
+        )}
+
         {/* Sub-Metrics */}
         <Card className="p-4 bg-card/50 backdrop-blur space-y-4">
-          <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            Key Metrics
-          </h4>
+          <div className="flex items-center justify-between">
+            <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Key Metrics
+            </h4>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowGoals(!showGoals)}
+              className="h-7 text-xs"
+            >
+              <Target className="h-3 w-3 mr-1" />
+              {showGoals ? 'Hide' : 'Goals'}
+            </Button>
+          </div>
           
           {Object.entries(subMetrics).map(([key, metric]) => (
-            <div key={key} className="space-y-2">
+            <div key={key} className={`space-y-2 p-3 rounded-lg border transition-all ${getMetricBg(metric.value)}`}>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground capitalize">{key}</span>
-                <span className="font-semibold text-foreground">{Math.round(metric.value)}/100</span>
+                <span className="text-muted-foreground capitalize font-medium">{key}</span>
+                <span className={`font-bold text-lg ${getMetricColor(metric.value)}`}>
+                  {Math.round(metric.value)}
+                </span>
               </div>
-              <Progress value={metric.value} className="h-1.5" />
+              <div className="relative">
+                <Progress value={metric.value} className="h-2" />
+                <div 
+                  className="absolute top-0 h-2 rounded-full transition-all duration-500"
+                  style={{
+                    width: `${metric.value}%`,
+                    background: metric.value >= 70 
+                      ? 'linear-gradient(90deg, rgb(34, 197, 94), rgb(16, 185, 129))'
+                      : metric.value >= 40
+                      ? 'linear-gradient(90deg, rgb(234, 179, 8), rgb(245, 158, 11))'
+                      : 'linear-gradient(90deg, rgb(239, 68, 68), rgb(244, 63, 94))',
+                    boxShadow: metric.value >= 70
+                      ? '0 0 10px rgba(34, 197, 94, 0.5)'
+                      : metric.value >= 40
+                      ? '0 0 10px rgba(234, 179, 8, 0.5)'
+                      : '0 0 10px rgba(239, 68, 68, 0.5)',
+                  }}
+                />
+              </div>
               <p className="text-xs text-muted-foreground italic">{metric.description}</p>
             </div>
           ))}
         </Card>
 
         {/* Next Step Suggestion */}
-        <Card className={`p-4 bg-gradient-to-br ${getScoreGradient(healthScore)} bg-opacity-10 border-2`}>
-          <h4 className="font-semibold text-sm text-foreground flex items-center gap-2 mb-3">
-            <Heart className="h-4 w-4" />
-            Next Step
-          </h4>
-          <p className="text-sm text-foreground mb-4">{nextStep}</p>
-          <div className="flex gap-2">
+        <Card className={`p-4 bg-gradient-to-br ${getScoreGradient(healthScore)} border-2 relative overflow-hidden ${
+          healthScore >= 70 ? 'border-green-500/50' : healthScore >= 40 ? 'border-yellow-500/50' : 'border-red-500/50'
+        }`}>
+          <div className="absolute inset-0 bg-gradient-to-br from-background/90 to-background/70 backdrop-blur-sm" />
+          <div className="relative z-10">
+            <h4 className={`font-semibold text-sm flex items-center gap-2 mb-3 ${
+              healthScore >= 70 ? 'text-green-500' : healthScore >= 40 ? 'text-yellow-500' : 'text-red-500'
+            }`}>
+              <Heart className="h-4 w-4" />
+              Next Step
+            </h4>
+            <p className="text-sm text-foreground mb-4 font-medium">{nextStep}</p>
+            <div className="flex gap-2">
             <Button size="sm" variant="outline" className="flex-1">
               <Phone className="h-3 w-3 mr-1" />
               Call
@@ -215,6 +346,7 @@ export function RelationshipHealthPanel({ person, onClose }: RelationshipHealthP
               <Calendar className="h-3 w-3 mr-1" />
               Meet
             </Button>
+            </div>
           </div>
         </Card>
 
@@ -225,27 +357,27 @@ export function RelationshipHealthPanel({ person, onClose }: RelationshipHealthP
             Recent Activity
           </h4>
           <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="space-y-1">
+            <div className="space-y-1 p-2 rounded bg-card/30">
               <div className="text-muted-foreground">Messages sent</div>
               <div className="text-lg font-bold text-foreground">{metrics.msgsSent30d}</div>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1 p-2 rounded bg-card/30">
               <div className="text-muted-foreground">Messages received</div>
               <div className="text-lg font-bold text-foreground">{metrics.msgsRecv30d}</div>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1 p-2 rounded bg-card/30">
               <div className="text-muted-foreground">Calls (30d)</div>
               <div className="text-lg font-bold text-foreground">{metrics.calls30d}</div>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1 p-2 rounded bg-card/30">
               <div className="text-muted-foreground">Call minutes</div>
               <div className="text-lg font-bold text-foreground">{metrics.callMinutes30d}</div>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1 p-2 rounded bg-card/30">
               <div className="text-muted-foreground">Meetings (30d)</div>
               <div className="text-lg font-bold text-foreground">{metrics.meetings30d}</div>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1 p-2 rounded bg-card/30">
               <div className="text-muted-foreground">Streak days</div>
               <div className="text-lg font-bold text-foreground">{metrics.streakDays}</div>
             </div>
