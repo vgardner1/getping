@@ -188,16 +188,16 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
 
     // Helper function to calculate health score for color
     const getHealthScore = (person: NetworkPerson): number => {
-      // Mock health score based on person's circle - in production, fetch from database
+      // Mock health score based on person's circle - start with healthier relationships
       const baseScores: Record<string, number> = {
-        'family': 75 + Math.random() * 20,
-        'friends': 60 + Math.random() * 30,
-        'business': 50 + Math.random() * 40,
-        'acquaintances': 40 + Math.random() * 40,
-        'network': 30 + Math.random() * 40,
-        'extended': 20 + Math.random() * 40,
+        'family': 85 + Math.random() * 15,      // 85-100 (very healthy)
+        'friends': 75 + Math.random() * 20,     // 75-95 (healthy)
+        'business': 70 + Math.random() * 25,    // 70-95 (mostly healthy)
+        'acquaintances': 65 + Math.random() * 25, // 65-90 (good)
+        'network': 60 + Math.random() * 30,     // 60-90 (decent)
+        'extended': 55 + Math.random() * 30,    // 55-85 (fair)
       };
-      return baseScores[person.circle] || 50;
+      return baseScores[person.circle] || 70;
     };
 
     const getHealthColor = (score: number): number => {
