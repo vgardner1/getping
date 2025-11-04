@@ -549,7 +549,7 @@ export const Network3D = ({ people, onPersonClick }: Network3DProps) => {
       containerRef.current?.removeChild(renderer.domElement);
       renderer.dispose();
     };
-  }, [people, onPersonClick]);
+  }, [people]);
 
   const handleViewProfile = () => {
     if (selectedPerson?.userId) {
