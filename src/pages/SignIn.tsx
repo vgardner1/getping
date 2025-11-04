@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { safeRedirect } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
@@ -13,6 +14,7 @@ const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [staySignedIn, setStaySignedIn] = useState(true);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -20,6 +22,11 @@ const SignIn = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    
+    // Set storage based on "Stay signed in" checkbox
+    const storage = staySignedIn ? localStorage : sessionStorage;
+    const authClient = supabase.auth;
+    (authClient as any).storage = storage;
     
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -111,6 +118,20 @@ const SignIn = () => {
                   )}
                 </Button>
               </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="staySignedIn" 
+                checked={staySignedIn}
+                onCheckedChange={(checked) => setStaySignedIn(checked as boolean)}
+              />
+              <Label 
+                htmlFor="staySignedIn" 
+                className="text-sm font-normal cursor-pointer"
+              >
+                Stay signed in
+              </Label>
             </div>
 
             <Button 

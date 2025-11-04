@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { createChatWithUser } from '@/utils/chatUtils';
 import { safeRedirect } from '@/lib/utils';
@@ -30,6 +31,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showResend, setShowResend] = useState(false);
   const [resending, setResending] = useState(false);
+  const [staySignedIn, setStaySignedIn] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -162,6 +164,13 @@ const handleSignIn = async () => {
       return;
     }
   }
+
+  // Set storage based on "Stay signed in" checkbox
+  const storage = staySignedIn ? localStorage : sessionStorage;
+  
+  // Create a new Supabase client with the selected storage
+  const authClient = supabase.auth;
+  (authClient as any).storage = storage;
 
   const normalizedEmail = email.trim().toLowerCase();
   const { error } = await supabase.auth.signInWithPassword({
@@ -405,6 +414,22 @@ const handleSubmit = (e: React.FormEvent) => {
                 </Button>
               </div>
             </div>
+
+            {isLogin && (
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="staySignedIn" 
+                  checked={staySignedIn}
+                  onCheckedChange={(checked) => setStaySignedIn(checked as boolean)}
+                />
+                <Label 
+                  htmlFor="staySignedIn" 
+                  className="text-sm font-normal cursor-pointer"
+                >
+                  Stay signed in
+                </Label>
+              </div>
+            )}
 
             <Button 
               type="submit" 
