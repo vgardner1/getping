@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { ChevronRight, X, User } from 'lucide-react';
 
 interface NetworkPerson {
@@ -39,14 +41,46 @@ export const Network3D = ({ people, onPersonClick, personHealth }: Network3DProp
   const touchDistanceRef = useRef<number | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<NetworkPerson | null>(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [showDemoNodes, setShowDemoNodes] = useState(false);
   const isZoomingRef = useRef(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Use only provided people; no demo nodes
-    const allPeople = [...people];
+    // Add demo people to outer circles if showDemoNodes is enabled
+    const demoPeople: NetworkPerson[] = [];
+    
+    if (showDemoNodes) {
+      const hasNetwork = people.some(p => p.circle === 'network');
+      const hasExtended = people.some(p => p.circle === 'extended');
+      
+      if (!hasNetwork) {
+        // Add 8 demo dots to network circle
+        for (let i = 0; i < 8; i++) {
+          demoPeople.push({
+            id: `demo-network-${i}`,
+            name: `Network ${i + 1}`,
+            circle: 'network',
+            angle: (360 / 8) * i
+          });
+        }
+      }
+      
+      if (!hasExtended) {
+        // Add 12 demo dots to extended circle
+        for (let i = 0; i < 12; i++) {
+          demoPeople.push({
+            id: `demo-extended-${i}`,
+            name: `Extended ${i + 1}`,
+            circle: 'extended',
+            angle: (360 / 12) * i
+          });
+        }
+      }
+    }
+
+    const allPeople = [...people, ...demoPeople];
 
     // Scene setup
     const scene = new THREE.Scene();
@@ -524,7 +558,7 @@ export const Network3D = ({ people, onPersonClick, personHealth }: Network3DProp
       containerRef.current?.removeChild(renderer.domElement);
       renderer.dispose();
     };
-  }, [people]);
+  }, [people, onPersonClick, personHealth, showDemoNodes]);
 
   // Update node colors live when health scores change
   useEffect(() => {
@@ -550,6 +584,16 @@ export const Network3D = ({ people, onPersonClick, personHealth }: Network3DProp
 
   return (
     <div className="relative w-full h-full">
+      {/* Toggle for demo nodes */}
+      <div className="fixed top-4 right-4 z-10 flex items-center gap-2 bg-card/90 backdrop-blur-sm px-3 py-2 rounded-lg border border-border">
+        <Label htmlFor="demo-toggle" className="text-sm cursor-pointer">Demo nodes</Label>
+        <Switch 
+          id="demo-toggle"
+          checked={showDemoNodes}
+          onCheckedChange={setShowDemoNodes}
+        />
+      </div>
+      
       <div ref={containerRef} className="w-full h-screen" />
 
       {/* Side menu toggle */}
