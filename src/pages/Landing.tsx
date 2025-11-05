@@ -108,12 +108,13 @@ const Landing = () => {
       <StarField />
       
       {/* 3D Ornament - Top Right */}
-      <div className="fixed top-4 right-4 z-20 hidden md:block">
+      <div className="fixed top-8 right-8 z-20">
         <Model3DViewer
           modelUrl="https://ahksxziueqkacyaqtgeu.supabase.co/storage/v1/object/public/3d-models/Sharp%20v2%203D%20Model%20(1).glb"
           autoRotate={true}
-          height="150px"
-          width="150px"
+          height="300px"
+          width="300px"
+          scale={1.5}
         />
       </div>
       
