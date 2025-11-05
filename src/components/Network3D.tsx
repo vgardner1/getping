@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ChevronRight, X, User } from 'lucide-react';
 
 interface NetworkPerson {
@@ -584,14 +583,33 @@ export const Network3D = ({ people, onPersonClick, personHealth }: Network3DProp
 
   return (
     <div className="relative w-full h-full">
-      {/* Toggle for demo nodes */}
-      <div className="fixed top-4 right-4 z-10 flex items-center gap-2 bg-card/90 backdrop-blur-sm px-3 py-2 rounded-lg border border-border">
-        <Label htmlFor="demo-toggle" className="text-sm cursor-pointer">Demo nodes</Label>
-        <Switch 
-          id="demo-toggle"
-          checked={showDemoNodes}
-          onCheckedChange={setShowDemoNodes}
-        />
+      {/* View mode toggle */}
+      <div className="fixed top-4 right-4 z-50 animate-fade-in">
+        <ToggleGroup
+          type="single"
+          value={showDemoNodes ? 'demo' : 'real'}
+          onValueChange={(v) => {
+            if (!v) return;
+            setShowDemoNodes(v === 'demo');
+          }}
+          className="bg-background/80 backdrop-blur px-1 py-1 rounded-lg border border-border flex"
+          aria-label="View mode"
+        >
+          <ToggleGroupItem
+            value="real"
+            className="px-3 py-1 text-sm rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+            aria-label="My circle"
+          >
+            My circle
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="demo"
+            className="px-3 py-1 text-sm rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+            aria-label="Demo"
+          >
+            Demo
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
       
       <div ref={containerRef} className="w-full h-screen" />
