@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./hooks/useAuth";
 import Landing from "./pages/Landing";
+import Model3DUpload from "./pages/Model3DUpload";
 import Onboarding from "./pages/Onboarding";
 import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="/tribe" element={<Network />} />
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/chat/:conversationId" element={<Chat />} />
+            <Route path="/3d-upload" element={<Model3DUpload />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { StarField } from "@/components/StarField";
 import { Link } from "react-router-dom";
 import Ring3D from "@/components/Ring3D";
+import Model3DViewer from "@/components/Model3DViewer";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -105,6 +106,16 @@ const Landing = () => {
   };
   return <div className="min-h-screen bg-background relative overflow-hidden">
       <StarField />
+      
+      {/* 3D Ornament - Top Right */}
+      <div className="fixed top-4 right-4 z-20 hidden md:block">
+        <Model3DViewer
+          modelUrl={undefined}
+          autoRotate={true}
+          height="150px"
+          width="150px"
+        />
+      </div>
       
       {/* Header */}
       <header className="border-b border-border p-4 relative z-10">

@@ -35,6 +35,93 @@ export type Database = {
         }
         Relationships: []
       }
+      contacts: {
+        Row: {
+          company: string | null
+          consistency_score: number | null
+          contact_frequency_days: number | null
+          context_notes: string | null
+          created_at: string | null
+          depth_score: number | null
+          email: string | null
+          first_contact_date: string | null
+          followup_priority_score: number | null
+          frequency_score: number | null
+          id: string
+          last_contact_date: string | null
+          linkedin_url: string | null
+          name: string
+          phone: string | null
+          profile_photo_url: string | null
+          recency_score: number | null
+          relationship_health_score: number | null
+          source: string | null
+          tags: string[] | null
+          title: string | null
+          total_interactions: number | null
+          updated_at: string | null
+          user_id: string
+          user_priority: number | null
+          where_met: string | null
+        }
+        Insert: {
+          company?: string | null
+          consistency_score?: number | null
+          contact_frequency_days?: number | null
+          context_notes?: string | null
+          created_at?: string | null
+          depth_score?: number | null
+          email?: string | null
+          first_contact_date?: string | null
+          followup_priority_score?: number | null
+          frequency_score?: number | null
+          id?: string
+          last_contact_date?: string | null
+          linkedin_url?: string | null
+          name: string
+          phone?: string | null
+          profile_photo_url?: string | null
+          recency_score?: number | null
+          relationship_health_score?: number | null
+          source?: string | null
+          tags?: string[] | null
+          title?: string | null
+          total_interactions?: number | null
+          updated_at?: string | null
+          user_id: string
+          user_priority?: number | null
+          where_met?: string | null
+        }
+        Update: {
+          company?: string | null
+          consistency_score?: number | null
+          contact_frequency_days?: number | null
+          context_notes?: string | null
+          created_at?: string | null
+          depth_score?: number | null
+          email?: string | null
+          first_contact_date?: string | null
+          followup_priority_score?: number | null
+          frequency_score?: number | null
+          id?: string
+          last_contact_date?: string | null
+          linkedin_url?: string | null
+          name?: string
+          phone?: string | null
+          profile_photo_url?: string | null
+          recency_score?: number | null
+          relationship_health_score?: number | null
+          source?: string | null
+          tags?: string[] | null
+          title?: string | null
+          total_interactions?: number | null
+          updated_at?: string | null
+          user_id?: string
+          user_priority?: number | null
+          where_met?: string | null
+        }
+        Relationships: []
+      }
       conversation_participants: {
         Row: {
           conversation_id: string
@@ -81,6 +168,79 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      health_snapshots: {
+        Row: {
+          contact_id: string
+          created_at: string | null
+          health_score: number
+          id: string
+          snapshot_date: string | null
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string | null
+          health_score: number
+          id?: string
+          snapshot_date?: string | null
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string | null
+          health_score?: number
+          id?: string
+          snapshot_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_snapshots_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      interactions: {
+        Row: {
+          contact_id: string
+          created_at: string | null
+          date: string
+          duration_minutes: number | null
+          id: string
+          notes: string | null
+          quality_rating: number | null
+          type: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string | null
+          date: string
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          quality_rating?: number | null
+          type: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string | null
+          date?: string
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          quality_rating?: number | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interactions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {
