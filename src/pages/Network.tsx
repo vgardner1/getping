@@ -479,7 +479,20 @@ const Network = () => {
             <ArrowLeft className="w-5 h-5 text-primary" />
             <span className="text-xl font-bold iridescent-text">Back to Profile</span>
           </Button>
-          <div className="flex items-center gap-2 text-muted-foreground"><Users className="w-4 h-4" /> Tribe</div>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/connections')} 
+              className="flex items-center gap-2"
+            >
+              <Users className="w-4 h-4" />
+              <span>Connections</span>
+            </Button>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Users className="w-4 h-4" /> Tribe
+            </div>
+          </div>
         </div>
       </header>
 

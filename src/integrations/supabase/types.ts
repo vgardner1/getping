@@ -138,22 +138,39 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          met_at_event_id: string | null
+          notes: string | null
+          source: string | null
           target_user_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          met_at_event_id?: string | null
+          notes?: string | null
+          source?: string | null
           target_user_id: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          met_at_event_id?: string | null
+          notes?: string | null
+          source?: string | null
           target_user_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "connections_met_at_event_id_fkey"
+            columns: ["met_at_event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contacts: {
         Row: {

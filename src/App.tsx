@@ -27,6 +27,7 @@ import Chat from "./pages/Chat";
 import ResumePreview from "./pages/ResumePreview";
 import Contacts from "./pages/Contacts";
 import Events from "./pages/Events";
+import Connections from "./pages/Connections";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/network/visualize" element={<NetworkVisualization />} />
             <Route path="/tribe" element={<Network />} />
             <Route path="/contacts" element={<Contacts />} />
+            <Route path="/connections" element={<Connections />} />
             <Route path="/events" element={<Events />} />
             <Route path="/chat/:conversationId" element={<Chat />} />
             <Route path="/3d-upload" element={<Model3DUpload />} />

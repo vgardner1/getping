@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { OptimizedImage } from '@/components/OptimizedImage';
+import { RecommendedEvents } from '@/components/RecommendedEvents';
 
 interface Event {
   id: string;
@@ -160,13 +161,25 @@ export default function Events() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto p-6 relative z-10">
+      <main className="max-w-6xl mx-auto p-6 relative z-10 space-y-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold iridescent-text mb-2">Upcoming Events</h1>
           <p className="text-muted-foreground iridescent-text">
             Events tailored to your interests in {profile?.location || 'your area'}
           </p>
         </div>
+
+        {/* Recommended Events Section */}
+        {profile && !loading && (
+          <RecommendedEvents 
+            userId={user.id} 
+            profile={profile}
+            onEventClick={(eventId) => {
+              const event = events.find(e => e.id === eventId);
+              if (event?.url) window.open(event.url, '_blank');
+            }}
+          />
+        )}
 
         {loading ? (
           <div className="text-center py-12">
@@ -182,8 +195,10 @@ export default function Events() {
             </p>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((event) => {
+          <div>
+            <h2 className="text-2xl font-bold mb-4">All Events</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {events.map((event) => {
               const userStatus = getUserStatus(event);
               const attendeeCount = getAttendeeCount(event);
 
@@ -258,6 +273,7 @@ export default function Events() {
                 </Card>
               );
             })}
+            </div>
           </div>
         )}
       </main>
