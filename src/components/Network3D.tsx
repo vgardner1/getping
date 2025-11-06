@@ -159,6 +159,7 @@ export const Network3D = ({ people, onPersonClick, personHealth, circleType = 'm
     // Renderer setup
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+    renderer.domElement.style.touchAction = 'none'; // Prevent default touch behaviors
     containerRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -497,6 +498,7 @@ export const Network3D = ({ people, onPersonClick, personHealth, circleType = 'm
     };
 
     const onTouchStart = (event: TouchEvent) => {
+      event.preventDefault(); // Prevent scrolling
       if (event.touches.length === 1) {
         // Single finger drag
         isDraggingRef.current = true;
@@ -505,30 +507,30 @@ export const Network3D = ({ people, onPersonClick, personHealth, circleType = 'm
           y: event.touches[0].clientY 
         };
       } else if (event.touches.length === 2) {
-        event.preventDefault();
         touchDistanceRef.current = getTouchDistance(event.touches);
       }
     };
 
     const onTouchMove = (event: TouchEvent) => {
+      event.preventDefault(); // Prevent scrolling
       if (event.touches.length === 1 && isDraggingRef.current) {
-        // Single finger rotation
+        // Single finger rotation - more sensitive on mobile
         const deltaX = event.touches[0].clientX - previousMousePositionRef.current.x;
         const deltaY = event.touches[0].clientY - previousMousePositionRef.current.y;
 
-        scene.rotation.y += deltaX * 0.005;
-        scene.rotation.x += deltaY * 0.005;
+        scene.rotation.y += deltaX * 0.008;
+        scene.rotation.x += deltaY * 0.008;
 
         previousMousePositionRef.current = { 
           x: event.touches[0].clientX, 
           y: event.touches[0].clientY 
         };
       } else if (event.touches.length === 2 && touchDistanceRef.current !== null) {
-        event.preventDefault();
         const currentDistance = getTouchDistance(event.touches);
         const delta = currentDistance - touchDistanceRef.current;
         
-        camera.position.z -= delta * 0.02;
+        // More responsive zoom on mobile
+        camera.position.z -= delta * 0.03;
         camera.position.y = camera.position.z * CAMERA_ANGLE_RATIO;
         camera.position.z = Math.max(5, Math.min(20, camera.position.z));
         camera.position.y = Math.max(5 * CAMERA_ANGLE_RATIO, Math.min(20 * CAMERA_ANGLE_RATIO, camera.position.y));
@@ -538,6 +540,7 @@ export const Network3D = ({ people, onPersonClick, personHealth, circleType = 'm
     };
 
     const onTouchEnd = (event: TouchEvent) => {
+      event.preventDefault(); // Prevent scrolling
       if (event.touches.length < 1) {
         isDraggingRef.current = false;
       }

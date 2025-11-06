@@ -228,7 +228,7 @@ export default function NetworkVisualization() {
           <ChatList searchQuery={searchQuery} />
         </TabsContent>
         
-        <TabsContent value="circles" className="flex-1 m-0 h-full">
+        <TabsContent value="circles" className="flex-1 m-0 h-full overflow-hidden touch-none">
           <Network3D 
             people={people} 
             onPersonClick={handlePersonClick} 
