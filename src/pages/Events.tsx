@@ -106,8 +106,13 @@ export default function Events() {
         description: `Marked as ${status}!`,
       });
 
-      // Refresh events to show updated attendance
-      fetchEvents();
+      // Navigate to event circles view when user marks "going"
+      if (status === 'going') {
+        navigate('/network?view=circles&type=event');
+      } else {
+        // Refresh events to show updated attendance
+        fetchEvents();
+      }
     } catch (error: any) {
       console.error('Error updating attendance:', error);
       toast({

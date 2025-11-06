@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Globe, Circle, Search } from 'lucide-react';
+import { ArrowLeft, Globe, Circle, Search, ChevronDown } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Network3D } from '@/components/Network3D';
 import { NetworkGlobe } from '@/components/NetworkGlobe';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -27,9 +28,24 @@ export default function NetworkVisualization() {
   const { user } = useAuth();
   const [people, setPeople] = useState<NetworkPerson[]>([]);
   const [viewMode, setViewMode] = useState<'chats' | 'circles' | 'globe'>('chats');
+  const [circleType, setCircleType] = useState<'my' | 'industry' | 'event'>('my');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPerson, setSelectedPerson] = useState<NetworkPerson | null>(null);
   const [personHealth, setPersonHealth] = useState<Record<string, number>>({});
+
+  // Check URL params for navigation from events page
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const view = params.get('view');
+    const type = params.get('type');
+    
+    if (view === 'circles') {
+      setViewMode('circles');
+    }
+    if (type === 'event' || type === 'industry' || type === 'my') {
+      setCircleType(type as 'my' | 'industry' | 'event');
+    }
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -171,10 +187,30 @@ export default function NetworkVisualization() {
               <MessageCircle className="h-4 w-4" />
               Chats
             </TabsTrigger>
-            <TabsTrigger value="circles" className="gap-2">
-              <Circle className="h-4 w-4" />
-              Circles
-            </TabsTrigger>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm bg-primary text-primary-foreground shadow-sm"
+                  data-state={viewMode === 'circles' ? 'active' : 'inactive'}
+                  onClick={() => setViewMode('circles')}
+                >
+                  <Circle className="h-4 w-4" />
+                  {circleType === 'my' ? 'My circle' : circleType === 'industry' ? 'Industry circle' : 'Event circles'}
+                  <ChevronDown className="h-3 w-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="bg-card border-border">
+                <DropdownMenuItem onClick={() => setCircleType('my')}>
+                  My circle
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setCircleType('industry')}>
+                  Industry circle
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setCircleType('event')}>
+                  Event circles
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <TabsTrigger value="globe" className="gap-2">
               <Globe className="h-4 w-4" />
               Globe
