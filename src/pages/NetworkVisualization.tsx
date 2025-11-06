@@ -32,7 +32,7 @@ export default function NetworkVisualization() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [people, setPeople] = useState<NetworkPerson[]>([]);
-  const [viewMode, setViewMode] = useState<'chats' | 'circles' | 'globe'>('chats');
+  const [viewMode, setViewMode] = useState<'chats' | 'circles'>('chats');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPerson, setSelectedPerson] = useState<NetworkPerson | null>(null);
   const [personHealth, setPersonHealth] = useState<Record<string, number>>({});
@@ -121,24 +121,49 @@ export default function NetworkVisualization() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <div className="bg-background border-b border-border z-50">
-        <div className="p-4 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              if (viewMode === 'chats') {
-                navigate('/profile');
-              } else {
-                setViewMode('chats');
-              }
-            }}
-            className="hover:bg-primary/10"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-4xl font-bold iridescent-text">
-            {viewMode === 'chats' ? 'chats' : 'visualize your circle'}
-          </h1>
+        <div className="p-4 flex items-center gap-4 justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (viewMode === 'chats') {
+                  navigate('/profile');
+                } else {
+                  setViewMode('chats');
+                }
+              }}
+              className="hover:bg-primary/10"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-4xl font-bold iridescent-text">
+              {viewMode === 'chats' ? 'chats' : 'visualize your circle'}
+            </h1>
+          </div>
+          
+          {/* My circle dropdown in header */}
+          {viewMode !== 'chats' && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="default" className="gap-2">
+                  My circle
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-card z-[100]" align="end">
+                <DropdownMenuItem onClick={() => navigate('/connections')}>
+                  Event circles
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  Industry circles
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  Location circles
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
         
         {/* Search bar - only show in chats view */}
@@ -157,7 +182,7 @@ export default function NetworkVisualization() {
         )}
       </div>
 
-      <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'chats' | 'circles' | 'globe')} className="flex-1 flex flex-col w-full h-full">
+      <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'chats' | 'circles')} className="flex-1 flex flex-col w-full h-full">
         <TabsContent value="chats" className="flex-1 m-0 h-full">
           <ChatList searchQuery={searchQuery} />
         </TabsContent>
@@ -165,47 +190,19 @@ export default function NetworkVisualization() {
         <TabsContent value="circles" className="flex-1 m-0 h-full">
           <Network3D people={people} onPersonClick={handlePersonClick} personHealth={personHealth} />
         </TabsContent>
-        
-        <TabsContent value="globe" className="flex-1 m-0 h-full">
-          <NetworkGlobe people={people} onPersonClick={handlePersonClick} />
-        </TabsContent>
 
         {/* View toggle at bottom */}
         <div className="fixed bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 pb-2">
-          <div className="flex items-center gap-2">
-            <TabsList className="bg-card/95 backdrop-blur border border-border shadow-lg">
-              <TabsTrigger value="chats" className="gap-2">
-                <MessageCircle className="h-4 w-4" />
-                Chats
-              </TabsTrigger>
-              <TabsTrigger value="circles" className="gap-2">
-                <Circle className="h-4 w-4" />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-1">
-                      My circle
-                      <ChevronDown className="h-3 w-3" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-card z-[100]" align="end">
-                    <DropdownMenuItem onClick={() => navigate('/connections')}>
-                      Event circles
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      Industry circles
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      Location circles
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TabsTrigger>
-              <TabsTrigger value="globe" className="gap-2">
-                <Globe className="h-4 w-4" />
-                Demo
-              </TabsTrigger>
-            </TabsList>
-          </div>
+          <TabsList className="bg-card/95 backdrop-blur border border-border shadow-lg">
+            <TabsTrigger value="chats" className="gap-2">
+              <MessageCircle className="h-4 w-4" />
+              Chats
+            </TabsTrigger>
+            <TabsTrigger value="circles" className="gap-2">
+              <Circle className="h-4 w-4" />
+              My circle
+            </TabsTrigger>
+          </TabsList>
         </div>
       </Tabs>
 
