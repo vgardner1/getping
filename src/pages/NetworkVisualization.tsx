@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Globe, Circle, Search } from 'lucide-react';
+import { ArrowLeft, Globe, Circle, Search, ChevronDown } from 'lucide-react';
 import { Network3D } from '@/components/Network3D';
 import { NetworkGlobe } from '@/components/NetworkGlobe';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -11,6 +11,12 @@ import { MessageCircle } from 'lucide-react';
 import { RelationshipHealthPanel } from '@/components/RelationshipHealthPanel';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NetworkPerson {
   id: string;
@@ -166,20 +172,40 @@ export default function NetworkVisualization() {
 
         {/* View toggle at bottom */}
         <div className="fixed bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 pb-2">
-          <TabsList className="bg-card/95 backdrop-blur border border-border shadow-lg">
-            <TabsTrigger value="chats" className="gap-2">
-              <MessageCircle className="h-4 w-4" />
-              Chats
-            </TabsTrigger>
-            <TabsTrigger value="circles" className="gap-2">
-              <Circle className="h-4 w-4" />
-              Circles
-            </TabsTrigger>
-            <TabsTrigger value="globe" className="gap-2">
-              <Globe className="h-4 w-4" />
-              Globe
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex items-center gap-2">
+            <TabsList className="bg-card/95 backdrop-blur border border-border shadow-lg">
+              <TabsTrigger value="chats" className="gap-2">
+                <MessageCircle className="h-4 w-4" />
+                Chats
+              </TabsTrigger>
+              <TabsTrigger value="circles" className="gap-2">
+                <Circle className="h-4 w-4" />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-1">
+                      My circle
+                      <ChevronDown className="h-3 w-3" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-card z-[100]" align="end">
+                    <DropdownMenuItem onClick={() => navigate('/connections')}>
+                      Event circles
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      Industry circles
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      Location circles
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TabsTrigger>
+              <TabsTrigger value="globe" className="gap-2">
+                <Globe className="h-4 w-4" />
+                Demo
+              </TabsTrigger>
+            </TabsList>
+          </div>
         </div>
       </Tabs>
 
