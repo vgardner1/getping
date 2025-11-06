@@ -33,6 +33,7 @@ export default function NetworkVisualization() {
   const { user } = useAuth();
   const [people, setPeople] = useState<NetworkPerson[]>([]);
   const [viewMode, setViewMode] = useState<'chats' | 'circles'>('chats');
+  const [circleType, setCircleType] = useState<'my' | 'event' | 'industry'>('my');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPerson, setSelectedPerson] = useState<NetworkPerson | null>(null);
   const [personHealth, setPersonHealth] = useState<Record<string, number>>({});
@@ -175,10 +176,26 @@ export default function NetworkVisualization() {
               <MessageCircle className="h-4 w-4" />
               Chats
             </TabsTrigger>
-            <TabsTrigger value="circles" className="gap-2">
-              <Circle className="h-4 w-4" />
-              My circle
-            </TabsTrigger>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <TabsTrigger value="circles" className="gap-2">
+                  <Circle className="h-4 w-4" />
+                  My circle
+                  <ChevronDown className="h-3 w-3" />
+                </TabsTrigger>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-card z-[100] mb-2" align="center" side="top">
+                <DropdownMenuItem onClick={() => setCircleType('my')}>
+                  My circle
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setCircleType('event')}>
+                  Circle by event
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setCircleType('industry')}>
+                  Circle by industry
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </TabsList>
         </div>
       </Tabs>
