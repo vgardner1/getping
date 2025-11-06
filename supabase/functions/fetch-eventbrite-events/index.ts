@@ -22,6 +22,12 @@ serve(async (req) => {
       }
     );
 
+    // Admin client (service role) to bypass RLS for server-side caching
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
     // Verify user is authenticated
     const {
       data: { user },
@@ -41,6 +47,9 @@ serve(async (req) => {
 
     // Extract city from location (e.g., "Boston" from "Boston, MA")
     const city = location ? location.split(',')[0].trim() : 'Boston';
+    const stateCode = location && location.includes(',')
+      ? location.split(',')[1].trim().slice(0, 2).toUpperCase()
+      : undefined;
 
     // Format date for Ticketmaster: YYYY-MM-DDTHH:mm:ssZ (no milliseconds)
     const startDateTime = new Date().toISOString().split('.')[0] + 'Z';
@@ -53,7 +62,12 @@ serve(async (req) => {
       'page': (page - 1).toString(), // Ticketmaster uses 0-indexed pages
       'sort': 'date,asc',
       'startDateTime': startDateTime,
+      'countryCode': 'US',
     });
+
+    if (stateCode) {
+      searchParams.append('stateCode', stateCode);
+    }
 
     // Add classification filters based on interests
     if (interests && interests.length > 0) {
@@ -128,8 +142,8 @@ serve(async (req) => {
         tags,
       };
 
-      // Insert or update event
-      const { error: upsertError } = await supabaseClient
+      // Insert or update event using admin client to bypass RLS
+      const { error: upsertError } = await supabaseAdmin
         .from('events')
         .upsert(eventData, { onConflict: 'eventbrite_id' });
 
@@ -138,12 +152,12 @@ serve(async (req) => {
       }
     }
 
-    // Fetch cached events with attendance info
-    const { data: cachedEvents, error: fetchError } = await supabaseClient
+    // Fetch cached events with attendance info using admin client, then filter to current user
+    const { data: cachedEvents, error: fetchError } = await supabaseAdmin
       .from('events')
       .select(`
         *,
-        event_attendances(user_id, status)
+        event_attendances(user_id, status, event_id)
       `)
       .gte('start_date', new Date().toISOString())
       .order('start_date', { ascending: true })
@@ -154,9 +168,14 @@ serve(async (req) => {
       throw fetchError;
     }
 
+    const eventsWithUserAttendance = (cachedEvents || []).map((e: any) => ({
+      ...e,
+      event_attendances: (e.event_attendances || []).filter((a: any) => a.user_id === user.id),
+    }));
+
     return new Response(
       JSON.stringify({
-        events: cachedEvents,
+        events: eventsWithUserAttendance,
         pagination: ticketmasterData.page || { size: 20, totalElements: events.length, number: page - 1 },
       }),
       {
