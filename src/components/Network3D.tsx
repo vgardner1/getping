@@ -18,6 +18,9 @@ interface Network3DProps {
   people: NetworkPerson[];
   onPersonClick?: (person: NetworkPerson) => void;
   personHealth?: Record<string, number>;
+  circleType?: 'my' | 'industry' | 'event';
+  industries?: string[];
+  events?: string[];
 }
 
 const CIRCLES = [
@@ -29,7 +32,7 @@ const CIRCLES = [
   { id: 'extended', label: 'Extended', radius: 9.5, color: 0x4ade80 },
 ];
 
-export const Network3D = ({ people, onPersonClick, personHealth }: Network3DProps) => {
+export const Network3D = ({ people, onPersonClick, personHealth, circleType = 'my', industries, events }: Network3DProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -46,6 +49,26 @@ export const Network3D = ({ people, onPersonClick, personHealth }: Network3DProp
 
   useEffect(() => {
     if (!containerRef.current) return;
+
+    // Define circles based on circleType
+    let CIRCLES_TO_USE;
+    if (circleType === 'industry' && industries) {
+      CIRCLES_TO_USE = industries.map((industry, index) => ({
+        id: industry.toLowerCase(),
+        label: industry,
+        radius: 2 + (index * 2.5),
+        color: 0x4ade80
+      }));
+    } else if (circleType === 'event' && events) {
+      CIRCLES_TO_USE = events.map((event, index) => ({
+        id: `event-${index}`,
+        label: event,
+        radius: 2 + (index * 2.5),
+        color: 0x4ade80
+      }));
+    } else {
+      CIRCLES_TO_USE = CIRCLES;
+    }
 
     // Add demo people to outer circles if showDemoNodes is enabled
     const demoPeople: NetworkPerson[] = [];
@@ -129,7 +152,7 @@ export const Network3D = ({ people, onPersonClick, personHealth }: Network3DProp
     scene.add(centerSphere);
 
     // Create horizontal concentric circles (torus rings) with labels
-    CIRCLES.forEach((circle) => {
+    CIRCLES_TO_USE.forEach((circle) => {
       const torusGeometry = new THREE.TorusGeometry(circle.radius, 0.02, 16, 100);
       const torusMaterial = new THREE.MeshBasicMaterial({
         color: circle.color,
@@ -227,7 +250,7 @@ export const Network3D = ({ people, onPersonClick, personHealth }: Network3DProp
     const peopleByCircle = new Map<string, Array<{person: NetworkPerson, position: THREE.Vector3}>>();
 
     allPeople.forEach((person) => {
-      const circle = CIRCLES.find((c) => c.id === person.circle);
+      const circle = CIRCLES_TO_USE.find((c) => c.id === person.circle);
       if (!circle) return;
 
       const radius = circle.radius;
@@ -279,7 +302,7 @@ export const Network3D = ({ people, onPersonClick, personHealth }: Network3DProp
 
     // Create interconnections between people on different circles
     allPeople.forEach((person) => {
-      const circle = CIRCLES.find((c) => c.id === person.circle);
+      const circle = CIRCLES_TO_USE.find((c) => c.id === person.circle);
       if (!circle) return;
 
       const personSphere = spheres.get(person.id);
@@ -322,9 +345,9 @@ export const Network3D = ({ people, onPersonClick, personHealth }: Network3DProp
 
       // Create some random interconnections between adjacent circles
       if (Math.random() > 0.6) {
-        const circleIndex = CIRCLES.findIndex(c => c.id === person.circle);
+        const circleIndex = CIRCLES_TO_USE.findIndex(c => c.id === person.circle);
         if (circleIndex > 0) {
-          const prevCircle = CIRCLES[circleIndex - 1];
+          const prevCircle = CIRCLES_TO_USE[circleIndex - 1];
           const prevPeople = peopleByCircle.get(prevCircle.id) || [];
           if (prevPeople.length > 0) {
             const randomPerson = prevPeople[Math.floor(Math.random() * prevPeople.length)];

@@ -188,36 +188,19 @@ export default function NetworkVisualization() {
                   
                   <DropdownMenuItem onClick={() => {
                     setCircleType('industry');
-                    setSelectedIndustry('AI');
+                    setSelectedIndustry(null);
+                    setSelectedEvent(null);
                   }}>
-                    AI circle
+                    Industry circle
                   </DropdownMenuItem>
                   
                   <DropdownMenuItem onClick={() => {
-                    setCircleType('industry');
-                    setSelectedIndustry('Tech');
+                    setCircleType('event');
+                    setSelectedIndustry(null);
+                    setSelectedEvent(null);
                   }}>
-                    Tech circle
+                    Event circle
                   </DropdownMenuItem>
-                  
-                  <DropdownMenuItem onClick={() => {
-                    setCircleType('industry');
-                    setSelectedIndustry('Sustainability');
-                  }}>
-                    Sustainability circle
-                  </DropdownMenuItem>
-
-                  {userEvents.length > 0 && userEvents.map((event: any) => (
-                    <DropdownMenuItem
-                      key={event.id}
-                      onClick={() => {
-                        setCircleType('event');
-                        setSelectedEvent(event.id);
-                      }}
-                    >
-                      {event.name}
-                    </DropdownMenuItem>
-                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
@@ -246,7 +229,14 @@ export default function NetworkVisualization() {
         </TabsContent>
         
         <TabsContent value="circles" className="flex-1 m-0 h-full">
-          <Network3D people={people} onPersonClick={handlePersonClick} personHealth={personHealth} />
+          <Network3D 
+            people={people} 
+            onPersonClick={handlePersonClick} 
+            personHealth={personHealth}
+            circleType={circleType}
+            industries={circleType === 'industry' ? ['AI', 'Tech', 'Sustainability'] : undefined}
+            events={circleType === 'event' ? userEvents.map(e => e.name) : undefined}
+          />
         </TabsContent>
 
         {/* View toggle at bottom */}
