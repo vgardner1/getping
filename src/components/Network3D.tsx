@@ -74,30 +74,59 @@ export const Network3D = ({ people, onPersonClick, personHealth, circleType = 'm
     const demoPeople: NetworkPerson[] = [];
     
     if (showDemoNodes) {
-      const hasNetwork = people.some(p => p.circle === 'network');
-      const hasExtended = people.some(p => p.circle === 'extended');
-      
-      if (!hasNetwork) {
-        // Add 8 demo dots to network circle
-        for (let i = 0; i < 8; i++) {
-          demoPeople.push({
-            id: `demo-network-${i}`,
-            name: `Network ${i + 1}`,
-            circle: 'network',
-            angle: (360 / 8) * i
-          });
+      if (circleType === 'industry' && industries) {
+        // Populate each industry circle with demo people
+        industries.forEach((industry, circleIndex) => {
+          const peopleCount = 6 + (circleIndex * 2); // More people in outer circles
+          for (let i = 0; i < peopleCount; i++) {
+            demoPeople.push({
+              id: `demo-${industry.toLowerCase()}-${i}`,
+              name: `${industry} Contact ${i + 1}`,
+              circle: industry.toLowerCase() as any,
+              angle: (360 / peopleCount) * i
+            });
+          }
+        });
+      } else if (circleType === 'event' && events) {
+        // Populate each event circle with demo people
+        events.forEach((event, circleIndex) => {
+          const peopleCount = 6 + (circleIndex * 2); // More people in outer circles
+          for (let i = 0; i < peopleCount; i++) {
+            demoPeople.push({
+              id: `demo-event-${circleIndex}-${i}`,
+              name: `${event.substring(0, 20)} Attendee ${i + 1}`,
+              circle: `event-${circleIndex}` as any,
+              angle: (360 / peopleCount) * i
+            });
+          }
+        });
+      } else {
+        // Default "my circle" demo behavior
+        const hasNetwork = people.some(p => p.circle === 'network');
+        const hasExtended = people.some(p => p.circle === 'extended');
+        
+        if (!hasNetwork) {
+          // Add 8 demo dots to network circle
+          for (let i = 0; i < 8; i++) {
+            demoPeople.push({
+              id: `demo-network-${i}`,
+              name: `Network ${i + 1}`,
+              circle: 'network',
+              angle: (360 / 8) * i
+            });
+          }
         }
-      }
-      
-      if (!hasExtended) {
-        // Add 12 demo dots to extended circle
-        for (let i = 0; i < 12; i++) {
-          demoPeople.push({
-            id: `demo-extended-${i}`,
-            name: `Extended ${i + 1}`,
-            circle: 'extended',
-            angle: (360 / 12) * i
-          });
+        
+        if (!hasExtended) {
+          // Add 12 demo dots to extended circle
+          for (let i = 0; i < 12; i++) {
+            demoPeople.push({
+              id: `demo-extended-${i}`,
+              name: `Extended ${i + 1}`,
+              circle: 'extended',
+              angle: (360 / 12) * i
+            });
+          }
         }
       }
     }
