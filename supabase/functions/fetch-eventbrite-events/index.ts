@@ -42,6 +42,9 @@ serve(async (req) => {
     // Extract city from location (e.g., "Boston" from "Boston, MA")
     const city = location ? location.split(',')[0].trim() : 'Boston';
 
+    // Format date for Ticketmaster: YYYY-MM-DDTHH:mm:ssZ (no milliseconds)
+    const startDateTime = new Date().toISOString().split('.')[0] + 'Z';
+
     // Build Ticketmaster API query
     const searchParams = new URLSearchParams({
       'apikey': ticketmasterApiKey,
@@ -49,7 +52,7 @@ serve(async (req) => {
       'size': '20',
       'page': (page - 1).toString(), // Ticketmaster uses 0-indexed pages
       'sort': 'date,asc',
-      'startDateTime': new Date().toISOString(),
+      'startDateTime': startDateTime,
     });
 
     // Add classification filters based on interests
