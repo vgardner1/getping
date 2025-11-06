@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StarField } from "@/components/StarField";
-import { ArrowLeft, MapPin, Building2, Edit, BarChart3, ExternalLink, Mail, Phone, Search, UserPlus, Share2, FileText, Download, Eye } from "lucide-react";
+import { ArrowLeft, MapPin, Building2, Edit, BarChart3, ExternalLink, Mail, Phone, Search, UserPlus, Share2, FileText, Download, Eye, Calendar } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
@@ -401,6 +401,15 @@ const Profile = () => {
 
         {/* Share Profile Button - Bottom of page */}
         <div className="mt-8 flex flex-col items-center space-y-3">
+          <Button 
+            variant="default" 
+            className="w-full max-w-sm bg-primary hover:bg-primary/90 text-primary-foreground" 
+            onClick={() => navigate('/events')}
+          >
+            <Calendar className="w-4 h-4 mr-2" />
+            See upcoming events
+          </Button>
+          
           <Button variant="outline" className="w-full max-w-sm border-primary text-primary hover:bg-primary/10" onClick={() => setShowShareModal(true)}>
             <Share2 className="w-4 h-4 mr-2" />
             Share my ping! profile

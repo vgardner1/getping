@@ -86,6 +86,54 @@ export type Database = {
         }
         Relationships: []
       }
+      connection_meetings: {
+        Row: {
+          connection_id: string
+          created_at: string
+          event_id: string | null
+          id: string
+          meeting_date: string | null
+          meeting_location: string | null
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          connection_id: string
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          meeting_date?: string | null
+          meeting_location?: string | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          connection_id?: string
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          meeting_date?: string | null
+          meeting_location?: string | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connection_meetings_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connection_meetings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connections: {
         Row: {
           created_at: string
@@ -238,6 +286,98 @@ export type Database = {
           created_at?: string
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      event_attendances: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_attendances_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          eventbrite_id: string
+          id: string
+          image_url: string | null
+          name: string
+          start_date: string
+          tags: string[] | null
+          updated_at: string
+          url: string | null
+          venue_address: string | null
+          venue_city: string | null
+          venue_name: string | null
+          venue_state: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          eventbrite_id: string
+          id?: string
+          image_url?: string | null
+          name: string
+          start_date: string
+          tags?: string[] | null
+          updated_at?: string
+          url?: string | null
+          venue_address?: string | null
+          venue_city?: string | null
+          venue_name?: string | null
+          venue_state?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          eventbrite_id?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          start_date?: string
+          tags?: string[] | null
+          updated_at?: string
+          url?: string | null
+          venue_address?: string | null
+          venue_city?: string | null
+          venue_name?: string | null
+          venue_state?: string | null
         }
         Relationships: []
       }
