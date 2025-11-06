@@ -34,78 +34,95 @@ serve(async (req) => {
 
     const { location, interests, page = 1 } = await req.json();
 
-    const eventbriteToken = Deno.env.get('EVENTBRITE_PRIVATE_TOKEN');
-    if (!eventbriteToken) {
-      throw new Error('Eventbrite token not configured');
+    const ticketmasterApiKey = Deno.env.get('TICKETMASTER_API_KEY');
+    if (!ticketmasterApiKey) {
+      throw new Error('Ticketmaster API key not configured');
     }
 
-    // Build Eventbrite API query
+    // Extract city from location (e.g., "Boston" from "Boston, MA")
+    const city = location ? location.split(',')[0].trim() : 'Boston';
+
+    // Build Ticketmaster API query
     const searchParams = new URLSearchParams({
-      'location.address': location || 'Boston, MA',
-      'expand': 'venue',
-      'page': page.toString(),
-      'page_size': '20',
+      'apikey': ticketmasterApiKey,
+      'city': city,
+      'size': '20',
+      'page': (page - 1).toString(), // Ticketmaster uses 0-indexed pages
+      'sort': 'date,asc',
+      'startDateTime': new Date().toISOString(),
     });
 
-    // Add category filters based on interests
+    // Add classification filters based on interests
     if (interests && interests.length > 0) {
-      // Map user interests to Eventbrite categories (simplified mapping)
-      const categoryMap: Record<string, string> = {
-        'technology': '102',
-        'business': '101',
-        'music': '103',
-        'food': '110',
-        'art': '105',
-        'sports': '108',
+      // Map user interests to Ticketmaster classifications
+      const classificationMap: Record<string, string> = {
+        'technology': 'Miscellaneous',
+        'business': 'Miscellaneous',
+        'music': 'Music',
+        'food': 'Miscellaneous',
+        'art': 'Arts & Theatre',
+        'sports': 'Sports',
+        'film': 'Film',
       };
       
-      const categories = interests
-        .map((interest: string) => categoryMap[interest.toLowerCase()])
+      const classifications = interests
+        .map((interest: string) => classificationMap[interest.toLowerCase()])
         .filter(Boolean);
       
-      if (categories.length > 0) {
-        searchParams.append('categories', categories.join(','));
+      if (classifications.length > 0) {
+        searchParams.append('classificationName', classifications.join(','));
       }
     }
 
-    console.log('Fetching events from Eventbrite:', searchParams.toString());
+    console.log('Fetching events from Ticketmaster:', searchParams.toString());
 
-    // Fetch events from Eventbrite
-    const eventbriteResponse = await fetch(
-      `https://www.eventbriteapi.com/v3/events/search/?${searchParams.toString()}`,
-      {
-        headers: {
-          'Authorization': `Bearer ${eventbriteToken}`,
-        },
-      }
+    // Fetch events from Ticketmaster
+    const ticketmasterResponse = await fetch(
+      `https://app.ticketmaster.com/discovery/v2/events.json?${searchParams.toString()}`
     );
 
-    if (!eventbriteResponse.ok) {
-      const errorText = await eventbriteResponse.text();
-      console.error('Eventbrite API error:', errorText);
-      throw new Error(`Eventbrite API error: ${eventbriteResponse.status}`);
+    if (!ticketmasterResponse.ok) {
+      const errorText = await ticketmasterResponse.text();
+      console.error('Ticketmaster API error:', errorText);
+      
+      if (ticketmasterResponse.status === 404) {
+        throw new Error('Location not found. Please try a different city.');
+      } else if (ticketmasterResponse.status === 429) {
+        throw new Error('Rate limit exceeded. Please try again later.');
+      }
+      
+      throw new Error(`Ticketmaster API error: ${ticketmasterResponse.status}`);
     }
 
-    const eventbriteData = await eventbriteResponse.json();
-    console.log('Received events:', eventbriteData.events?.length || 0);
+    const ticketmasterData = await ticketmasterResponse.json();
+    const events = ticketmasterData._embedded?.events || [];
+    console.log('Received events:', events.length);
 
     // Cache events in our database
-    const events = eventbriteData.events || [];
     for (const event of events) {
+      // Extract venue info from Ticketmaster structure
+      const venue = event._embedded?.venues?.[0];
+      const classification = event.classifications?.[0];
+      
+      // Gather genre/subgenre tags
+      const tags: string[] = [];
+      if (classification?.genre?.name) tags.push(classification.genre.name);
+      if (classification?.subGenre?.name) tags.push(classification.subGenre.name);
+      
       const eventData = {
         eventbrite_id: event.id,
-        name: event.name?.text || '',
-        description: event.description?.text || event.summary || '',
-        start_date: event.start?.utc || new Date().toISOString(),
-        end_date: event.end?.utc,
-        venue_name: event.venue?.name,
-        venue_address: event.venue?.address?.localized_address_display,
-        venue_city: event.venue?.address?.city,
-        venue_state: event.venue?.address?.region,
-        url: event.url,
-        image_url: event.logo?.url,
-        category: event.category?.name,
-        tags: event.tags?.map((t: any) => t.display_name) || [],
+        name: event.name || '',
+        description: event.info || event.description || '',
+        start_date: event.dates?.start?.dateTime || event.dates?.start?.localDate || new Date().toISOString(),
+        end_date: event.dates?.end?.dateTime || event.dates?.end?.localDate || null,
+        venue_name: venue?.name || null,
+        venue_address: venue?.address?.line1 || null,
+        venue_city: venue?.city?.name || null,
+        venue_state: venue?.state?.name || null,
+        url: event.url || null,
+        image_url: event.images?.[0]?.url || null,
+        category: classification?.segment?.name || null,
+        tags,
       };
 
       // Insert or update event
@@ -137,7 +154,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         events: cachedEvents,
-        pagination: eventbriteData.pagination,
+        pagination: ticketmasterData.page || { size: 20, totalElements: events.length, number: page - 1 },
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
