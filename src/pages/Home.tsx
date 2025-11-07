@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Network3D } from '@/components/Network3D';
+import { CircleStrengthBar } from '@/components/CircleStrengthBar';
 import { HomeNav } from '@/components/HomeNav';
 import { RecommendedPingsSidebar } from '@/components/RecommendedPingsSidebar';
 import { Button } from '@/components/ui/button';
@@ -164,6 +165,11 @@ export default function Home() {
             industries={circleType === 'industry' ? industries : undefined}
             events={circleType === 'event' ? userEvents.map(e => e.name) : undefined}
           />
+        </div>
+
+        {/* Circle Strength Bar - Hovering Above Center */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+          <CircleStrengthBar people={people} personHealth={personHealth} />
         </div>
 
         {/* Leaderboard Overlay */}
