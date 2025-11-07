@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { safeRedirect } from "@/lib/utils";
 
 interface SaveContactButtonProps {
   profile: {
@@ -95,6 +96,37 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
       const linkedinUrl = typeof profile.social_links?.linkedin === 'string' 
         ? profile.social_links.linkedin 
         : profile.social_links?.linkedin?.url || '';
+
+      // Build Supabase Edge Function vCard URL for reliable native handling
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+      const functionsBase = supabaseUrl ? supabaseUrl.replace('.supabase.co', '.functions.supabase.co') : '';
+      const params = new URLSearchParams({
+        fullName: personName,
+        title: profile.job_title || '',
+        company: profile.company || '',
+        email: userEmail || '',
+        phone,
+        website: profile.website_url || '',
+        linkedin: linkedinUrl,
+        location: profile.location || '',
+        note: profile.bio || '',
+      });
+      const vcardUrl = functionsBase ? `${functionsBase}/vcard?${params.toString()}` : '';
+
+      // On mobile or inside sandboxed iframes, redirect to the vCard URL to trigger native Contacts
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      let inIframe = false;
+      try { inIframe = !!(window.top && window.top !== window); } catch { inIframe = true; }
+
+      if ((isMobile || inIframe) && vcardUrl) {
+        safeRedirect(vcardUrl);
+        toast({
+          title: 'Opening Contacts',
+          description: `Adding ${personName}...`,
+        });
+        return;
+      }
+
 
       const esc = (val: string) =>
         (val ?? '')
