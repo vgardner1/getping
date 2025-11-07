@@ -149,26 +149,33 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
         }
       }
 
-      // 2) Mobile-first: open the vCard directly so OS shows "Add to Contacts"
+      // 2) Mobile-first: redirect to an Edge Function that serves a real .vcf
       if (isIOS || isAndroid) {
-        // Use a data URL with filename hint; iOS/Android will typically route to Contacts
-        const dataUrl = `data:text/x-vcard;charset=utf-8;name=${encodeURIComponent(contactFileName)}.vcf,${encodeURIComponent(vCard)}`;
+        const supabaseRef = 'ahksxziueqkacyaqtgeu';
+        const fnBase = `https://${supabaseRef}.functions.supabase.co/vcard`;
+        const params = new URLSearchParams({
+          fullName: personName,
+          title: profile.job_title || '',
+          company: profile.company || '',
+          email: userEmail || '',
+          phone: phone || '',
+          website: profile.website_url || '',
+          location: profile.location || '',
+          linkedin: linkedinUrl || '',
+          filename: contactFileName,
+        });
+        const fnUrl = `${fnBase}?${params.toString()}`;
 
-        // Prefer opening via a user-gesture anchor click (more reliable on mobile)
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.target = '_self'; // allow OS intercept
-        a.rel = 'noopener';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        // Fallback: try opening in a new tab if the browser blocked navigation
-        setTimeout(() => {
-          try {
-            window.open(dataUrl, '_blank');
-          } catch {}
-        }, 250);
+        // Use top-level navigation when possible
+        try {
+          if (window.top) {
+            window.top.location.href = fnUrl;
+          } else {
+            window.location.href = fnUrl;
+          }
+        } catch {
+          window.location.href = fnUrl;
+        }
 
         toast({ title: "Opening Contacts", description: `Importing ${personName}'s contact...` });
         return;
