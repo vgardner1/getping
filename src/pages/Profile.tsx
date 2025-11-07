@@ -261,7 +261,12 @@ const Profile = () => {
       {/* Header */}
       <header className="border-b border-border p-2 relative z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-2">
-          <span className="text-lg font-bold iridescent-text">ping!</span>
+          <button 
+            onClick={() => navigate('/')} 
+            className="text-lg font-bold iridescent-text hover:scale-105 transition-transform cursor-pointer"
+          >
+            ping!
+          </button>
           
           {/* Network in center with search */}
           <div className="absolute left-1/2 transform -translate-x-1/2">
