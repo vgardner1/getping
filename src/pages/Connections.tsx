@@ -289,7 +289,7 @@ export default function Connections() {
                 <div
                   key={conn.id}
                   className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/profile/${conn.target_user_id}`)}
+                  onClick={() => navigate(`/ping/${conn.target_user_id}`)}
                 >
                   <Avatar className="h-12 w-12">
                     <AvatarImage src={conn.profile?.avatar_url || undefined} />
