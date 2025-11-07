@@ -7,8 +7,7 @@ import { CircleStrengthTracker } from '@/components/CircleStrengthTracker';
 import { HomeNav } from '@/components/HomeNav';
 import { RecommendedPingsSidebar } from '@/components/RecommendedPingsSidebar';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Circle, ChevronDown } from 'lucide-react';
+import { Users, Calendar, Briefcase } from 'lucide-react';
 
 interface NetworkPerson {
   id: string;
@@ -169,36 +168,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Circle Filters - Under strength tracker */}
-        <div className="absolute top-40 left-4 z-30 pointer-events-none">
-          <div className="pointer-events-auto">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="bg-black/80 backdrop-blur border-primary/30 text-foreground hover:bg-primary/10 gap-2"
-                >
-                  <Circle className="h-4 w-4" />
-                  {circleType === 'my' && 'My Circle'}
-                  {circleType === 'industry' && 'Industry'}
-                  {circleType === 'event' && 'Events'}
-                  <ChevronDown className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-card border-border">
-                <DropdownMenuItem onClick={() => setCircleType('my')}>
-                  My Circle
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setCircleType('industry')}>
-                  Industry Circle
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setCircleType('event')}>
-                  Event Circle
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
 
         {/* 3D Visualization Canvas */}
         <div className="flex-1">
@@ -220,6 +189,36 @@ export default function Home() {
           personHealth={personHealth}
           isDemoMode={isDemoMode}
         />
+      </div>
+
+      {/* Circle Filter - Bottom Center */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40">
+        <div className="flex gap-4 bg-black/80 backdrop-blur border border-primary/30 rounded-full px-6 py-3">
+          <Button
+            variant={circleType === 'my' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setCircleType('my')}
+            className="rounded-full"
+          >
+            <Users className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={circleType === 'event' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setCircleType('event')}
+            className="rounded-full"
+          >
+            <Calendar className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={circleType === 'industry' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setCircleType('industry')}
+            className="rounded-full"
+          >
+            <Briefcase className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Demo/Real Toggle - Bottom Right */}

@@ -1,11 +1,13 @@
-import { useState, useMemo } from 'react';
-import { X, MessageCircle, Trophy, Users, Send, Copy, Mail, CheckCircle2 } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { X, MessageCircle, Trophy, Send, Copy, Mail, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 interface RecommendedPingsSidebarProps {
   selectedPerson: any | null;
@@ -22,10 +24,12 @@ export const RecommendedPingsSidebar = ({
   personHealth,
   isDemoMode 
 }: RecommendedPingsSidebarProps) => {
-  const [activeTab, setActiveTab] = useState('network');
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('leaderboard');
   const [pingModalOpen, setPingModalOpen] = useState(false);
   const [selectedPing, setSelectedPing] = useState<any>(null);
   const [aiMessage, setAiMessage] = useState('');
+  const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
 
   // Calculate recommended follow-ups
   const recommendedFollowUps = useMemo(() => {
@@ -77,20 +81,53 @@ export const RecommendedPingsSidebar = ({
     ];
   }, [isDemoMode]);
 
-  // Mock leaderboard
-  const leaderboard = useMemo(() => {
-    if (!isDemoMode) return [];
-    
-    return [
-      { rank: 1, name: 'Alex Thompson', score: 145, followUps: 12, revives: 8, intros: 5 },
-      { rank: 2, name: 'Jordan Lee', score: 132, followUps: 15, revives: 5, intros: 4 },
-      { rank: 3, name: 'Sam Rivera', score: 128, followUps: 10, revives: 7, intros: 6 },
-      { rank: 4, name: 'Casey Moore', score: 119, followUps: 14, revives: 4, intros: 3 },
-      { rank: 5, name: 'Taylor Kim', score: 115, followUps: 11, revives: 6, intros: 4 },
-      { rank: 6, name: 'Morgan Davis', score: 108, followUps: 9, revives: 5, intros: 5 },
-      { rank: 7, name: 'You', score: 98, followUps: 8, revives: 4, intros: 3, isUser: true },
-    ];
-  }, [isDemoMode]);
+  // Fetch real leaderboard data
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      if (!user) return;
+
+      // Get profile views grouped by profile_user_id
+      const { data: viewsData } = await supabase
+        .from('profile_views')
+        .select('profile_user_id, profiles!inner(display_name, user_id)');
+
+      if (!viewsData || viewsData.length === 0) {
+        setLeaderboardData([]);
+        return;
+      }
+
+      // Count views per user
+      const viewCounts = viewsData.reduce((acc: any, view: any) => {
+        const userId = view.profile_user_id;
+        if (!acc[userId]) {
+          acc[userId] = {
+            userId,
+            name: view.profiles?.display_name || 'Unknown',
+            views: 0,
+          };
+        }
+        acc[userId].views += 1;
+        return acc;
+      }, {});
+
+      // Convert to array and sort by views
+      const sorted = Object.values(viewCounts)
+        .sort((a: any, b: any) => b.views - a.views)
+        .slice(0, 10);
+
+      // Add ranks
+      const withRanks = sorted.map((entry: any, index) => ({
+        rank: index + 1,
+        name: entry.name,
+        score: entry.views,
+        isUser: entry.userId === user.id,
+      }));
+
+      setLeaderboardData(withRanks);
+    };
+
+    fetchLeaderboard();
+  }, [user]);
 
   const handlePingNow = (person: any) => {
     setSelectedPing(person);
@@ -120,78 +157,18 @@ export const RecommendedPingsSidebar = ({
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
           <div className="border-b border-border/30 p-4">
-            <TabsList className="w-full grid grid-cols-3 bg-card/50">
-              <TabsTrigger value="network" className="text-xs">
-                <Users className="h-3 w-3 mr-1" />
-                Info
-              </TabsTrigger>
+            <TabsList className="w-full grid grid-cols-2 bg-card/50">
               <TabsTrigger value="pings" className="text-xs">
                 <MessageCircle className="h-3 w-3 mr-1" />
                 Pings
               </TabsTrigger>
               <TabsTrigger value="leaderboard" className="text-xs">
                 <Trophy className="h-3 w-3 mr-1" />
-                Leaders
+                Leaderboard
               </TabsTrigger>
             </TabsList>
           </div>
 
-          {/* Network Info Tab */}
-          <TabsContent value="network" className="flex-1 overflow-y-auto p-4 space-y-4 m-0">
-            {selectedPerson ? (
-              <Card className="bg-card/50 border-border/30 p-4 space-y-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-lg">{selectedPerson.name}</h3>
-                    <p className="text-sm text-muted-foreground capitalize">{selectedPerson.circle}</p>
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={onClose}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Health Score</span>
-                    <span className={`font-semibold ${
-                      (personHealth[selectedPerson.id] || 70) >= 70 ? 'text-green-500' :
-                      (personHealth[selectedPerson.id] || 70) >= 40 ? 'text-yellow-500' :
-                      'text-red-500'
-                    }`}>
-                      {personHealth[selectedPerson.id] || 70}/100
-                    </span>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Last contact: {Math.floor(Math.random() * 30)} days ago
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-2">
-                  <Button size="sm" className="flex-1">View Profile</Button>
-                  <Button size="sm" variant="outline" className="flex-1">Log Interaction</Button>
-                </div>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg">Network Overview</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Total Connections</span>
-                    <span className="font-semibold">{people.length}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">At Risk</span>
-                    <span className="font-semibold text-orange-500">
-                      {recommendedFollowUps.length}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground pt-2">
-                    💡 You have {recommendedFollowUps.length} at-risk connections to revive this week.
-                  </p>
-                </div>
-              </div>
-            )}
-          </TabsContent>
 
           {/* Recommended Pings Tab */}
           <TabsContent value="pings" className="flex-1 overflow-y-auto p-4 space-y-4 m-0">
@@ -266,47 +243,46 @@ export const RecommendedPingsSidebar = ({
           <TabsContent value="leaderboard" className="flex-1 overflow-y-auto p-4 space-y-4 m-0">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
+                <h3 className="font-semibold text-lg">
                   Top Connectors
                 </h3>
-                <select className="text-xs bg-card border border-border rounded px-2 py-1">
-                  <option>Global</option>
-                  <option>My School</option>
-                  <option>My City</option>
-                </select>
               </div>
 
-              {leaderboard.map(entry => (
-                <Card 
-                  key={entry.rank} 
-                  className={`p-3 ${entry.isUser ? 'bg-primary/10 border-primary/30' : 'bg-card/50 border-border/30'}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`text-2xl font-bold ${
-                      entry.rank === 1 ? 'text-yellow-500' :
-                      entry.rank === 2 ? 'text-gray-400' :
-                      entry.rank === 3 ? 'text-orange-600' :
-                      'text-muted-foreground'
-                    }`}>
-                      #{entry.rank}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-sm">{entry.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {entry.followUps} follow-ups • {entry.revives} revives • {entry.intros} intros
+              {leaderboardData.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No profile views yet. Share your profile to get started!</p>
+              ) : (
+                leaderboardData.map(entry => (
+                  <Card 
+                    key={entry.rank} 
+                    className={`p-3 ${entry.isUser ? 'bg-primary/10 border-primary/30' : 'bg-card/50 border-border/30'}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`text-2xl font-bold ${
+                        entry.rank === 1 ? 'text-yellow-500' :
+                        entry.rank === 2 ? 'text-gray-400' :
+                        entry.rank === 3 ? 'text-orange-600' :
+                        'text-muted-foreground'
+                      }`}>
+                        #{entry.rank}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-sm">{entry.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {entry.score} profile {entry.score === 1 ? 'view' : 'views'}
+                        </div>
+                      </div>
+                      <div className="text-lg font-bold text-primary">
+                        {entry.score}
                       </div>
                     </div>
-                    <div className="text-lg font-bold text-primary">
-                      {entry.score}
-                    </div>
-                  </div>
-                  {entry.isUser && (
-                    <div className="text-xs text-primary mt-2">
-                      🚀 You're rising fast – up 5 places this week!
-                    </div>
-                  )}
-                </Card>
-              ))}
+                    {entry.isUser && (
+                      <div className="text-xs text-primary mt-2">
+                        🚀 Keep sharing your profile!
+                      </div>
+                    )}
+                  </Card>
+                ))
+              )}
             </div>
           </TabsContent>
         </Tabs>
