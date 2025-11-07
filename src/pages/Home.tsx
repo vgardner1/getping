@@ -242,6 +242,18 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Demo/Real Toggle - Bottom Right */}
+      <div className="fixed bottom-8 right-8 z-40">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsDemoMode(!isDemoMode)}
+          className="rounded-full bg-black/80 backdrop-blur border-primary/30"
+        >
+          {isDemoMode ? 'Demo' : 'Real'}
+        </Button>
+      </div>
+
     </div>
   );
 }
