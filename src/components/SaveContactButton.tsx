@@ -151,10 +151,21 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
 
       // 2) Mobile-first: open the vCard directly so OS shows "Add to Contacts"
       if (isIOS || isAndroid) {
-        // Navigate to the blob URL without download attribute so the OS intercepts it
-        window.location.href = url;
-        // Cleanup after navigation
-        setTimeout(() => window.URL.revokeObjectURL(url), 2000);
+        // Use a data URL with filename hint; iOS/Android will typically route to Contacts
+        const dataUrl = `data:text/vcard;charset=utf-8;name=${encodeURIComponent(contactFileName)}.vcf,${encodeURIComponent(vCard)}`;
+        // Direct navigation attempt
+        window.location.href = dataUrl;
+        // Fallback via hidden iframe in case navigation is blocked
+        setTimeout(() => {
+          try {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = dataUrl;
+            document.body.appendChild(iframe);
+            setTimeout(() => document.body.removeChild(iframe), 3000);
+          } catch {}
+        }, 250);
+
         toast({ title: "Opening Contacts", description: `Importing ${personName}'s contact...` });
         return;
       }
