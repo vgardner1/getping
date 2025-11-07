@@ -8,25 +8,21 @@ import Ring3D from "@/components/Ring3D";
 import Model3DViewer from "@/components/Model3DViewer";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Nfc } from "lucide-react";
 const waitlistSchema = z.object({
-  full_name: z.string().trim().min(2, { message: "name must be at least 2 characters" }).max(120),
-  email: z.string().trim().email({ message: "invalid email address" }).max(255),
-  phone_number: z
-    .string()
-    .trim()
-    .min(7, { message: "phone number looks too short" })
-    .max(20, { message: "phone number looks too long" })
+  full_name: z.string().trim().min(2, {
+    message: "name must be at least 2 characters"
+  }).max(120),
+  email: z.string().trim().email({
+    message: "invalid email address"
+  }).max(255),
+  phone_number: z.string().trim().min(7, {
+    message: "phone number looks too short"
+  }).max(20, {
+    message: "phone number looks too long"
+  })
 });
-
 const Landing = () => {
   const [visibleText, setVisibleText] = useState(false);
   const [fullName, setFullName] = useState('');
@@ -34,59 +30,52 @@ const Landing = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisibleText(true);
     }, 500);
     return () => clearTimeout(timer);
   }, []);
-
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const parsed = waitlistSchema.safeParse({
       full_name: fullName.trim(),
       email: email.trim(),
-      phone_number: phoneNumber.trim(),
+      phone_number: phoneNumber.trim()
     });
-
     if (!parsed.success) {
       toast({
         title: "invalid input",
         description: parsed.error.issues[0]?.message ?? "please check your details",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setIsSubmitting(true);
-
     try {
       // Store user info for after payment
       sessionStorage.setItem('waitlist_user', JSON.stringify(parsed.data));
 
       // Create Stripe checkout session
-      const res = await fetch(
-        "https://ahksxziueqkacyaqtgeu.supabase.co/functions/v1/create-payment",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: parsed.data.email,
-            name: parsed.data.full_name,
-          }),
-        }
-      );
-
+      const res = await fetch("https://ahksxziueqkacyaqtgeu.supabase.co/functions/v1/create-payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: parsed.data.email,
+          name: parsed.data.full_name
+        })
+      });
       const json = await res.json();
-
       if (!res.ok || !json.url) {
         toast({
           title: "checkout failed",
           description: json.error || "please try again later",
-          variant: "destructive",
+          variant: "destructive"
         });
         setIsSubmitting(false);
         return;
@@ -99,7 +88,7 @@ const Landing = () => {
       toast({
         title: "something went wrong",
         description: "please try again later",
-        variant: "destructive",
+        variant: "destructive"
       });
       setIsSubmitting(false);
     }
@@ -132,18 +121,14 @@ const Landing = () => {
             <h1 className="text-5xl md:text-7xl font-bold iridescent-text leading-tight">
               ping!
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground iridescent-text max-w-2xl mx-auto">the future of networking is here.
-your new network is waiting</p>
+            <p className="text-xl md:text-2xl text-muted-foreground iridescent-text max-w-2xl mx-auto">the future of connection is approaching.</p>
           </div>
 
           {/* Waitlist Button */}
           <div className={`transition-all duration-1000 delay-500 ${visibleText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button 
-                  size="lg" 
-                  className="shimmer bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-all duration-200 px-12 py-6 text-xl font-semibold"
-                >
+                <Button size="lg" className="shimmer bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-all duration-200 px-12 py-6 text-xl font-semibold">
                   join the waitlist - $2.99/mo
                 </Button>
               </DialogTrigger>
@@ -157,49 +142,20 @@ your new network is waiting</p>
                 <form onSubmit={handleWaitlistSubmit} className="space-y-4 mt-4">
                   <div className="space-y-2">
                     <Label htmlFor="fullName" className="text-foreground">full name *</Label>
-                    <Input
-                      id="fullName"
-                      type="text"
-                      placeholder="john doe"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                      className="bg-background/50 border-primary/30"
-                    />
+                    <Input id="fullName" type="text" placeholder="john doe" value={fullName} onChange={e => setFullName(e.target.value)} required className="bg-background/50 border-primary/30" />
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-foreground">email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="john@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="bg-background/50 border-primary/30"
-                    />
+                    <Input id="email" type="email" placeholder="john@example.com" value={email} onChange={e => setEmail(e.target.value)} required className="bg-background/50 border-primary/30" />
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="text-foreground">phone number *</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="+1 (555) 123-4567"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      required
-                      className="bg-background/50 border-primary/30"
-                    />
+                    <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} required className="bg-background/50 border-primary/30" />
                   </div>
 
-                  <Button 
-                    type="submit"
-                    size="lg" 
-                    disabled={isSubmitting}
-                    className="shimmer w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 px-8 py-4 text-lg font-semibold"
-                  >
+                  <Button type="submit" size="lg" disabled={isSubmitting} className="shimmer w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 px-8 py-4 text-lg font-semibold">
                     {isSubmitting ? 'processing...' : 'join the waitlist now'}
                   </Button>
                 </form>
