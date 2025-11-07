@@ -17,7 +17,7 @@ const AuthCallback = () => {
 
     const handleRedirect = () => {
       const hash = window.location.hash || '';
-      const profileUrl = new URL('/profile', window.location.origin);
+      const profileUrl = new URL('/', window.location.origin);
       // Preserve auth hash if present so Supabase can parse tokens on next page
       if (hash && /access_token|refresh_token/.test(hash)) {
         profileUrl.hash = hash.startsWith('#') ? hash.slice(1) : hash;
@@ -37,7 +37,7 @@ const AuthCallback = () => {
       try {
         window.location.replace(target);
       } catch {
-        navigate('/profile', { replace: true });
+        navigate('/', { replace: true });
       }
     };
 
@@ -111,7 +111,7 @@ const AuthCallback = () => {
 
   const retry = () => {
     const hash = window.location.hash || '';
-    const url = new URL('/profile', window.location.origin);
+    const url = new URL('/', window.location.origin);
     if (hash && /access_token|refresh_token/.test(hash)) {
       url.hash = hash.startsWith('#') ? hash.slice(1) : hash;
     }
@@ -148,7 +148,7 @@ const AuthCallback = () => {
                     : "Click continue if you aren't redirected automatically."}
               </p>
               <div className="flex flex-col gap-2">
-                <Button onClick={retry} className="w-full">{signedIn ? "Go to your profile" : "Continue"}</Button>
+                <Button onClick={retry} className="w-full">{signedIn ? "Go to home" : "Continue"}</Button>
               </div>
             </>
           )}
