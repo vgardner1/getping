@@ -107,16 +107,6 @@ const Landing = () => {
   return <div className="min-h-screen bg-background relative overflow-hidden">
       <StarField />
       
-      {/* 3D Ornament - Top Right */}
-      <div className="fixed top-4 right-4 z-20 hidden md:block">
-        <Model3DViewer
-          modelUrl={undefined}
-          autoRotate={true}
-          height="150px"
-          width="150px"
-        />
-      </div>
-      
       {/* Header */}
       <header className="border-b border-border p-4 relative z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
