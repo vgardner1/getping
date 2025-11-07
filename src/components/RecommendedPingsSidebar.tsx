@@ -153,43 +153,51 @@ export const RecommendedPingsSidebar = ({
 
   return (
     <>
-      <div className="w-96 bg-black/90 backdrop-blur border-l border-border/30 flex flex-col overflow-hidden">
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <div className="border-b border-border/30 p-4">
-            <TabsList className="w-full grid grid-cols-2 bg-card/50">
-              <TabsTrigger value="pings" className="text-xs">
+      <div className="fixed top-20 right-4 w-80 max-h-[600px] bg-gradient-to-br from-black/95 via-primary/5 to-black/95 backdrop-blur-xl border border-primary/30 rounded-2xl shadow-2xl shadow-primary/20 flex flex-col overflow-hidden z-30">
+        {/* Header with glow effect */}
+        <div className="bg-gradient-to-r from-primary/20 to-purple-500/20 p-3 border-b border-primary/30">
+          <div className="flex items-center justify-center gap-2">
+            <Trophy className="h-5 w-5 text-primary animate-pulse" />
+            <h2 className="font-bold text-lg tracking-wider uppercase bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+              Leaderboard
+            </h2>
+          </div>
+        </div>
+        {/* Compact Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+          <div className="border-b border-primary/20 px-3 pt-2">
+            <TabsList className="w-full grid grid-cols-2 bg-black/50 border border-primary/20">
+              <TabsTrigger value="leaderboard" className="text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+                <Trophy className="h-3 w-3 mr-1" />
+                Top
+              </TabsTrigger>
+              <TabsTrigger value="pings" className="text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
                 <MessageCircle className="h-3 w-3 mr-1" />
                 Pings
-              </TabsTrigger>
-              <TabsTrigger value="leaderboard" className="text-xs">
-                <Trophy className="h-3 w-3 mr-1" />
-                Leaderboard
               </TabsTrigger>
             </TabsList>
           </div>
 
 
-          {/* Recommended Pings Tab */}
-          <TabsContent value="pings" className="flex-1 overflow-y-auto p-4 space-y-4 m-0">
-            {/* Follow-Ups Section */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
-                Recommended Follow-Ups
+          {/* Pings Tab - Compact */}
+          <TabsContent value="pings" className="flex-1 overflow-y-auto p-3 space-y-3 m-0 scrollbar-thin scrollbar-thumb-primary/20">
+            <div className="space-y-2">
+              <h3 className="font-semibold text-xs uppercase tracking-wide text-primary/80">
+                Follow-Ups
               </h3>
               {recommendedFollowUps.length === 0 ? (
                 <p className="text-sm text-muted-foreground">All your connections are healthy! 🎉</p>
               ) : (
                 recommendedFollowUps.map(person => (
-                  <Card key={person.id} className="bg-card/50 border-border/30 p-3 space-y-2">
+                  <Card key={person.id} className="bg-card/30 border-border/20 p-2 space-y-2 hover:border-primary/30 transition-all">
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="font-semibold text-sm">{person.name}</div>
+                        <div className="font-semibold text-xs">{person.name}</div>
                         <div className="text-xs text-muted-foreground">
                           {person.tags?.join(' • ')}
                         </div>
                       </div>
-                      <span className="text-xs px-2 py-1 rounded bg-orange-500/20 text-orange-500">
+                      <span className="text-xs px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 font-semibold">
                         {person.state}
                       </span>
                     </div>
@@ -209,21 +217,20 @@ export const RecommendedPingsSidebar = ({
               )}
             </div>
 
-            {/* New Pings Section */}
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div>
-                <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
-                  Recommended New Pings
+                <h3 className="font-semibold text-xs uppercase tracking-wide text-primary/80">
+                  New Connections
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1">
                   AI-suggested people to discover based on your circles, events, and interests.
                 </p>
               </div>
               {recommendedNewPings.map(person => (
-                <Card key={person.id} className="bg-card/50 border-border/30 p-3 space-y-2">
-                  <div className="font-semibold text-sm">{person.name}</div>
+                <Card key={person.id} className="bg-card/30 border-border/20 p-2 space-y-1.5 hover:border-primary/30 transition-all">
+                  <div className="font-semibold text-xs">{person.name}</div>
                   <div className="text-xs text-muted-foreground">{person.summary}</div>
-                  <div className="text-xs px-2 py-1 rounded bg-primary/20 text-primary inline-block">
+                  <div className="text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary inline-block font-semibold">
                     {person.reasonTag}
                   </div>
                   <div className="flex gap-2">
@@ -239,45 +246,55 @@ export const RecommendedPingsSidebar = ({
             </div>
           </TabsContent>
 
-          {/* Leaderboard Tab */}
-          <TabsContent value="leaderboard" className="flex-1 overflow-y-auto p-4 space-y-4 m-0">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-lg">
-                  Top Connectors
-                </h3>
-              </div>
-
+          {/* Leaderboard Tab - Game Style */}
+          <TabsContent value="leaderboard" className="flex-1 overflow-y-auto p-3 space-y-2 m-0 scrollbar-thin scrollbar-thumb-primary/20">
+            <div className="space-y-2">
               {leaderboardData.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No profile views yet. Share your profile to get started!</p>
+                <div className="text-center py-8">
+                  <Trophy className="h-12 w-12 mx-auto text-primary/30 mb-2" />
+                  <p className="text-xs text-muted-foreground">No views yet!</p>
+                  <p className="text-xs text-muted-foreground">Share your profile to climb the ranks</p>
+                </div>
               ) : (
                 leaderboardData.map(entry => (
                   <Card 
                     key={entry.rank} 
-                    className={`p-3 ${entry.isUser ? 'bg-primary/10 border-primary/30' : 'bg-card/50 border-border/30'}`}
+                    className={`p-2 transition-all hover:scale-105 ${
+                      entry.isUser 
+                        ? 'bg-gradient-to-r from-primary/20 to-purple-500/20 border-primary/50 shadow-lg shadow-primary/20' 
+                        : entry.rank === 1
+                        ? 'bg-gradient-to-r from-yellow-500/10 to-yellow-600/5 border-yellow-500/30'
+                        : entry.rank === 2
+                        ? 'bg-gradient-to-r from-gray-400/10 to-gray-500/5 border-gray-400/30'
+                        : entry.rank === 3
+                        ? 'bg-gradient-to-r from-orange-500/10 to-orange-600/5 border-orange-500/30'
+                        : 'bg-black/40 border-border/20'
+                    }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`text-2xl font-bold ${
-                        entry.rank === 1 ? 'text-yellow-500' :
-                        entry.rank === 2 ? 'text-gray-400' :
-                        entry.rank === 3 ? 'text-orange-600' :
+                    <div className="flex items-center gap-2">
+                      <div className={`text-lg font-black min-w-[32px] text-center ${
+                        entry.rank === 1 ? 'text-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]' :
+                        entry.rank === 2 ? 'text-gray-400 drop-shadow-[0_0_8px_rgba(156,163,175,0.5)]' :
+                        entry.rank === 3 ? 'text-orange-600 drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]' :
                         'text-muted-foreground'
                       }`}>
-                        #{entry.rank}
+                        {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : `#${entry.rank}`}
                       </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-sm">{entry.name}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-sm truncate">{entry.name}</div>
                         <div className="text-xs text-muted-foreground">
-                          {entry.score} profile {entry.score === 1 ? 'view' : 'views'}
+                          {entry.score} {entry.score === 1 ? 'view' : 'views'}
                         </div>
                       </div>
-                      <div className="text-lg font-bold text-primary">
+                      <div className={`text-base font-black ${
+                        entry.isUser ? 'text-primary' : 'text-foreground/60'
+                      }`}>
                         {entry.score}
                       </div>
                     </div>
                     {entry.isUser && (
-                      <div className="text-xs text-primary mt-2">
-                        🚀 Keep sharing your profile!
+                      <div className="text-xs text-primary mt-1 font-semibold animate-pulse">
+                        ⚡ That's you!
                       </div>
                     )}
                   </Card>
