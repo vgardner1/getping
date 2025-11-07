@@ -17,7 +17,7 @@ interface SaveContactButtonProps {
     website_url?: string;
     location?: string;
     avatar_url?: string;
-  };
+  } | null;
   userEmail: string;
 }
 
@@ -46,6 +46,15 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
   };
 
   const saveContact = async () => {
+    if (!profile) {
+      toast({
+        title: 'Profile not loaded',
+        description: 'Please wait for the profile to load before saving.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       const toTitleCase = (s: string) =>
         (s || '').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
@@ -56,7 +65,7 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
       if (!displayName) {
         toast({
           title: 'Missing name',
-          description: 'Please set your name in your profile before saving the contact.',
+          description: 'This profile doesn\'t have a name set.',
           variant: 'destructive',
         });
         return;
@@ -83,9 +92,14 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
 
       // Determine phone from profile or social links
       const rawPhone = profile.phone_number 
-        || (typeof (profile as any).social_links?.phone === 'string' ? (profile as any).social_links.phone : (profile as any).social_links?.phone?.url) 
+        || (typeof profile.social_links?.phone === 'string' ? profile.social_links.phone : profile.social_links?.phone?.url) 
         || '';
       const phone = String(rawPhone).trim();
+
+      // Extract LinkedIn URL from social links
+      const linkedinUrl = typeof profile.social_links?.linkedin === 'string' 
+        ? profile.social_links.linkedin 
+        : profile.social_links?.linkedin?.url || '';
 
       // Create comprehensive vCard format with proper person fields
       const esc = (val: string) =>
@@ -106,8 +120,9 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
         profile.company ? `ORG:${esc(profile.company)}` : '',
         userEmail ? `EMAIL;TYPE=INTERNET:${esc(userEmail)}` : '',
         phone ? `TEL;TYPE=CELL:${esc(phone)}` : '',
-        profile.website_url ? `URL:${esc(profile.website_url)}` : '',
-        profile.location ? `ADR:;;;;;;${esc(profile.location)}` : '',
+        profile.website_url ? `URL;TYPE=WORK:${esc(profile.website_url)}` : '',
+        linkedinUrl ? `URL;TYPE=LinkedIn:${esc(linkedinUrl)}` : '',
+        profile.location ? `ADR;TYPE=HOME:;;${esc(profile.location)};;;;` : '',
         profile.bio ? `NOTE:${esc(profile.bio)}` : '',
         photoData ? `PHOTO;ENCODING=BASE64;TYPE=JPEG:${photoData}` : '',
         'END:VCARD',
