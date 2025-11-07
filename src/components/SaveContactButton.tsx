@@ -129,43 +129,49 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
       ].filter(Boolean).join('\r\n');
 
       // Create blob and use native share API for contact transfer
-      const blob = new Blob([vCard], { type: 'text/vcard' });
-      const file = new File([blob], `${contactFileName}.vcf`, { type: 'text/vcard' });
+      const mime = 'text/vcard;charset=utf-8'
+      const blob = new Blob([vCard], { type: mime });
+      const file = new File([blob], `${contactFileName}.vcf`, { type: mime });
+      const url = window.URL.createObjectURL(blob);
 
-      // Try native share API (works on iOS for contact transfer)
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isAndroid = /Android/.test(navigator.userAgent);
+
+      // 1) Prefer native share with file support when available
+      if (navigator.share && (navigator as any).canShare && (navigator as any).canShare({ files: [file] })) {
         try {
-          await navigator.share({
-            files: [file],
-            title: `${personName}'s Contact`,
-          });
-          
-          toast({
-            title: "Contact Shared",
-            description: `${personName}'s contact has been shared`,
-          });
+          await navigator.share({ files: [file], title: `${personName}'s Contact` });
+          toast({ title: "Contact Shared", description: `${personName}'s contact has been shared` });
+          return;
         } catch (err) {
-          // User cancelled or share failed
-          if ((err as Error).name !== 'AbortError') {
-            throw err;
-          }
+          // User cancelled or share failed - continue to open directly on mobile
+          if ((err as Error).name === 'AbortError') return;
         }
-      } else {
-        // Fallback to download for non-supporting devices
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${contactFileName}.vcf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-
-        toast({
-          title: "Contact Saved",
-          description: `${personName}'s contact has been saved to your device`,
-        });
       }
+
+      // 2) Mobile-first: open the vCard directly so OS shows "Add to Contacts"
+      if (isIOS || isAndroid) {
+        // Navigate to the blob URL without download attribute so the OS intercepts it
+        window.location.href = url;
+        // Cleanup after navigation
+        setTimeout(() => window.URL.revokeObjectURL(url), 2000);
+        toast({ title: "Opening Contacts", description: `Importing ${personName}'s contact...` });
+        return;
+      }
+
+      // 3) Desktop fallback: download the file
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${contactFileName}.vcf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Contact Saved",
+        description: `${personName}'s contact has been saved to your device`,
+      });
     } catch (error) {
       toast({
         title: "Error",
