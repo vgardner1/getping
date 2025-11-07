@@ -6,8 +6,10 @@ import { Network3D } from '@/components/Network3D';
 import { CircleStrengthBar } from '@/components/CircleStrengthBar';
 import { HomeNav } from '@/components/HomeNav';
 import { RecommendedPingsSidebar } from '@/components/RecommendedPingsSidebar';
+import { ProfileHealthModal } from '@/components/ProfileHealthModal';
 import { Button } from '@/components/ui/button';
 import { Users, Calendar, Briefcase } from 'lucide-react';
+import { setupMessageNotifications, requestNotificationPermission } from '@/lib/notifications';
 
 interface NetworkPerson {
   id: string;
@@ -29,12 +31,24 @@ export default function Home() {
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [userEvents, setUserEvents] = useState<any[]>([]);
   const [industries] = useState(['AI', 'Tech', 'Sustainability']);
+  const [showHealthModal, setShowHealthModal] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
       navigate('/signin');
     }
   }, [user, loading, navigate]);
+
+  // Setup notifications
+  useEffect(() => {
+    if (user) {
+      requestNotificationPermission();
+      const channel = setupMessageNotifications(user.id, supabase);
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user && !isDemoMode) {
@@ -140,6 +154,7 @@ export default function Home() {
 
   const handlePersonClick = (person: NetworkPerson) => {
     setSelectedPerson(person);
+    setShowHealthModal(true);
   };
 
   if (loading) {
@@ -180,6 +195,19 @@ export default function Home() {
           personHealth={personHealth}
           isDemoMode={isDemoMode}
         />
+
+        {/* Profile Health Modal */}
+        {selectedPerson && user && (
+          <ProfileHealthModal
+            person={selectedPerson}
+            isOpen={showHealthModal}
+            onClose={() => {
+              setShowHealthModal(false);
+              setSelectedPerson(null);
+            }}
+            userId={user.id}
+          />
+        )}
       </div>
 
       {/* Circle Filter - Bottom Center */}
