@@ -59,7 +59,6 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
       const toTitleCase = (s: string) =>
         (s || '').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
-      // Get display name directly - this is what we'll use for the contact
       const displayName = (profile.display_name || profile.full_name || '').trim();
       
       if (!displayName) {
@@ -71,37 +70,32 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
         return;
       }
 
-      // Split display name into parts for vCard format
       const nameParts = displayName.split(/\s+/).filter(Boolean);
       let firstName = nameParts[0] || '';
       let lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
       let middleName = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : '';
 
-      // Title case
       firstName = toTitleCase(firstName);
       if (middleName) middleName = toTitleCase(middleName);
       if (lastName) lastName = toTitleCase(lastName);
 
       const personName = displayName;
-      const contactFileName = `contact_name_-_${personName.replace(/\s+/g, '_')}`;
+      const contactFileName = `${personName.replace(/\s+/g, '_')}-contact`;
       
       let photoData = '';
       if (profile.avatar_url && !profile.avatar_url.includes('placeholder.svg')) {
         photoData = await imageToBase64(profile.avatar_url);
       }
 
-      // Determine phone from profile or social links
       const rawPhone = profile.phone_number 
         || (typeof profile.social_links?.phone === 'string' ? profile.social_links.phone : profile.social_links?.phone?.url) 
         || '';
       const phone = String(rawPhone).trim();
 
-      // Extract LinkedIn URL from social links
       const linkedinUrl = typeof profile.social_links?.linkedin === 'string' 
         ? profile.social_links.linkedin 
         : profile.social_links?.linkedin?.url || '';
 
-      // Create comprehensive vCard format with proper person fields
       const esc = (val: string) =>
         (val ?? '')
           .replace(/\\/g, '\\\\')
@@ -109,7 +103,6 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
           .replace(/,/g, '\\,')
           .replace(/;/g, '\\;');
 
-      // Build vCard lines and join with CRLF as per spec
       const vCard = [
         'BEGIN:VCARD',
         'VERSION:3.0',
@@ -128,73 +121,45 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
         'END:VCARD',
       ].filter(Boolean).join('\r\n');
 
-      // Create blob and use native share API for contact transfer
-      const mime = 'text/x-vcard;charset=utf-8'
-      const blob = new Blob([vCard], { type: mime });
-      const file = new File([blob], `${contactFileName}.vcf`, { type: mime });
-      const url = window.URL.createObjectURL(blob);
+      const blob = new Blob([vCard], { type: 'text/vcard;charset=utf-8' });
+      const file = new File([blob], `${contactFileName}.vcf`, { type: 'text/vcard' });
 
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      const isAndroid = /Android/.test(navigator.userAgent);
-
-      // 1) Prefer native share with file support when available
+      // Try Web Share API first (works best on mobile)
       if (navigator.share && (navigator as any).canShare && (navigator as any).canShare({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: `${personName}'s Contact` });
-          toast({ title: "Contact Shared", description: `${personName}'s contact has been shared` });
+          await navigator.share({ 
+            files: [file], 
+            title: `Add ${personName} to Contacts`,
+            text: `Save ${personName}'s contact`
+          });
+          toast({ 
+            title: "Contact Shared", 
+            description: `Choose "Add to Contacts" to save ${personName}` 
+          });
           return;
         } catch (err) {
-          // User cancelled or share failed - continue to open directly on mobile
           if ((err as Error).name === 'AbortError') return;
+          console.log('Share failed, trying download fallback');
         }
       }
 
-      // 2) Mobile-first: redirect to an Edge Function that serves a real .vcf
-      if (isIOS || isAndroid) {
-        const supabaseRef = 'ahksxziueqkacyaqtgeu';
-        const fnBase = `https://${supabaseRef}.functions.supabase.co/vcard`;
-        const params = new URLSearchParams({
-          fullName: personName,
-          title: profile.job_title || '',
-          company: profile.company || '',
-          email: userEmail || '',
-          phone: phone || '',
-          website: profile.website_url || '',
-          location: profile.location || '',
-          linkedin: linkedinUrl || '',
-          filename: contactFileName,
-        });
-        const fnUrl = `${fnBase}?${params.toString()}`;
-
-        // Use top-level navigation when possible
-        try {
-          if (window.top) {
-            window.top.location.href = fnUrl;
-          } else {
-            window.location.href = fnUrl;
-          }
-        } catch {
-          window.location.href = fnUrl;
-        }
-
-        toast({ title: "Opening Contacts", description: `Importing ${personName}'s contact...` });
-        return;
-      }
-
-      // 3) Desktop fallback: download the file
+      // Fallback: Download vCard (mobile browsers will recognize and offer to import)
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = `${contactFileName}.vcf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      
+      setTimeout(() => window.URL.revokeObjectURL(url), 100);
 
       toast({
-        title: "Contact Saved",
-        description: `${personName}'s contact has been saved to your device`,
+        title: "Contact Ready",
+        description: `Tap the file to add ${personName} to your contacts`,
       });
     } catch (error) {
+      console.error('Save contact error:', error);
       toast({
         title: "Error",
         description: "Failed to save contact. Please try again.",
