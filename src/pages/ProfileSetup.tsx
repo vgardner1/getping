@@ -584,7 +584,7 @@ const ProfileSetup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background relative overflow-y-auto overflow-x-hidden">
       <StarField />
       
       {/* Progress Bar */}

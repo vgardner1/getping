@@ -57,7 +57,7 @@ const PaymentSuccess = () => {
   }, [navigate, toast]);
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center">
+    <div className="min-h-screen bg-background relative overflow-y-auto overflow-x-hidden flex items-center justify-center">
       <StarField />
       
       {/* Explosion Animation */}

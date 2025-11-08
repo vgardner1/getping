@@ -101,6 +101,7 @@ All colors MUST be HSL.
     overflow-y: auto;
     overscroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
 
   #root {
