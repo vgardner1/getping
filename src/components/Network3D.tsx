@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
-import characterModel from '@/assets/Standard_3D_Model.v1.glb?url';
+
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -193,73 +193,16 @@ export const Network3D = ({
     pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
 
-    // Platform/bucket for character - make it taller
-    const platformGeometry = new THREE.CylinderGeometry(0.6, 0.6, 0.5, 32);
-    const platformMaterial = new THREE.MeshPhongMaterial({
+    // Center sphere (represents the user)
+    const centerGeometry = new THREE.SphereGeometry(0.4, 32, 32);
+    const centerMaterial = new THREE.MeshPhongMaterial({
       color: 0x4ade80,
       emissive: 0x4ade80,
-      emissiveIntensity: 0.6,
-      transparent: true,
-      opacity: 0.8
+      emissiveIntensity: 0.8
     });
-    const platform = new THREE.Mesh(platformGeometry, platformMaterial);
-    platform.position.y = 0;
-    scene.add(platform);
-
-    // Load 3D character model
-    let characterMesh: THREE.Object3D | null = null;
-    
-    // Dynamic import of GLTFLoader
-    import('three/examples/jsm/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
-      const loader = new GLTFLoader();
-      loader.load(
-        characterModel,
-        (gltf) => {
-          characterMesh = gltf.scene;
-          characterMesh.scale.set(1.2, 1.2, 1.2);
-          characterMesh.position.set(0, 0.55, 0); // Standing on top of the platform
-        characterMesh.userData.isUserCharacter = true;
-        
-        // Traverse and make all child meshes clickable
-        characterMesh.traverse((child) => {
-          if (child instanceof THREE.Mesh) {
-            child.userData.isUserCharacter = true;
-          }
-        });
-        
-        scene.add(characterMesh);
-        console.log('Character model loaded successfully');
-      },
-      (progress) => {
-        console.log('Loading character:', Math.round((progress.loaded / progress.total) * 100) + '%');
-      },
-      (error) => {
-        console.error('Error loading character model:', error);
-        // Fallback to center sphere
-        const centerGeometry = new THREE.SphereGeometry(0.3, 32, 32);
-        const centerMaterial = new THREE.MeshPhongMaterial({
-          color: 0x4ade80,
-          emissive: 0x4ade80,
-          emissiveIntensity: 0.8
-        });
-        const centerSphere = new THREE.Mesh(centerGeometry, centerMaterial);
-        centerSphere.userData.isUserCharacter = true;
-        scene.add(centerSphere);
-      }
-    );
-    }).catch((error) => {
-      console.error('Failed to load GLTFLoader:', error);
-      // Fallback to center sphere
-      const centerGeometry = new THREE.SphereGeometry(0.3, 32, 32);
-      const centerMaterial = new THREE.MeshPhongMaterial({
-        color: 0x4ade80,
-        emissive: 0x4ade80,
-        emissiveIntensity: 0.8
-      });
-      const centerSphere = new THREE.Mesh(centerGeometry, centerMaterial);
-      centerSphere.userData.isUserCharacter = true;
-      scene.add(centerSphere);
-    });
+    const centerSphere = new THREE.Mesh(centerGeometry, centerMaterial);
+    centerSphere.userData.isUserCharacter = true;
+    scene.add(centerSphere);
 
     // Create horizontal concentric circles (torus rings) with labels
     CIRCLES_TO_USE.forEach(circle => {
