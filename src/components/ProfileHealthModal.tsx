@@ -193,7 +193,7 @@ export const ProfileHealthModal = ({ person, isOpen, onClose, userId, position }
 
   return (
     <div 
-      className="fixed top-[15%] left-1/2 -translate-x-1/2 z-50 bg-gradient-to-br from-black/95 via-primary/5 to-black/95 border border-primary/30 rounded-xl p-6 w-[400px] shadow-2xl animate-scale-in"
+      className="fixed top-[12%] md:top-[15%] left-1/2 -translate-x-1/2 z-50 bg-gradient-to-br from-black/95 via-primary/5 to-black/95 border border-primary/30 rounded-xl p-4 md:p-6 w-[90%] max-w-[400px] shadow-2xl animate-scale-in touch-none"
     >
       {/* Close Button */}
       <Button
