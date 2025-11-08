@@ -193,8 +193,8 @@ export const Network3D = ({
     pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
 
-    // Platform/bucket for character
-    const platformGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.15, 32);
+    // Platform/bucket for character - make it taller
+    const platformGeometry = new THREE.CylinderGeometry(0.6, 0.6, 0.5, 32);
     const platformMaterial = new THREE.MeshPhongMaterial({
       color: 0x4ade80,
       emissive: 0x4ade80,
@@ -203,7 +203,7 @@ export const Network3D = ({
       opacity: 0.8
     });
     const platform = new THREE.Mesh(platformGeometry, platformMaterial);
-    platform.position.y = -0.1;
+    platform.position.y = 0;
     scene.add(platform);
 
     // Load 3D character model
@@ -216,8 +216,8 @@ export const Network3D = ({
         characterModel,
         (gltf) => {
           characterMesh = gltf.scene;
-          characterMesh.scale.set(1.2, 1.2, 1.2); // Much bigger
-          characterMesh.position.set(0, 0.15, 0);
+          characterMesh.scale.set(1.2, 1.2, 1.2);
+          characterMesh.position.set(0, 0.55, 0); // Standing on top of the platform
         characterMesh.userData.isUserCharacter = true;
         
         // Traverse and make all child meshes clickable

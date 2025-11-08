@@ -7,6 +7,7 @@ import { CircleStrengthBar } from '@/components/CircleStrengthBar';
 import { HomeNav } from '@/components/HomeNav';
 import { RecommendedPingsSidebar } from '@/components/RecommendedPingsSidebar';
 import { ProfileHealthModal } from '@/components/ProfileHealthModal';
+import { FloatingProfilePopup } from '@/components/FloatingProfilePopup';
 import { Button } from '@/components/ui/button';
 import { Users, Calendar, Briefcase } from 'lucide-react';
 import { setupMessageNotifications, requestNotificationPermission } from '@/lib/notifications';
@@ -33,6 +34,7 @@ export default function Home() {
   const [userEvents, setUserEvents] = useState<any[]>([]);
   const [industries] = useState(['AI', 'Tech', 'Sustainability']);
   const [showHealthModal, setShowHealthModal] = useState(false);
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -155,7 +157,11 @@ export default function Home() {
 
   const handlePersonClick = (person: NetworkPerson, screenPosition?: { x: number; y: number }) => {
     setSelectedPerson({ ...person, screenPosition });
-    setShowHealthModal(true);
+    if (person.userId === 'current-user') {
+      setShowProfilePopup(true);
+    } else {
+      setShowHealthModal(true);
+    }
   };
 
   if (loading) {
@@ -198,7 +204,7 @@ export default function Home() {
         />
 
         {/* Profile Health Modal */}
-        {selectedPerson && user && (
+        {selectedPerson && selectedPerson.userId !== 'current-user' && user && (
           <ProfileHealthModal
             person={selectedPerson}
             isOpen={showHealthModal}
@@ -208,6 +214,18 @@ export default function Home() {
             }}
             userId={user.id}
             position={(selectedPerson as any).screenPosition}
+          />
+        )}
+
+        {/* Floating Profile Popup for current user */}
+        {selectedPerson && selectedPerson.userId === 'current-user' && user && (
+          <FloatingProfilePopup
+            userId={user.id}
+            isOpen={showProfilePopup}
+            onClose={() => {
+              setShowProfilePopup(false);
+              setSelectedPerson(null);
+            }}
           />
         )}
       </div>
