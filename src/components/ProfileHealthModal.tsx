@@ -36,6 +36,7 @@ export const ProfileHealthModal = ({ person, isOpen, onClose, userId, position }
   const [profileData, setProfileData] = useState<any>(null);
   const [step, setStep] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [hasExistingScore, setHasExistingScore] = useState(false);
   
   // Question answers
   const [lastContactDays, setLastContactDays] = useState('');
@@ -71,6 +72,10 @@ export const ProfileHealthModal = ({ person, isOpen, onClose, userId, position }
         tenure: 50,
         overall: data.score || 0
       });
+      // If there's an existing score, skip questionnaire
+      setHasExistingScore(data.score > 0);
+    } else {
+      setHasExistingScore(false);
     }
   };
 
@@ -191,6 +196,144 @@ export const ProfileHealthModal = ({ person, isOpen, onClose, userId, position }
 
   if (!isOpen) return null;
 
+  // Show detailed breakdown if score already exists
+  if (hasExistingScore && healthData.overall > 0) {
+    return (
+      <div 
+        className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 z-50 w-[90%] max-w-[380px] md:max-w-[420px] animate-scale-in"
+      >
+        <div className="relative overflow-hidden border border-primary/30 rounded-2xl bg-gradient-to-br from-background/40 via-primary/5 to-background/40 backdrop-blur-3xl shadow-2xl">
+          {/* Glossy 3D effect overlays */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/5 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(74,222,128,0.15),transparent_50%)] pointer-events-none" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+          
+          {/* Close Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="absolute top-3 right-3 z-10 hover:bg-primary/20 rounded-full"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+
+          <div className="relative p-6 space-y-5">
+            {/* Profile Header */}
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16 border-2 border-primary/40 shadow-lg shadow-primary/20">
+                <AvatarImage src={profileData?.avatar_url} />
+                <AvatarFallback className="bg-primary/20 text-xl">
+                  {person?.name?.charAt(0) || '?'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <h3 className="font-bold text-lg">{profileData?.display_name || person?.name}</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-4xl font-black bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                    {healthData.overall}
+                  </span>
+                  <span className={`text-sm font-semibold ${overallStatus.color}`}>
+                    {overallStatus.label}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Health Score Breakdown */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-semibold text-primary uppercase tracking-wider">Relationship Health Breakdown</h4>
+              
+              {/* Recency */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Recency</span>
+                  <span className="text-sm font-bold text-primary">{healthData.recency}%</span>
+                </div>
+                <div className="h-2 bg-black/40 rounded-full overflow-hidden border border-primary/20">
+                  <div 
+                    className="h-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-500 rounded-full"
+                    style={{ width: `${healthData.recency}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">How recently you've connected</p>
+              </div>
+
+              {/* Frequency */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Frequency</span>
+                  <span className="text-sm font-bold text-primary">{healthData.frequency}%</span>
+                </div>
+                <div className="h-2 bg-black/40 rounded-full overflow-hidden border border-primary/20">
+                  <div 
+                    className="h-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-500 rounded-full"
+                    style={{ width: `${healthData.frequency}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">How often you interact</p>
+              </div>
+
+              {/* Reciprocity */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Reciprocity</span>
+                  <span className="text-sm font-bold text-primary">{healthData.reciprocity}%</span>
+                </div>
+                <div className="h-2 bg-black/40 rounded-full overflow-hidden border border-primary/20">
+                  <div 
+                    className="h-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-500 rounded-full"
+                    style={{ width: `${healthData.reciprocity}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">Balance of give and take</p>
+              </div>
+
+              {/* Sentiment/Consistency */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Quality</span>
+                  <span className="text-sm font-bold text-primary">{healthData.sentiment}%</span>
+                </div>
+                <div className="h-2 bg-black/40 rounded-full overflow-hidden border border-primary/20">
+                  <div 
+                    className="h-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-500 rounded-full"
+                    style={{ width: `${healthData.sentiment}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">Interaction quality</p>
+              </div>
+
+              {/* Tenure */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Tenure</span>
+                  <span className="text-sm font-bold text-primary">{healthData.tenure}%</span>
+                </div>
+                <div className="h-2 bg-black/40 rounded-full overflow-hidden border border-primary/20">
+                  <div 
+                    className="h-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-500 rounded-full"
+                    style={{ width: `${healthData.tenure}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">Length of relationship</p>
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <Button 
+              onClick={onClose}
+              className="w-full bg-primary/20 hover:bg-primary/30 backdrop-blur"
+            >
+              Got it
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show questionnaire for first time
   return (
     <div 
       className="fixed top-[12%] md:top-[15%] left-1/2 -translate-x-1/2 z-50 bg-gradient-to-br from-black/95 via-primary/5 to-black/95 border border-primary/30 rounded-xl p-4 md:p-6 w-[90%] max-w-[400px] shadow-2xl animate-scale-in touch-none"
