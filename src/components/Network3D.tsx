@@ -206,16 +206,50 @@ export const Network3D = ({
 
 
     // Create horizontal concentric circles (torus rings) with labels
-    CIRCLES_TO_USE.forEach(circle => {
-      const torusGeometry = new THREE.TorusGeometry(circle.radius, 0.02, 16, 100);
-      const torusMaterial = new THREE.MeshBasicMaterial({
-        color: circle.color,
-        transparent: true,
-        opacity: 0.4
-      });
-      const torus = new THREE.Mesh(torusGeometry, torusMaterial);
-      torus.rotation.x = Math.PI / 2; // Make horizontal
-      scene.add(torus);
+    CIRCLES_TO_USE.forEach((circle, index) => {
+      const isOutermost = index === CIRCLES_TO_USE.length - 1;
+      
+      if (isOutermost) {
+        // Create 3D ring for outermost circle - matching Ring3D component style
+        const ringGeometry = new THREE.TorusGeometry(circle.radius, 0.15, 16, 128);
+        const ringMaterial = new THREE.MeshStandardMaterial({ 
+          color: 0x064e3b,
+          metalness: 0.95,
+          roughness: 0.1,
+          envMapIntensity: 2.0,
+        });
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        ring.rotation.x = Math.PI / 2; // Make horizontal
+        scene.add(ring);
+        
+        // Add green directional lights for iridescent effect
+        const directionalLight1 = new THREE.DirectionalLight(0x10b981, 1.5);
+        directionalLight1.position.set(5, 5, 5);
+        scene.add(directionalLight1);
+
+        const directionalLight2 = new THREE.DirectionalLight(0x34d399, 1.2);
+        directionalLight2.position.set(-5, -3, -2);
+        scene.add(directionalLight2);
+
+        const directionalLight3 = new THREE.DirectionalLight(0x6ee7b7, 0.8);
+        directionalLight3.position.set(0, -5, 3);
+        scene.add(directionalLight3);
+
+        const rimLight = new THREE.DirectionalLight(0x059669, 1.0);
+        rimLight.position.set(-3, 0, -5);
+        scene.add(rimLight);
+      } else {
+        // Regular thin green rings for inner circles
+        const torusGeometry = new THREE.TorusGeometry(circle.radius, 0.02, 16, 100);
+        const torusMaterial = new THREE.MeshBasicMaterial({
+          color: circle.color,
+          transparent: true,
+          opacity: 0.4
+        });
+        const torus = new THREE.Mesh(torusGeometry, torusMaterial);
+        torus.rotation.x = Math.PI / 2; // Make horizontal
+        scene.add(torus);
+      }
 
       // Create text label for each circle
       const canvas = document.createElement('canvas');
