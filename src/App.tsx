@@ -40,9 +40,11 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/landing" element={<Landing />} />
             <Route path="/signup" element={<Onboarding />} />
+            <Route path="/signin" element={<Auth />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/checkout" element={<Checkout />} />
@@ -63,7 +65,7 @@ const App = () => (
             <Route path="/events" element={<Events />} />
             <Route path="/chat/:conversationId" element={<Chat />} />
             <Route path="/3d-upload" element={<Model3DUpload />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<Landing />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

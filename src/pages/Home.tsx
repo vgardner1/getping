@@ -38,7 +38,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/signin');
+      navigate('/');
     }
   }, [user, loading, navigate]);
 
