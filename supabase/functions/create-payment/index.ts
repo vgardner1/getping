@@ -42,18 +42,15 @@ serve(async (req) => {
           price_data: {
             currency: "usd",
             product_data: { 
-              name: "ping! - Waitlist Subscription",
-              description: "Monthly subscription - cancel anytime"
+              name: "ping! - One-Time Purchase",
+              description: "Instant access to ping!"
             },
-            unit_amount: 299, // $2.99 monthly
-            recurring: {
-              interval: "month"
-            }
+            unit_amount: 999, // $9.99 one-time
           },
           quantity: 1,
         },
       ],
-      mode: "subscription",
+      mode: "payment",
       success_url: `${req.headers.get("origin")}/payment-success`,
       cancel_url: `${req.headers.get("origin")}/checkout`,
       metadata: {
