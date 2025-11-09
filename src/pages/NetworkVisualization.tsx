@@ -383,7 +383,7 @@ export default function NetworkVisualization() {
       </div>
 
       {/* Mobile: Stack vertically with proper spacing */}
-      <div className="fixed top-[100px] left-0 right-0 z-20 md:hidden px-3 space-y-6 max-h-[70vh] overflow-y-auto pb-6">
+      <div className="fixed top-[140px] left-0 right-0 z-20 md:hidden px-4 space-y-8 max-h-[70vh] overflow-y-auto pb-8">
         <PingLeaderboard />
         <ChatPreviewPopup />
       </div>
