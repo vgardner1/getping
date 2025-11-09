@@ -36,7 +36,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const GOOGLE_CLIENT_ID = '883735243677-tqm3iu24atkk0jc9eqiinv3ib4bj9p85.apps.googleusercontent.com';
+    const GOOGLE_CLIENT_ID = '883735243677-us7bal39n8jy263tulmjp3tdf225moa3.apps.googleusercontent.com';
     const GOOGLE_CLIENT_SECRET = Deno.env.get('GOOGLE_CLIENT_SECRET');
 
     if (!GOOGLE_CLIENT_SECRET) {
