@@ -133,7 +133,7 @@ export const ChatPreviewPopup = () => {
   }
 
   return (
-    <Card className="bg-black/80 backdrop-blur border-primary/30 p-2 md:p-5 w-full md:w-96 shadow-xl animate-fade-in">
+    <Card className="bg-black/80 backdrop-blur border-primary/30 p-2 md:p-5 w-full md:w-80 shadow-xl animate-fade-in">
       <div className="space-y-2 md:space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
@@ -160,7 +160,7 @@ export const ChatPreviewPopup = () => {
           )}
         </div>
 
-        <div className="space-y-1 md:space-y-3 max-h-[220px] md:max-h-[500px] overflow-y-auto">
+        <div className="space-y-1 md:space-y-3 max-h-[210px] md:max-h-[440px] overflow-y-auto">
           {chats.length === 0 ? (
             <p className="text-xs text-muted-foreground">No recent chats</p>
           ) : (

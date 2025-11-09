@@ -373,17 +373,17 @@ export default function NetworkVisualization() {
       </div>
 
       {/* Leaderboard - Top Left - Hidden on mobile */}
-      <div className="fixed top-[180px] left-4 z-20 hidden md:block">
+      <div className="fixed top-[220px] left-4 z-20 hidden md:block">
         <PingLeaderboard />
       </div>
 
       {/* Chat Preview - Top Right - Hidden on mobile */}
-      <div className="fixed top-[180px] right-4 z-20 hidden md:block">
+      <div className="fixed top-[220px] right-4 z-20 hidden md:block">
         <ChatPreviewPopup />
       </div>
 
       {/* Mobile: Stack vertically with proper spacing */}
-      <div className="fixed top-[200px] left-0 right-0 z-20 md:hidden px-4 space-y-8 max-h-[70vh] overflow-y-auto pb-8">
+      <div className="fixed top-[260px] left-0 right-0 z-20 md:hidden px-4 space-y-8 max-h-[70vh] overflow-y-auto pb-8">
         <PingLeaderboard />
         <ChatPreviewPopup />
       </div>

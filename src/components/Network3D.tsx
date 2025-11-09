@@ -180,7 +180,7 @@ export const Network3D = ({
     const camera = new THREE.PerspectiveCamera(75, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000);
     // Start further back on mobile to avoid cutoff
     const isMobile = window.innerWidth < 768;
-    const initialZ = isMobile ? 15 : 10;
+    const initialZ = isMobile ? 18 : 12;
     camera.position.set(0, CAMERA_ANGLE_RATIO * initialZ, initialZ);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
