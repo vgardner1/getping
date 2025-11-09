@@ -65,7 +65,7 @@ const App = () => (
             <Route path="/events" element={<Events />} />
             <Route path="/chat/:conversationId" element={<Chat />} />
             <Route path="/3d-upload" element={<Model3DUpload />} />
-            <Route path="*" element={<Landing />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
