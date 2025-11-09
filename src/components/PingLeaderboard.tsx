@@ -94,7 +94,7 @@ export const PingLeaderboard = () => {
 
   if (loading) {
     return (
-      <Card className="bg-black/80 backdrop-blur border-primary/30 p-4 w-72 shadow-xl">
+      <Card className="bg-black/80 backdrop-blur border-primary/30 p-3 w-72 shadow-xl">
         <div className="space-y-2">
           <div className="h-4 bg-primary/20 rounded animate-pulse" />
           <div className="h-4 bg-primary/20 rounded animate-pulse" />
@@ -104,11 +104,11 @@ export const PingLeaderboard = () => {
   }
 
   return (
-    <Card className="bg-black/80 backdrop-blur border-primary/30 p-4 md:p-5 w-full md:w-80 shadow-xl animate-fade-in">
-      <div className="space-y-3 md:space-y-4">
-        <div className="flex items-center gap-2 pb-1 md:pb-0">
+    <Card className="bg-black/80 backdrop-blur border-primary/30 p-3 md:p-5 w-full md:w-80 shadow-xl animate-fade-in">
+      <div className="space-y-2.5 md:space-y-4">
+        <div className="flex items-center gap-2 pb-0">
           <Trophy className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-          <h3 className="text-base md:text-lg font-semibold text-foreground">Most Pings</h3>
+          <h3 className="text-sm md:text-lg font-semibold text-foreground">Most Pings</h3>
         </div>
 
         <div className="space-y-2 md:space-y-3">
@@ -124,7 +124,7 @@ export const PingLeaderboard = () => {
                   {leader.rank}
                 </div>
                 
-                <Avatar className="h-10 w-10 md:h-12 md:w-12 border border-primary/30 flex-shrink-0">
+                <Avatar className="h-8 w-8 md:h-12 md:w-12 border border-primary/30 flex-shrink-0">
                   <AvatarImage src={leader.avatar} />
                   <AvatarFallback className="bg-primary/20 text-primary text-sm">
                     {leader.name.charAt(0)}

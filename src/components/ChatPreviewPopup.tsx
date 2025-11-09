@@ -133,7 +133,7 @@ export const ChatPreviewPopup = () => {
   }
 
   return (
-    <Card className="bg-black/80 backdrop-blur border-primary/30 p-3 md:p-5 w-full md:w-96 shadow-xl animate-fade-in">
+    <Card className="bg-black/80 backdrop-blur border-primary/30 p-2 md:p-5 w-full md:w-96 shadow-xl animate-fade-in">
       <div className="space-y-2 md:space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
@@ -160,7 +160,7 @@ export const ChatPreviewPopup = () => {
           )}
         </div>
 
-        <div className="space-y-1.5 md:space-y-3 max-h-[250px] md:max-h-[500px] overflow-y-auto">
+        <div className="space-y-1 md:space-y-3 max-h-[220px] md:max-h-[500px] overflow-y-auto">
           {chats.length === 0 ? (
             <p className="text-xs text-muted-foreground">No recent chats</p>
           ) : (
@@ -168,9 +168,9 @@ export const ChatPreviewPopup = () => {
               <div
                 key={chat.id}
                 onClick={() => handleChatClick(chat.id)}
-                className="flex items-start gap-2 md:gap-3 p-2 md:p-4 rounded-lg hover:bg-primary/10 transition-colors cursor-pointer group"
+                className="flex items-start gap-2 md:gap-3 p-2 md:p-3 rounded-lg hover:bg-primary/10 transition-colors cursor-pointer group"
               >
-                <Avatar className="h-8 w-8 md:h-12 md:w-12 border border-primary/30 flex-shrink-0">
+                <Avatar className="h-7 w-7 md:h-12 md:w-12 border border-primary/30 flex-shrink-0">
                   <AvatarImage src={chat.avatar} />
                   <AvatarFallback className="bg-primary/20 text-primary text-xs md:text-sm">
                     {chat.name.charAt(0)}
@@ -207,7 +207,7 @@ export const ChatPreviewPopup = () => {
             variant="outline"
             size="sm"
             onClick={() => navigate('/chat')}
-            className="w-full border-primary/30 hover:bg-primary/10 text-xs md:text-sm py-1.5 md:py-2"
+            className="w-full border-primary/30 hover:bg-primary/10 text-xs md:text-sm py-1 md:py-2"
           >
             View All Chats
           </Button>
