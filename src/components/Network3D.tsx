@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -210,17 +211,44 @@ export const Network3D = ({
       const isOutermost = index === CIRCLES_TO_USE.length - 1;
       
       if (isOutermost) {
-        // Create 3D ring for outermost circle - matching Ring3D component style
-        const ringGeometry = new THREE.TorusGeometry(circle.radius, 0.15, 16, 128);
-        const ringMaterial = new THREE.MeshStandardMaterial({ 
-          color: 0x064e3b,
-          metalness: 0.95,
-          roughness: 0.1,
-          envMapIntensity: 2.0,
-        });
-        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-        ring.rotation.x = Math.PI / 2; // Make horizontal
-        scene.add(ring);
+        // Load the uploaded GLB model for the outer ring
+        const loader = new GLTFLoader();
+        const modelUrl = 'https://ahksxziueqkacyaqtgeu.supabase.co/storage/v1/object/public/3d-models/1762662113959-zieveh.glb';
+        
+        loader.load(
+          modelUrl,
+          (gltf) => {
+            const model = gltf.scene;
+            
+            // Scale and position the model to match the outer ring radius
+            const box = new THREE.Box3().setFromObject(model);
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const desiredSize = circle.radius * 2; // Diameter
+            const scale = desiredSize / maxDim;
+            
+            model.scale.setScalar(scale);
+            model.position.set(0, 0, 0);
+            model.rotation.x = Math.PI / 2; // Make horizontal
+            
+            scene.add(model);
+          },
+          undefined,
+          (error) => {
+            console.error('Error loading 3D model:', error);
+            // Fallback to torus if model fails to load
+            const ringGeometry = new THREE.TorusGeometry(circle.radius, 0.15, 16, 128);
+            const ringMaterial = new THREE.MeshStandardMaterial({ 
+              color: 0x064e3b,
+              metalness: 0.95,
+              roughness: 0.1,
+              envMapIntensity: 2.0,
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.rotation.x = Math.PI / 2;
+            scene.add(ring);
+          }
+        );
         
         // Add green directional lights for iridescent effect
         const directionalLight1 = new THREE.DirectionalLight(0x10b981, 1.5);
