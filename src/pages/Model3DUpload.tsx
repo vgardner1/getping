@@ -14,12 +14,10 @@ const Model3DUpload = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const { toast } = useToast();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (!selectedFile) return;
-
+  const validateFile = (selectedFile: File) => {
     const validExtensions = ['.glb', '.gltf', '.obj', '.fbx'];
     const fileExtension = selectedFile.name.toLowerCase().slice(selectedFile.name.lastIndexOf('.'));
     
@@ -29,11 +27,45 @@ const Model3DUpload = () => {
         description: 'Please upload a .glb, .gltf, .obj, or .fbx file',
         variant: 'destructive',
       });
-      return;
+      return false;
     }
+    return true;
+  };
 
-    setFile(selectedFile);
-    setUploadedUrl(null);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
+
+    if (validateFile(selectedFile)) {
+      setFile(selectedFile);
+      setUploadedUrl(null);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (!droppedFile) return;
+
+    if (validateFile(droppedFile)) {
+      setFile(droppedFile);
+      setUploadedUrl(null);
+    }
   };
 
   const handleUpload = async () => {
@@ -113,13 +145,38 @@ const Model3DUpload = () => {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="model-file">Select 3D Model File</Label>
-                <Input
-                  id="model-file"
-                  type="file"
-                  accept=".glb,.gltf,.obj,.fbx"
-                  onChange={handleFileChange}
-                  disabled={uploading}
-                />
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`relative border-2 border-dashed rounded-lg p-8 transition-colors ${
+                    isDragging 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <div className="text-center space-y-3">
+                    <Upload className={`w-12 h-12 mx-auto transition-colors ${
+                      isDragging ? 'text-primary' : 'text-muted-foreground'
+                    }`} />
+                    <div>
+                      <p className="text-sm font-medium">
+                        {isDragging ? 'Drop your file here' : 'Drag & drop your 3D model here'}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        or click to browse
+                      </p>
+                    </div>
+                  </div>
+                  <Input
+                    id="model-file"
+                    type="file"
+                    accept=".glb,.gltf,.obj,.fbx"
+                    onChange={handleFileChange}
+                    disabled={uploading}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
               </div>
 
               {file && (
