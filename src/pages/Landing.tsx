@@ -182,10 +182,8 @@ const Landing = () => {
               <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
                 <span className="text-2xl">📊</span>
               </div>
-              <h3 className="text-lg font-semibold iridescent-text">track analytics</h3>
-              <p className="text-sm text-muted-foreground iridescent-text">
-                see who views your profile and track engagement with detailed analytics
-              </p>
+              <h3 className="text-lg font-semibold iridescent-text">track connections</h3>
+              <p className="text-sm text-muted-foreground iridescent-text">visualize and manage your circles. never lose another conenction</p>
             </div>
             <div className="text-center space-y-3">
               <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
