@@ -332,18 +332,6 @@ export default function NetworkVisualization() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             
-            {/* Demo Mode Toggle - only show in circles view */}
-            {viewMode === 'circles' && (
-              <Button
-                variant={isDemoMode ? "default" : "outline"}
-                size="sm"
-                onClick={() => setIsDemoMode(!isDemoMode)}
-                className="ml-2"
-              >
-                {isDemoMode ? "Demo Mode" : "My Circle"}
-              </Button>
-            )}
-            
             <h1 className="text-4xl font-bold iridescent-text">
               {viewMode === 'chats' ? 'chats' : 'visualize your circle'}
             </h1>
@@ -444,6 +432,19 @@ export default function NetworkVisualization() {
         onClose={() => setSelectedPerson(null)} 
         onHealthChange={handleHealthChange}
       />
+
+      {/* Demo Mode Toggle - bottom right */}
+      {viewMode === 'circles' && (
+        <div className="fixed bottom-8 right-8 z-50">
+          <Button
+            variant={isDemoMode ? "default" : "outline"}
+            size="sm"
+            onClick={() => setIsDemoMode(!isDemoMode)}
+          >
+            {isDemoMode ? "Demo Mode" : "My Circle"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
