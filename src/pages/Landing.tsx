@@ -116,13 +116,7 @@ const Landing = () => {
               <div className="w-[500px] h-[500px] rounded-full bg-primary/20 blur-[100px] animate-pulse" />
             </div>
             <div className="relative z-10">
-              <Model3DViewer 
-                modelUrl="https://ahksxziueqkacyaqtgeu.supabase.co/storage/v1/object/public/3d-models/1762662113959-zieveh.glb"
-                autoRotate={true}
-                height="600px"
-                width="600px"
-                backgroundColor={0x001a0f}
-              />
+              <Model3DViewer modelUrl="https://ahksxziueqkacyaqtgeu.supabase.co/storage/v1/object/public/3d-models/1762662113959-zieveh.glb" autoRotate={true} height="600px" width="600px" backgroundColor={0x001a0f} />
             </div>
           </div>
 
@@ -131,7 +125,7 @@ const Landing = () => {
             <h1 className="text-5xl md:text-7xl font-bold iridescent-text leading-tight">
               ping!
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground iridescent-text max-w-2xl mx-auto">the future of connection is approaching.</p>
+            <p className="text-xl md:text-2xl text-muted-foreground iridescent-text max-w-2xl mx-auto">the future of connection is now.</p>
           </div>
 
           {/* Waitlist Button */}
