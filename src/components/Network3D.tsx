@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ChevronRight, X, User } from 'lucide-react';
 import { FloatingProfilePreview } from './FloatingProfilePreview';
+import { supabase } from '@/integrations/supabase/client';
 interface NetworkPerson {
   id: string;
   name: string;
@@ -82,6 +83,7 @@ export const Network3D = ({
   const [personBio, setPersonBio] = useState<string>('');
   const [isLoadingBio, setIsLoadingBio] = useState(false);
   const [popupPosition, setPopupPosition] = useState<{ top: number; left: number } | undefined>();
+  const [selectedPersonProfile, setSelectedPersonProfile] = useState<any>(null);
   const navigate = useNavigate();
   useEffect(() => {
     if (!containerRef.current) return;
@@ -498,7 +500,7 @@ export const Network3D = ({
     const onMouseUp = () => {
       isDraggingRef.current = false;
     };
-    const onClick = (event: MouseEvent) => {
+    const onClick = async (event: MouseEvent) => {
       if (!containerRef.current || !camera || !scene) return;
       const rect = containerRef.current.getBoundingClientRect();
       mouse.x = (event.clientX - rect.left) / rect.width * 2 - 1;
@@ -571,31 +573,50 @@ export const Network3D = ({
         setSelectedPerson(person);
         setShowMenu(true);
 
-        // Generate AI bio
-        setIsLoadingBio(true);
-        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-person-bio`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            name: person.name,
-            title: 'CEO',
-            company: 'Ping!',
-            location: 'Boston, MA',
-            circle: person.circle,
-          }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            setPersonBio(data.bio || '');
+        // Fetch real profile data for this person
+        if (person.userId) {
+          setIsLoadingBio(true);
+          
+          // Fetch profile from Supabase
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('display_name, job_title, company, location, phone_number')
+            .eq('user_id', person.userId)
+            .single();
+
+          if (profileData) {
+            setSelectedPersonProfile(profileData);
+            
+            // Generate AI bio with real data
+            fetch(`https://ahksxziueqkacyaqtgeu.supabase.co/functions/v1/generate-person-bio`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoa3N4eml1ZXFrYWN5YXF0Z2V1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwMjAzMzUsImV4cCI6MjA2OTU5NjMzNX0.V3UV58ZhQPrsXanRKHZbbJdJq_smXvh4jtAC1cFK6tw`,
+              },
+              body: JSON.stringify({
+                name: profileData.display_name || person.name,
+                title: profileData.job_title,
+                company: profileData.company,
+                location: profileData.location,
+                circle: person.circle,
+              }),
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                setPersonBio(data.bio || '');
+                setIsLoadingBio(false);
+              })
+              .catch((err) => {
+                console.error('Error generating bio:', err);
+                setIsLoadingBio(false);
+              });
+          } else {
             setIsLoadingBio(false);
-          })
-          .catch((err) => {
-            console.error('Error generating bio:', err);
-            setIsLoadingBio(false);
-          });
+          }
+        } else {
+          setIsLoadingBio(false);
+        }
 
         // Always zoom in while maintaining the top-down viewing angle
         isZoomingRef.current = true;
@@ -834,12 +855,12 @@ export const Network3D = ({
       {/* Floating profile preview */}
       {showMenu && selectedPerson && (
         <FloatingProfilePreview
-          name={selectedPerson.name}
-          title="CEO"
-          company="Ping!"
-          location="Boston, MA"
-          email="contact@example.com"
-          phone="207-660-3626"
+          name={selectedPersonProfile?.display_name || selectedPerson.name}
+          title={selectedPersonProfile?.job_title || 'Member'}
+          company={selectedPersonProfile?.company || 'Ping!'}
+          location={selectedPersonProfile?.location || 'Unknown'}
+          email={selectedPersonProfile?.email}
+          phone={selectedPersonProfile?.phone_number}
           bio={personBio}
           isLoadingBio={isLoadingBio}
           position={popupPosition}
@@ -847,6 +868,7 @@ export const Network3D = ({
             setShowMenu(false);
             setSelectedPerson(null);
             setPersonBio('');
+            setSelectedPersonProfile(null);
           }}
           onViewProfile={handleViewProfile}
           onMessage={() => {

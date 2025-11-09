@@ -31,37 +31,73 @@ export const ChatPreviewPopup = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get recent chats with last message
-      const { data: connections, error } = await supabase
-        .from('connections')
-        .select(`
-          id,
-          display_name,
-          messages:messages(
-            content,
-            created_at,
-            sender_id
-          )
-        `)
-        .eq('user_id', user.id)
+      // Get conversations the user is part of
+      const { data: participantData } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .eq('user_id', user.id);
+
+      if (!participantData || participantData.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      const conversationIds = participantData.map(p => p.conversation_id);
+
+      // Get recent messages for these conversations
+      const { data: messages } = await supabase
+        .from('messages')
+        .select('conversation_id, content, created_at, sender_id')
+        .in('conversation_id', conversationIds)
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(100);
 
-      if (error) throw error;
+      // Group messages by conversation
+      const conversationMessages = new Map<string, any[]>();
+      messages?.forEach(msg => {
+        if (!conversationMessages.has(msg.conversation_id)) {
+          conversationMessages.set(msg.conversation_id, []);
+        }
+        conversationMessages.get(msg.conversation_id)!.push(msg);
+      });
 
-      const chatPreviews: ChatPreview[] = (connections || [])
-        .filter((conn: any) => conn.messages && conn.messages.length > 0)
-        .map((conn: any) => {
-          const lastMsg = conn.messages[0];
-          return {
-            id: conn.id,
-            name: conn.display_name || 'Unknown',
-            lastMessage: lastMsg?.content?.substring(0, 50) || 'No messages',
-            timestamp: new Date(lastMsg?.created_at),
-            unreadCount: 0, // TODO: Calculate unread count
-          };
-        })
+      // Get the most recent message per conversation
+      const recentConversations = Array.from(conversationMessages.entries())
+        .map(([convId, msgs]) => ({
+          conversationId: convId,
+          lastMessage: msgs[0],
+          messageCount: msgs.length,
+        }))
+        .sort((a, b) => new Date(b.lastMessage.created_at).getTime() - new Date(a.lastMessage.created_at).getTime())
         .slice(0, isExpanded ? 10 : 3);
+
+      // Get other participants for each conversation
+      const { data: allParticipants } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id, user_id')
+        .in('conversation_id', recentConversations.map(c => c.conversationId))
+        .neq('user_id', user.id);
+
+      // Get profiles for other participants
+      const otherUserIds = Array.from(new Set(allParticipants?.map(p => p.user_id) || []));
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, avatar_url')
+        .in('user_id', otherUserIds);
+
+      const chatPreviews: ChatPreview[] = recentConversations.map(conv => {
+        const participant = allParticipants?.find(p => p.conversation_id === conv.conversationId);
+        const profile = profiles?.find(p => p.user_id === participant?.user_id);
+
+        return {
+          id: conv.conversationId,
+          name: profile?.display_name || 'Unknown',
+          avatar: profile?.avatar_url,
+          lastMessage: conv.lastMessage.content.substring(0, 60) + (conv.lastMessage.content.length > 60 ? '...' : ''),
+          timestamp: new Date(conv.lastMessage.created_at),
+          unreadCount: 0, // TODO: Implement unread tracking
+        };
+      });
 
       setChats(chatPreviews);
     } catch (error) {
@@ -87,12 +123,12 @@ export const ChatPreviewPopup = () => {
   }
 
   return (
-    <Card className="bg-black/80 backdrop-blur border-primary/30 p-4 w-80 shadow-xl animate-fade-in">
-      <div className="space-y-3">
+    <Card className="bg-black/80 backdrop-blur border-primary/30 p-5 w-96 shadow-xl animate-fade-in">
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-foreground">Recent Chats</h3>
+            <MessageSquare className="h-6 w-6 text-primary" />
+            <h3 className="text-lg font-semibold text-foreground">Recent Chats</h3>
           </div>
           
           {chats.length > 3 && (
@@ -114,7 +150,7 @@ export const ChatPreviewPopup = () => {
           )}
         </div>
 
-        <div className="space-y-2 max-h-96 overflow-y-auto">
+        <div className="space-y-3 max-h-[500px] overflow-y-auto">
           {chats.length === 0 ? (
             <p className="text-sm text-muted-foreground">No recent chats</p>
           ) : (
@@ -122,9 +158,9 @@ export const ChatPreviewPopup = () => {
               <div
                 key={chat.id}
                 onClick={() => handleChatClick(chat.id)}
-                className="flex items-start gap-3 p-3 rounded-lg hover:bg-primary/10 transition-colors cursor-pointer group"
+                className="flex items-start gap-3 p-4 rounded-lg hover:bg-primary/10 transition-colors cursor-pointer group"
               >
-                <Avatar className="h-10 w-10 border border-primary/30">
+                <Avatar className="h-12 w-12 border border-primary/30">
                   <AvatarImage src={chat.avatar} />
                   <AvatarFallback className="bg-primary/20 text-primary">
                     {chat.name.charAt(0)}
