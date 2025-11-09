@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StarField } from "@/components/StarField";
 import { Link } from "react-router-dom";
-import Ring3D from "@/components/Ring3D";
 import Model3DViewer from "@/components/Model3DViewer";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
@@ -111,9 +110,14 @@ const Landing = () => {
       {/* Main Content */}
       <main className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-80px)] p-6 py-12">
         <div className="text-center space-y-12 max-w-4xl">
-          {/* 3D Ring */}
+          {/* 3D Model */}
           <div className="flex justify-center">
-            <Ring3D />
+            <Model3DViewer 
+              modelUrl="https://ahksxziueqkacyaqtgeu.supabase.co/storage/v1/object/public/3d-models/1762662113959-zieveh.glb"
+              autoRotate={true}
+              height="400px"
+              width="400px"
+            />
           </div>
 
           {/* Hero Text */}
