@@ -308,20 +308,20 @@ export default function NetworkVisualization() {
 
 
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background overflow-hidden">
       {/* Header with Search Bar */}
-      <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 via-black/60 to-transparent pb-8">
-        <div className="flex items-center justify-between p-4">
+      <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 via-black/60 to-transparent pb-4 md:pb-8">
+        <div className="flex items-center justify-between p-3 md:p-4">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate('/network')}
-            className="text-white hover:bg-white/10"
+            className="text-white hover:bg-white/10 h-8 w-8 md:h-10 md:w-10"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
           </Button>
 
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-lg md:text-2xl font-bold text-white">
             {circleType === 'my' && 'My Network'}
             {circleType === 'industry' && 'Industry Network'}
             {circleType === 'event' && 'Event Network'}
@@ -332,9 +332,9 @@ export default function NetworkVisualization() {
               <Button
                 variant="outline"
                 size="icon"
-                className="rounded-full h-10 w-10 border-2 bg-black/50 border-primary/30 text-white hover:bg-white/10"
+                className="rounded-full h-8 w-8 md:h-10 md:w-10 border-2 bg-black/50 border-primary/30 text-white hover:bg-white/10"
               >
-                <Circle className="h-5 w-5" />
+                <Circle className="h-4 w-4 md:h-5 md:w-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-card z-[100]" align="end">
@@ -366,19 +366,25 @@ export default function NetworkVisualization() {
           </DropdownMenu>
         </div>
 
-        {/* Search Bar */}
-        <div className="px-4 pt-2">
+        {/* Search Bar - Hidden on mobile */}
+        <div className="px-3 md:px-4 pt-2 hidden md:block">
           <NetworkSearchBar />
         </div>
       </div>
 
-      {/* Leaderboard - Top Left */}
-      <div className="fixed top-[180px] left-4 z-20">
+      {/* Leaderboard - Top Left - Hidden on mobile */}
+      <div className="fixed top-[180px] left-4 z-20 hidden md:block">
         <PingLeaderboard />
       </div>
 
-      {/* Chat Preview - Top Right */}
-      <div className="fixed top-[180px] right-4 z-20">
+      {/* Chat Preview - Top Right - Hidden on mobile */}
+      <div className="fixed top-[180px] right-4 z-20 hidden md:block">
+        <ChatPreviewPopup />
+      </div>
+
+      {/* Mobile: Stack vertically with proper spacing */}
+      <div className="fixed top-[120px] left-0 right-0 z-20 md:hidden px-4 space-y-4">
+        <PingLeaderboard />
         <ChatPreviewPopup />
       </div>
 

@@ -71,31 +71,41 @@ export const ChatPreviewPopup = () => {
         .sort((a, b) => new Date(b.lastMessage.created_at).getTime() - new Date(a.lastMessage.created_at).getTime())
         .slice(0, isExpanded ? 10 : 3);
 
-      // Get other participants for each conversation
+      // Get ALL participants for these conversations
       const { data: allParticipants } = await supabase
         .from('conversation_participants')
         .select('conversation_id, user_id')
-        .in('conversation_id', recentConversations.map(c => c.conversationId))
-        .neq('user_id', user.id);
+        .in('conversation_id', recentConversations.map(c => c.conversationId));
 
-      // Get profiles for other participants
-      const otherUserIds = Array.from(new Set(allParticipants?.map(p => p.user_id) || []));
+      // Get unique user IDs (excluding current user)
+      const otherUserIds = Array.from(
+        new Set(
+          allParticipants
+            ?.filter(p => p.user_id !== user.id)
+            .map(p => p.user_id) || []
+        )
+      );
+
+      // Fetch profiles for all other participants
       const { data: profiles } = await supabase
         .from('profiles')
         .select('user_id, display_name, avatar_url')
         .in('user_id', otherUserIds);
 
       const chatPreviews: ChatPreview[] = recentConversations.map(conv => {
-        const participant = allParticipants?.find(p => p.conversation_id === conv.conversationId);
-        const profile = profiles?.find(p => p.user_id === participant?.user_id);
+        // Find the other participant in this conversation
+        const otherParticipant = allParticipants?.find(
+          p => p.conversation_id === conv.conversationId && p.user_id !== user.id
+        );
+        const profile = profiles?.find(p => p.user_id === otherParticipant?.user_id);
 
         return {
           id: conv.conversationId,
-          name: profile?.display_name || 'Unknown',
+          name: profile?.display_name || 'User',
           avatar: profile?.avatar_url,
           lastMessage: conv.lastMessage.content.substring(0, 60) + (conv.lastMessage.content.length > 60 ? '...' : ''),
           timestamp: new Date(conv.lastMessage.created_at),
-          unreadCount: 0, // TODO: Implement unread tracking
+          unreadCount: 0,
         };
       });
 
@@ -123,7 +133,7 @@ export const ChatPreviewPopup = () => {
   }
 
   return (
-    <Card className="bg-black/80 backdrop-blur border-primary/30 p-5 w-96 shadow-xl animate-fade-in">
+    <Card className="bg-black/80 backdrop-blur border-primary/30 p-5 w-full md:w-96 shadow-xl animate-fade-in">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

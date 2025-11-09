@@ -104,7 +104,7 @@ export const PingLeaderboard = () => {
   }
 
   return (
-    <Card className="bg-black/80 backdrop-blur border-primary/30 p-5 w-80 shadow-xl animate-fade-in">
+    <Card className="bg-black/80 backdrop-blur border-primary/30 p-5 w-full md:w-80 shadow-xl animate-fade-in">
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Trophy className="h-6 w-6 text-primary" />
