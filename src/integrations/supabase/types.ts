@@ -533,6 +533,33 @@ export type Database = {
           },
         ]
       }
+      invite_links: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          invite_code: string
+          invite_method: string | null
+          inviter_user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          invite_code: string
+          invite_method?: string | null
+          inviter_user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          invite_code?: string
+          invite_method?: string | null
+          inviter_user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -564,6 +591,83 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onboarding_progress: {
+        Row: {
+          circle_built: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          invite_method: string | null
+          invites_sent: number | null
+          onboarding_completed: boolean | null
+          user_id: string
+        }
+        Insert: {
+          circle_built?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          invite_method?: string | null
+          invites_sent?: number | null
+          onboarding_completed?: boolean | null
+          user_id: string
+        }
+        Update: {
+          circle_built?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          invite_method?: string | null
+          invites_sent?: number | null
+          onboarding_completed?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pending_invites: {
+        Row: {
+          accepted_at: string | null
+          created_at: string | null
+          id: string
+          invite_link_id: string | null
+          invitee_email: string | null
+          invitee_name: string | null
+          invitee_phone: string | null
+          inviter_user_id: string
+          status: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string | null
+          id?: string
+          invite_link_id?: string | null
+          invitee_email?: string | null
+          invitee_name?: string | null
+          invitee_phone?: string | null
+          inviter_user_id: string
+          status?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string | null
+          id?: string
+          invite_link_id?: string | null
+          invitee_email?: string | null
+          invitee_name?: string | null
+          invitee_phone?: string | null
+          inviter_user_id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_invite_link"
+            columns: ["invite_link_id"]
+            isOneToOne: false
+            referencedRelation: "invite_links"
             referencedColumns: ["id"]
           },
         ]

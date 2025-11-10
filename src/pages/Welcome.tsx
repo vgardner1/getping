@@ -12,7 +12,7 @@ const Welcome = () => {
 
         {/* Action Buttons */}
         <div className="flex flex-col gap-4 w-full mt-12">
-          <Link to="/signup" className="w-full">
+          <Link to="/onboarding" className="w-full">
             <Button 
               size="lg"
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-4 text-lg font-medium"

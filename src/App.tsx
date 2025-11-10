@@ -8,6 +8,10 @@ import Landing from "./pages/Landing";
 import Home from "./pages/Home";
 import Model3DUpload from "./pages/Model3DUpload";
 import Onboarding from "./pages/Onboarding";
+import OnboardingWelcome from "./pages/OnboardingWelcome";
+import OnboardingCircle from "./pages/OnboardingCircle";
+import OnboardingSuccess from "./pages/OnboardingSuccess";
+import JoinCircle from "./pages/JoinCircle";
 import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import AccountSetup from "./pages/AccountSetup";
@@ -44,6 +48,11 @@ const App = () => (
             <Route path="/home" element={<Home />} />
             <Route path="/landing" element={<Landing />} />
             <Route path="/signup" element={<Onboarding />} />
+            <Route path="/onboarding" element={<OnboardingWelcome />} />
+            <Route path="/onboarding/welcome" element={<OnboardingWelcome />} />
+            <Route path="/onboarding/circle" element={<OnboardingCircle />} />
+            <Route path="/onboarding/success" element={<OnboardingSuccess />} />
+            <Route path="/join/:inviteCode" element={<JoinCircle />} />
             <Route path="/signin" element={<Auth />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
