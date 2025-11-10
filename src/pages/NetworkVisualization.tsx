@@ -365,11 +365,10 @@ export default function NetworkVisualization() {
         <div className="flex items-center justify-between p-2 md:p-3">
           <Button
             variant="ghost"
-            size="icon"
             onClick={() => navigate('/network/visualize')}
-            className="text-white hover:bg-white/10 h-7 w-7 md:h-9 md:w-9"
+            className="text-white hover:bg-white/10 h-7 px-3 md:h-9 md:px-4 font-bold text-xs md:text-sm"
           >
-            <Users className="h-3 w-3 md:h-4 md:w-4" />
+            ping!
           </Button>
 
           <h1 className="text-sm md:text-lg font-bold text-white">
