@@ -179,9 +179,9 @@ export const Network3D = ({
     // Camera setup - start at a high, top-down angle (~55°)
     const CAMERA_ANGLE_RATIO = 1.4; // y = ratio * z
     const camera = new THREE.PerspectiveCamera(75, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000);
-    // Start further back on mobile to avoid cutoff and give more room
+    // Start further back on mobile to show all circles
     const isMobile = window.innerWidth < 768;
-    const initialZ = isMobile ? 20 : 14;
+    const initialZ = isMobile ? 28 : 18;
     camera.position.set(0, CAMERA_ANGLE_RATIO * initialZ, initialZ);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
@@ -673,9 +673,9 @@ export const Network3D = ({
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
       
-      // Store current position for stable zooming
+      // Store current position for stable zooming - wider range for better control
       const currentZ = camera.position.z;
-      const newZ = Math.max(5, Math.min(20, currentZ + event.deltaY * 0.01));
+      const newZ = Math.max(3, Math.min(35, currentZ + event.deltaY * 0.015));
       
       camera.position.z = newZ;
       camera.position.y = newZ * CAMERA_ANGLE_RATIO;
@@ -726,9 +726,9 @@ export const Network3D = ({
         // Store the current camera position before zoom
         const beforeZ = camera.position.z;
         
-        // Apply zoom with smoother scaling
-        const zoomFactor = delta * 0.02;
-        const newZ = Math.max(5, Math.min(20, beforeZ - zoomFactor));
+        // Apply zoom with smoother scaling - wider range for better control
+        const zoomFactor = delta * 0.025;
+        const newZ = Math.max(3, Math.min(35, beforeZ - zoomFactor));
         
         camera.position.z = newZ;
         camera.position.y = newZ * CAMERA_ANGLE_RATIO;
