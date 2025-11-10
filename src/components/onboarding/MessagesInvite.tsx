@@ -5,9 +5,10 @@ import { useInviteLink } from '@/hooks/useInviteLink';
 
 interface MessagesInviteProps {
   onBack: () => void;
+  skipSuccessNavigation?: boolean;
 }
 
-export default function MessagesInvite({ onBack }: MessagesInviteProps) {
+export default function MessagesInvite({ onBack, skipSuccessNavigation = false }: MessagesInviteProps) {
   const navigate = useNavigate();
   const { generateInviteLink, inviteLink, loading } = useInviteLink();
   const [hasOpened, setHasOpened] = useState(false);
@@ -17,6 +18,8 @@ export default function MessagesInvite({ onBack }: MessagesInviteProps) {
   }, []);
 
   useEffect(() => {
+    if (skipSuccessNavigation) return;
+    
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && hasOpened) {
         setTimeout(() => {
@@ -27,7 +30,7 @@ export default function MessagesInvite({ onBack }: MessagesInviteProps) {
     
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [hasOpened, navigate]);
+  }, [hasOpened, navigate, skipSuccessNavigation]);
 
   const handleOpenMessages = () => {
     if (!inviteLink) return;
@@ -47,7 +50,7 @@ export default function MessagesInvite({ onBack }: MessagesInviteProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-[400px] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin text-4xl mb-4">⏳</div>
           <p className="text-muted-foreground">Preparing your invite link...</p>
@@ -57,14 +60,7 @@ export default function MessagesInvite({ onBack }: MessagesInviteProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background px-6 py-4">
-      <button 
-        onClick={onBack}
-        className="text-muted-foreground text-base mb-6"
-      >
-        ✕ Close
-      </button>
-
+    <div className="min-h-[400px] bg-transparent px-6 py-6">
       <h2 className="text-2xl font-bold text-foreground text-center mb-8">
         Text Your Circle
       </h2>
