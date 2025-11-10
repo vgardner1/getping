@@ -58,7 +58,7 @@ const Auth = () => {
       if (session) {
         const processed = await processPostLoginIntent(session.user.id);
         if (!processed) {
-          navigate('/profile');
+          navigate('/network/visualize');
         }
       }
     };
@@ -87,7 +87,7 @@ const handleSignUp = async () => {
     }
   }
 
-  const redirectUrl = `${window.location.origin}/profile`;
+  const redirectUrl = `${window.location.origin}/network/visualize`;
   const normalizedEmail = email.trim().toLowerCase();
 
   const nameParts = displayName.trim().split(' ');
@@ -207,7 +207,7 @@ const handleSignIn = async () => {
           });
         } else {
           const processed = await processPostLoginIntent(retry.data.user!.id);
-          if (!processed) navigate('/profile');
+          if (!processed) navigate('/network/visualize');
         }
       } catch (e) {
         setShowResend(true);
@@ -244,9 +244,9 @@ const handleSignIn = async () => {
         }
       }
       const processed = await processPostLoginIntent(user.id);
-      if (!processed) navigate('/profile');
+      if (!processed) navigate('/network/visualize');
     } else {
-      navigate('/profile');
+      navigate('/network/visualize');
     }
   }
   setLoading(false);

@@ -17,7 +17,7 @@ const AuthCallback = () => {
 
     const handleRedirect = () => {
       const hash = window.location.hash || '';
-      const profileUrl = new URL('/', window.location.origin);
+      const profileUrl = new URL('/network/visualize', window.location.origin);
       // Preserve auth hash if present so Supabase can parse tokens on next page
       if (hash && /access_token|refresh_token/.test(hash)) {
         profileUrl.hash = hash.startsWith('#') ? hash.slice(1) : hash;
@@ -37,7 +37,7 @@ const AuthCallback = () => {
       try {
         window.location.replace(target);
       } catch {
-        navigate('/', { replace: true });
+        navigate('/network/visualize', { replace: true });
       }
     };
 
@@ -111,7 +111,7 @@ const AuthCallback = () => {
 
   const retry = () => {
     const hash = window.location.hash || '';
-    const url = new URL('/', window.location.origin);
+    const url = new URL('/network/visualize', window.location.origin);
     if (hash && /access_token|refresh_token/.test(hash)) {
       url.hash = hash.startsWith('#') ? hash.slice(1) : hash;
     }
