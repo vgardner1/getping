@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Circle, Trophy, MessageCircle } from 'lucide-react';
+import { Circle, Trophy, MessageCircle, ChevronUp, ChevronDown, Users } from 'lucide-react';
 import { Network3D } from '@/components/Network3D';
 import { RelationshipHealthPanel } from '@/components/RelationshipHealthPanel';
 import { supabase } from '@/integrations/supabase/client';
@@ -40,6 +40,7 @@ export default function NetworkVisualization() {
   const [personHealth, setPersonHealth] = useState<Record<string, number>>({});
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [industries] = useState<string[]>(['AI', 'Tech', 'Sustainability']);
+  const [chatDrawerState, setChatDrawerState] = useState<'hidden' | 'half' | 'full'>('hidden');
 
   useEffect(() => {
     if (user && !isDemoMode) {
@@ -332,12 +333,45 @@ export default function NetworkVisualization() {
     setPersonHealth((prev) => ({ ...prev, [id]: score }));
   };
 
+  const handleChatDrawerToggle = () => {
+    if (chatDrawerState === 'hidden') {
+      setChatDrawerState('half');
+    } else if (chatDrawerState === 'half') {
+      setChatDrawerState('full');
+    } else {
+      setChatDrawerState('hidden');
+    }
+  };
+
+  const handleDrawerClose = () => {
+    setChatDrawerState('hidden');
+  };
+
 
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
+      {/* Floating Search Bar - Above Circles */}
+      <div className="absolute top-20 md:top-24 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-md">
+        <div className="relative">
+          <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+          <div className="relative">
+            <NetworkSearchBar />
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 via-black/60 to-transparent pb-2">
+      <div className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/80 via-black/40 to-transparent pb-2">
         <div className="flex items-center justify-between p-2 md:p-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/network/visualize')}
+            className="text-white hover:bg-white/10 h-7 w-7 md:h-9 md:w-9"
+          >
+            <Users className="h-3 w-3 md:h-4 md:w-4" />
+          </Button>
+
           <h1 className="text-sm md:text-lg font-bold text-white">
             visualize my circle
           </h1>
@@ -352,7 +386,7 @@ export default function NetworkVisualization() {
                 <Circle className="h-3 w-3 md:h-4 md:w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-card z-[100]" align="end">
+            <DropdownMenuContent className="bg-card/95 backdrop-blur z-[100]" align="end">
               <DropdownMenuItem onClick={() => {
                 setCircleType('my');
                 setSelectedIndustry(null);
@@ -409,7 +443,7 @@ export default function NetworkVisualization() {
 
       {/* Simplified Health Panel */}
       {selectedPerson && (
-        <div className="fixed bottom-20 md:bottom-24 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-xs">
+        <div className="fixed bottom-24 md:bottom-28 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-xs">
           <RelationshipHealthPanel
             person={selectedPerson}
             onClose={() => setSelectedPerson(null)}
@@ -418,29 +452,42 @@ export default function NetworkVisualization() {
         </div>
       )}
 
-      {/* Chats Pullout - Bottom Right */}
-      <div className="fixed bottom-20 md:bottom-24 right-2 md:right-4 z-20">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="icon"
-              className="rounded-lg bg-black/80 backdrop-blur border-primary/30 hover:bg-primary/20 h-10 w-10 shadow-lg"
-            >
-              <MessageCircle className="h-4 w-4 text-primary" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-72 p-3 bg-black/95 backdrop-blur border-primary/30">
-            <ChatsCard />
-          </SheetContent>
-        </Sheet>
-      </div>
+      {/* Bottom Chats Drawer */}
+      <div 
+        className={`fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-primary/30 shadow-2xl transition-all duration-300 z-40 ${
+          chatDrawerState === 'hidden' ? 'translate-y-[calc(100%-3rem)]' :
+          chatDrawerState === 'half' ? 'translate-y-[50%]' :
+          'translate-y-0'
+        }`}
+        style={{ height: '80vh' }}
+      >
+        {/* Handle Bar */}
+        <button
+          onClick={handleChatDrawerToggle}
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-full p-3 flex flex-col items-center gap-1 hover:bg-white/5 transition-colors"
+        >
+          <div className="w-12 h-1 bg-primary/30 rounded-full" />
+          <div className="flex items-center gap-2 text-xs text-foreground mt-1">
+            {chatDrawerState === 'full' ? (
+              <>
+                <ChevronDown className="h-3 w-3" />
+                <span>ping!</span>
+              </>
+            ) : (
+              <>
+                <MessageCircle className="h-3 w-3" />
+                <span>chats</span>
+                <ChevronUp className="h-3 w-3" />
+              </>
+            )}
+          </div>
+        </button>
 
-      {/* Search Bar - Bottom */}
-      <div className="fixed bottom-20 md:bottom-24 left-1/2 -translate-x-1/2 z-20 w-[90%] max-w-md">
-        <NetworkSearchBar />
+        {/* Chats Content */}
+        <div className="pt-12 px-4 h-full overflow-y-auto pb-20">
+          <ChatsCard />
+        </div>
       </div>
-
 
       {/* 3D Network Visualization */}
       <Network3D
