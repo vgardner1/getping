@@ -190,44 +190,35 @@ export const NetworkSearchBar = () => {
 
   return (
     <div className="relative w-full max-w-2xl mx-auto">
-      {/* Search Input */}
-      <div className="relative group">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 via-primary/20 to-primary/30 rounded-xl blur opacity-60 group-hover:opacity-100 transition duration-300" />
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary z-10" />
+      {/* Search Input with 3D effect and animation */}
+      <div className="relative group animate-float">
+        <div className="absolute -inset-1 bg-gradient-to-r from-primary/40 via-primary/20 to-primary/40 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition duration-300" />
+        <div className="relative transform-gpu">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-xl pointer-events-none" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary z-10 drop-shadow-lg" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setShowResults(true)}
-            placeholder="Search people in your circle or discover others..."
-            className="pl-12 pr-4 py-6 bg-black/80 backdrop-blur-xl border-2 border-primary/30 rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-300 shadow-lg shadow-primary/10"
+            placeholder="grow your circle ⭕"
+            className="pl-12 pr-4 py-6 bg-black/90 backdrop-blur-xl border-2 border-primary/40 rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-4 focus:ring-primary/30 transition-all duration-300 shadow-2xl shadow-primary/20 relative"
+            style={{
+              boxShadow: '0 8px 32px rgba(0, 255, 102, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.1)',
+            }}
           />
         </div>
       </div>
 
-      {/* Search Results Dropdown */}
-      {(showResults || !query) && displayResults.length > 0 && (
+      {/* Search Results Dropdown - Only show when there's a query */}
+      {showResults && query && displayResults.length > 0 && (
         <Card className="absolute top-full mt-2 w-full bg-black/95 backdrop-blur-xl border-2 border-primary/30 shadow-2xl shadow-primary/20 rounded-xl overflow-hidden z-50 animate-fade-in">
           <div className="p-2">
-            {!query && (
-              <div className="px-3 py-2 text-xs font-semibold text-primary flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                Top Profiles
-              </div>
-            )}
-            
-            {displayResults.map((result, index) => (
+            {displayResults.map((result) => (
               <div
                 key={result.id}
                 onClick={() => handleUserClick(result.userId)}
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 transition-all duration-200 cursor-pointer group"
               >
-                {!query && (
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-bold">
-                    {index + 1}
-                  </div>
-                )}
-                
                 <Avatar className="h-10 w-10 border-2 border-primary/30 group-hover:border-primary/50 transition-colors">
                   <AvatarImage src={result.avatar} />
                   <AvatarFallback className="bg-primary/20 text-primary">

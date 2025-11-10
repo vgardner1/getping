@@ -88,9 +88,10 @@ export const LeaderboardCard = ({ prioritizedNames = [] }: LeaderboardCardProps)
       const allEntries: LeaderboardEntry[] = [];
       allProfilesMap.forEach((p) => {
         const count = senderCounts.get(p.user_id) || 0;
+        const firstName = (p.display_name || 'User').split(' ')[0];
         allEntries.push({
           id: p.user_id,
-          name: p.display_name || 'User',
+          name: firstName,
           avatar: p.avatar_url || undefined,
           pingCount: count,
         });
@@ -98,9 +99,10 @@ export const LeaderboardCard = ({ prioritizedNames = [] }: LeaderboardCardProps)
 
       // If still missing prioritized names (no profile found), add placeholders
       prioritizedNames.forEach((name) => {
-        const exists = allEntries.some((e) => (e.name || '').toLowerCase().includes(name.toLowerCase()));
+        const firstName = name.split(' ')[0];
+        const exists = allEntries.some((e) => (e.name || '').toLowerCase().includes(firstName.toLowerCase()));
         if (!exists) {
-          allEntries.push({ id: `placeholder-${name}`, name, pingCount: 0 });
+          allEntries.push({ id: `placeholder-${firstName}`, name: firstName, pingCount: 0 });
         }
       });
 
@@ -118,43 +120,53 @@ export const LeaderboardCard = ({ prioritizedNames = [] }: LeaderboardCardProps)
   };
 
   return (
-    <Card className="bg-black/80 backdrop-blur border-primary/30 p-2 md:p-3 w-full shadow-xl">
-      <div className="flex items-center gap-1.5 mb-2">
-        <Trophy className="h-3.5 w-3.5 text-primary" />
-        <h3 className="text-xs md:text-sm font-semibold text-foreground">Most Pings</h3>
+    <div className="space-y-2">
+      <div className="flex items-center gap-1.5 px-1">
+        <Trophy className="h-3 w-3 text-primary" />
+        <h3 className="text-xs font-semibold text-foreground">Leaders</h3>
       </div>
 
       {loading ? (
         <div className="space-y-1">
-          <div className="h-3 bg-primary/20 rounded animate-pulse" />
-          <div className="h-3 bg-primary/20 rounded animate-pulse" />
+          <div className="h-8 bg-primary/10 rounded animate-pulse" />
+          <div className="h-8 bg-primary/10 rounded animate-pulse" />
         </div>
       ) : leaders.length === 0 ? (
-        <p className="text-xs text-muted-foreground">No pings yet</p>
+        <p className="text-[10px] text-muted-foreground px-1">No pings yet</p>
       ) : (
-        <div className="space-y-1">
-          {leaders.map((leader, idx) => (
-            <div key={leader.id} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-primary/10">
-              <div className="flex items-center justify-center w-4 h-4 rounded-full bg-primary/20 text-primary text-[10px] font-bold">
-                {idx + 1}
+        <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+          {leaders.map((leader, idx) => {
+            const getPositionColor = () => {
+              if (idx === 0) return 'bg-yellow-500/20 border-yellow-500/30 text-yellow-500';
+              if (idx === 1) return 'bg-gray-400/20 border-gray-400/30 text-gray-400';
+              if (idx === 2) return 'bg-amber-600/20 border-amber-600/30 text-amber-600';
+              return 'bg-primary/10 border-primary/20 text-primary';
+            };
+
+            return (
+              <div
+                key={leader.id}
+                className={`flex items-center gap-2 p-2 rounded-lg border ${getPositionColor()}`}
+              >
+                <span className="text-xs font-bold w-4">#{idx + 1}</span>
+                <Avatar className="h-6 w-6">
+                  <AvatarImage src={leader.avatar} alt={`${leader.name} avatar`} />
+                  <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                    {leader.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-foreground truncate">{leader.name}</p>
+                  <div className="flex items-center gap-1">
+                    <TrendingUp className="h-2.5 w-2.5 text-primary" />
+                    <span className="text-[10px] text-muted-foreground">{leader.pingCount}</span>
+                  </div>
+                </div>
               </div>
-              <Avatar className="h-6 w-6 border border-primary/30">
-                <AvatarImage src={leader.avatar} alt={`${leader.name} avatar`} />
-                <AvatarFallback className="bg-primary/20 text-primary text-[10px]">
-                  {leader.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-foreground truncate">{leader.name}</p>
-              </div>
-              <div className="flex items-center gap-0.5 text-primary">
-                <TrendingUp className="h-3 w-3" />
-                <span className="text-xs font-bold">{leader.pingCount}</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
-    </Card>
+    </div>
   );
 };

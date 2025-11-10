@@ -93,54 +93,41 @@ export const ChatsCard = () => {
   };
 
   return (
-    <Card className="bg-black/80 backdrop-blur border-primary/30 p-2 md:p-3 w-full shadow-xl">
-      <div className="flex items-center gap-1.5 mb-2">
-        <MessageSquare className="h-3.5 w-3.5 text-primary" />
-        <h3 className="text-xs md:text-sm font-semibold text-foreground">Recent Chats</h3>
+    <div className="space-y-2">
+      <div className="flex items-center gap-1.5 px-1">
+        <MessageSquare className="h-3 w-3 text-primary" />
+        <h3 className="text-xs font-semibold text-foreground">Chats</h3>
       </div>
 
       {loading ? (
         <div className="space-y-1">
-          <div className="h-3 bg-primary/20 rounded animate-pulse" />
-          <div className="h-3 bg-primary/20 rounded animate-pulse" />
+          <div className="h-8 bg-primary/10 rounded animate-pulse" />
+          <div className="h-8 bg-primary/10 rounded animate-pulse" />
         </div>
       ) : chats.length === 0 ? (
-        <p className="text-xs text-muted-foreground">No recent chats</p>
+        <p className="text-[10px] text-muted-foreground px-1">No recent chats</p>
       ) : (
-        <>
-          <div className="space-y-1 max-h-[140px] overflow-y-auto pr-1">
-            {chats.map((chat) => (
-              <button
-                key={chat.id}
-                onClick={() => navigate(`/chat?connection=${chat.id}`)}
-                className="w-full text-left flex items-start gap-2 p-1.5 rounded-lg hover:bg-primary/10"
-              >
-                <Avatar className="h-6 w-6 border border-primary/30 flex-shrink-0">
-                  <AvatarImage src={chat.avatar} alt={`${chat.name} avatar`} />
-                  <AvatarFallback className="bg-primary/20 text-primary text-[10px]">
-                    {chat.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-1">
-                    <p className="text-xs font-medium text-foreground truncate">{chat.name}</p>
-                    <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                      {formatDistanceToNow(chat.timestamp, { addSuffix: true })}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground truncate">{chat.lastMessage}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={() => navigate('/chat')}
-            className="mt-2 w-full rounded-md border border-primary/30 py-1 text-xs text-foreground hover:bg-primary/10"
-          >
-            View All
-          </button>
-        </>
+        <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+          {chats.map((chat) => (
+            <button
+              key={chat.id}
+              onClick={() => navigate(`/chat?connection=${chat.id}`)}
+              className="w-full text-left flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 bg-black/40"
+            >
+              <Avatar className="h-7 w-7">
+                <AvatarImage src={chat.avatar} alt={`${chat.name} avatar`} />
+                <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                  {chat.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-foreground truncate">{chat.name}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{chat.lastMessage}</p>
+              </div>
+            </button>
+          ))}
+        </div>
       )}
-    </Card>
+    </div>
   );
 };
