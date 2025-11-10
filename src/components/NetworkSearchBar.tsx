@@ -209,29 +209,16 @@ export const NetworkSearchBar = () => {
         </div>
       </div>
 
-      {/* Search Results Dropdown */}
-      {(showResults || !query) && displayResults.length > 0 && (
+      {/* Search Results Dropdown - Only show when there's a query */}
+      {showResults && query && displayResults.length > 0 && (
         <Card className="absolute top-full mt-2 w-full bg-black/95 backdrop-blur-xl border-2 border-primary/30 shadow-2xl shadow-primary/20 rounded-xl overflow-hidden z-50 animate-fade-in">
           <div className="p-2">
-            {!query && (
-              <div className="px-3 py-2 text-xs font-semibold text-primary flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                Top Profiles
-              </div>
-            )}
-            
-            {displayResults.map((result, index) => (
+            {displayResults.map((result) => (
               <div
                 key={result.id}
                 onClick={() => handleUserClick(result.userId)}
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 transition-all duration-200 cursor-pointer group"
               >
-                {!query && (
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-bold">
-                    {index + 1}
-                  </div>
-                )}
-                
                 <Avatar className="h-10 w-10 border-2 border-primary/30 group-hover:border-primary/50 transition-colors">
                   <AvatarImage src={result.avatar} />
                   <AvatarFallback className="bg-primary/20 text-primary">
