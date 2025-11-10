@@ -297,6 +297,31 @@ export default function NetworkVisualization() {
     setPersonHealth(healthMap);
   };
 
+  const loadIndustryConnections = async (industry: string) => {
+    if (!user) return;
+
+    // For now, create demo industry network
+    const industryPeople: NetworkPerson[] = [];
+    const count = 15 + Math.floor(Math.random() * 10);
+
+    for (let i = 0; i < count; i++) {
+      const angle = (360 / count) * i;
+      const lat = (Math.sin(angle * Math.PI / 180) * 50) + (Math.random() * 10 - 5);
+      const lng = (Math.cos(angle * Math.PI / 180) * 120) + (Math.random() * 10 - 5);
+
+      industryPeople.push({
+        id: `industry-${industry}-${i}`,
+        name: `${industry} Contact ${i + 1}`,
+        circle: 'business',
+        angle,
+        lat: Math.max(-85, Math.min(85, lat)),
+        lng,
+      });
+    }
+
+    setPeople(industryPeople);
+  };
+
   const handlePersonClick = (person: NetworkPerson) => {
     console.log('Person clicked:', person);
     setSelectedPerson(person);
@@ -342,25 +367,32 @@ export default function NetworkVisualization() {
                 setCircleType('my');
                 setSelectedIndustry(null);
                 setSelectedEvent(null);
-                loadRealConnections();
+                if (!isDemoMode) {
+                  loadRealConnections();
+                }
               }}>
-                My circle
+                My Circle
               </DropdownMenuItem>
               
               <DropdownMenuItem onClick={() => {
                 setCircleType('industry');
-                setSelectedIndustry(null);
                 setSelectedEvent(null);
+                const defaultIndustry = industries[0];
+                setSelectedIndustry(defaultIndustry);
+                loadIndustryConnections(defaultIndustry);
               }}>
-                Industry circle
+                Industry Circle
               </DropdownMenuItem>
               
               <DropdownMenuItem onClick={() => {
                 setCircleType('event');
                 setSelectedIndustry(null);
                 setSelectedEvent(null);
+                if (userEvents.length > 0) {
+                  loadEventAttendees();
+                }
               }}>
-                Event circle
+                Event Circle
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -372,12 +404,14 @@ export default function NetworkVisualization() {
         </div>
       </div>
 
-      {/* Compact cards grid */}
-      <div className="absolute inset-x-0 top-0 z-20 px-3 md:px-4 pt-24 md:pt-36">
-        <div className="mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
-          <LeaderboardCard prioritizedNames={["me","gaspard","josh","spencer"]} />
-          <ChatsCard />
-        </div>
+      {/* Leaderboard - Left side */}
+      <div className="absolute left-3 md:left-6 top-28 md:top-40 z-20 w-64 md:w-72">
+        <LeaderboardCard prioritizedNames={["me","gaspard","josh","spencer"]} />
+      </div>
+
+      {/* Chats - Right side */}
+      <div className="absolute right-3 md:right-6 top-28 md:top-40 z-20 w-64 md:w-72">
+        <ChatsCard />
       </div>
 
       {/* Relationship Health Panel */}
