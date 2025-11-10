@@ -258,3 +258,19 @@ All colors MUST be HSL.
   width: 100% !important;
   height: 100% !important;
 }
+
+/* Zoom in animation for network transition */
+@keyframes zoom-in-fade {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+.animate-zoom-in-fade {
+  animation: zoom-in-fade 1s ease-out forwards;
+}

@@ -9,6 +9,7 @@ interface Model3DViewerProps {
   height?: string;
   width?: string;
   scale?: number;
+  onRingClick?: () => void;
 }
 
 const Model3DViewer = ({ 
@@ -17,7 +18,8 @@ const Model3DViewer = ({
   backgroundColor = 0x0a0a0a,
   height = '200px',
   width = '200px',
-  scale = 1
+  scale = 1,
+  onRingClick
 }: Model3DViewerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -131,7 +133,14 @@ const Model3DViewer = ({
     };
     const onTouchEnd = () => handleEnd();
 
+    const onClick = () => {
+      if (onRingClick) {
+        onRingClick();
+      }
+    };
+
     container.addEventListener('mousedown', onMouseDown);
+    container.addEventListener('click', onClick);
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
     container.addEventListener('touchstart', onTouchStart);
@@ -164,6 +173,7 @@ const Model3DViewer = ({
     // Cleanup
     return () => {
       container.removeEventListener('mousedown', onMouseDown);
+      container.removeEventListener('click', onClick);
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
       container.removeEventListener('touchstart', onTouchStart);
@@ -179,7 +189,7 @@ const Model3DViewer = ({
         scene.remove(model);
       }
     };
-  }, [modelUrl, autoRotate, backgroundColor, scale]);
+  }, [modelUrl, autoRotate, backgroundColor, scale, onRingClick]);
 
   if (!modelUrl) {
     return (

@@ -347,9 +347,9 @@ export default function NetworkVisualization() {
           </Button>
 
           <h1 className="text-lg md:text-2xl font-bold text-white">
-            {circleType === 'my' && 'My Network'}
-            {circleType === 'industry' && 'Industry Network'}
-            {circleType === 'event' && 'Event Network'}
+            {circleType === 'my' && 'my circle'}
+            {circleType === 'industry' && 'industry circle'}
+            {circleType === 'event' && 'event circle'}
           </h1>
 
           <DropdownMenu>
@@ -371,7 +371,7 @@ export default function NetworkVisualization() {
                   loadRealConnections();
                 }
               }}>
-                My Circle
+                my circle
               </DropdownMenuItem>
               
               <DropdownMenuItem onClick={() => {
@@ -381,7 +381,7 @@ export default function NetworkVisualization() {
                 setSelectedIndustry(defaultIndustry);
                 loadIndustryConnections(defaultIndustry);
               }}>
-                Industry Circle
+                industry circle
               </DropdownMenuItem>
               
               <DropdownMenuItem onClick={() => {
@@ -392,10 +392,65 @@ export default function NetworkVisualization() {
                   loadEventAttendees();
                 }
               }}>
-                Event Circle
+                event circle
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+        </div>
+
+        {/* Filter Dropdowns */}
+        <div className="px-3 md:px-4 pt-2 flex gap-2 items-center justify-center">
+          {circleType === 'industry' && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="bg-black/50 border-primary/30 text-white hover:bg-white/10">
+                  {selectedIndustry || 'Select Industry'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-card z-[100]">
+                {industries.map((industry) => (
+                  <DropdownMenuItem 
+                    key={industry}
+                    onClick={() => {
+                      setSelectedIndustry(industry);
+                      loadIndustryConnections(industry);
+                    }}
+                  >
+                    {industry}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          {circleType === 'event' && userEvents.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="bg-black/50 border-primary/30 text-white hover:bg-white/10">
+                  {selectedEvent || 'All Events'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-card z-[100]">
+                <DropdownMenuItem onClick={() => {
+                  setSelectedEvent(null);
+                  loadEventAttendees();
+                }}>
+                  All Events
+                </DropdownMenuItem>
+                {userEvents.map((event) => (
+                  <DropdownMenuItem 
+                    key={event.id}
+                    onClick={() => {
+                      setSelectedEvent(event.name);
+                      loadEventAttendees();
+                    }}
+                  >
+                    {event.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         {/* Search Bar - Hidden on mobile */}

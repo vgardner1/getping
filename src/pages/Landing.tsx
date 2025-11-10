@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StarField } from "@/components/StarField";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Model3DViewer from "@/components/Model3DViewer";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
@@ -23,12 +23,14 @@ const waitlistSchema = z.object({
   })
 });
 const Landing = () => {
+  const navigate = useNavigate();
   const [visibleText, setVisibleText] = useState(false);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [isZooming, setIsZooming] = useState(false);
   const {
     toast
   } = useToast();
@@ -92,6 +94,13 @@ const Landing = () => {
       setIsSubmitting(false);
     }
   };
+
+  const handleRingClick = () => {
+    setIsZooming(true);
+    setTimeout(() => {
+      navigate('/network/visualize');
+    }, 1000);
+  };
   return <div className="min-h-screen bg-background relative overflow-y-auto overflow-x-hidden">
       <StarField />
       
@@ -115,13 +124,14 @@ const Landing = () => {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-[500px] h-[500px] rounded-full bg-primary/20 blur-[100px] animate-pulse" />
             </div>
-            <div className="relative z-10">
+            <div className={`relative z-10 cursor-pointer transition-all duration-1000 ${isZooming ? 'scale-150 opacity-0' : 'scale-100 opacity-100'}`}>
           <Model3DViewer 
             modelUrl="https://ahksxziueqkacyaqtgeu.supabase.co/storage/v1/object/public/3d-models/1762712110922-9bfg37f.glb"
             autoRotate={true}
             height="400px"
             width="400px"
             scale={1.2}
+            onRingClick={handleRingClick}
           />
             </div>
           </div>
