@@ -124,32 +124,59 @@ export const useContactSync = () => {
 
   const pickContacts = useCallback(async () => {
     try {
-      // Check if Contact Picker API is available
-      if ('contacts' in navigator && 'ContactsManager' in window) {
-        const props = ['name', 'tel', 'email'];
-        const opts = { multiple: true };
-        
-        const selectedContacts = await (navigator as any).contacts.select(props, opts);
-        
-        const formattedContacts: ContactData[] = selectedContacts.map((contact: any) => ({
-          name: contact.name?.[0] || 'Unknown',
-          phone: contact.tel?.[0]?.replace(/\s/g, ''),
-          email: contact.email?.[0],
-          selected: true
-        }));
-        
-        setContacts(formattedContacts);
-        setShowContactPicker(true);
-      } else {
-        // Fall back to file upload
-        triggerFileUpload();
+      // Check if the Contact Picker API is available
+      if (!('contacts' in navigator)) {
+        toast({
+          title: "Not Supported",
+          description: "Contact Picker API is not available on this device.",
+          variant: "destructive"
+        });
+        return;
       }
+
+      const props = ['name', 'tel', 'email'];
+      const opts = { multiple: true };
+      
+      // @ts-ignore - ContactsManager API types
+      const selectedContacts = await navigator.contacts.select(props, opts);
+      
+      if (!selectedContacts || selectedContacts.length === 0) {
+        toast({
+          title: "No Contacts Selected",
+          description: "Please select at least one contact to import.",
+        });
+        return;
+      }
+
+      const formattedContacts: ContactData[] = selectedContacts.map((contact: any) => ({
+        name: contact.name?.[0] || 'Unknown',
+        phone: contact.tel?.[0] || '',
+        email: contact.email?.[0] || '',
+        selected: true
+      }));
+
+      setContacts(formattedContacts);
+      setShowContactPicker(true);
+      
+      toast({
+        title: "Contacts Selected",
+        description: `${formattedContacts.length} contact(s) ready to import.`,
+      });
     } catch (error: any) {
-      console.error('Contact picker error:', error);
-      // User cancelled or error occurred, fall back to file upload
-      triggerFileUpload();
+      console.error('Error picking contacts:', error);
+      
+      if (error.name === 'AbortError') {
+        // User cancelled the picker
+        return;
+      }
+      
+      toast({
+        title: "Error",
+        description: "Failed to access contacts. Please try again.",
+        variant: "destructive"
+      });
     }
-  }, []);
+  }, [toast]);
 
   const triggerFileUpload = useCallback(() => {
     const input = document.createElement('input');

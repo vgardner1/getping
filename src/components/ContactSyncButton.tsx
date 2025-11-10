@@ -1,16 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Users } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useContactSync } from '@/hooks/useContactSync';
 import { ContactPickerModal } from '@/components/ContactPickerModal';
-import { GoogleContactsButton } from '@/components/GoogleContactsButton';
 
 export function ContactSyncButton() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isSupported, setIsSupported] = useState(true);
   const { 
     pickContacts, 
     syncing, 
@@ -21,6 +21,13 @@ export function ContactSyncButton() {
     toggleContact,
     toggleAll
   } = useContactSync();
+
+  // Check if Contact Picker API is supported
+  useEffect(() => {
+    if (!('contacts' in navigator)) {
+      setIsSupported(false);
+    }
+  }, []);
 
   useEffect(() => {
     const error = searchParams?.get('error');
@@ -65,35 +72,39 @@ export function ContactSyncButton() {
 
   return (
     <>
-      <div className="space-y-3">
-        <GoogleContactsButton />
-        
-        <p className="text-xs text-muted-foreground text-center">
-          Works on iPhone, Android & Desktop
-        </p>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border" />
+      <div className="space-y-4">
+        {!isSupported && (
+          <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4">
+            <p className="text-sm text-destructive">
+              ⚠️ Contact Picker API not available on this device.
+              {navigator.userAgent.includes('iPhone') && (
+                <span className="block mt-2">
+                  On iOS: Settings → Safari → Advanced → Feature Flags → Enable "Contact Picker API"
+                </span>
+              )}
+            </p>
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">Or</span>
-          </div>
-        </div>
+        )}
 
         <Button
           onClick={pickContacts}
-          disabled={syncing}
-          variant="outline"
-          className="w-full py-3 px-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+          disabled={syncing || !isSupported}
+          variant="default"
+          size="lg"
+          className="w-full rounded-xl font-semibold flex items-center justify-center gap-2"
         >
           <Users className="w-5 h-5" />
-          {syncing ? 'Syncing...' : 'Import Phone Contacts'}
+          {syncing ? 'Importing...' : '📱 Import from Contacts'}
         </Button>
 
-        <p className="text-xs text-muted-foreground text-center">
-          Select contacts directly from your device
-        </p>
+        <div className="bg-muted/50 rounded-xl p-4">
+          <p className="text-xs text-muted-foreground">
+            <span className="font-semibold block mb-2">Supported on:</span>
+            <span className="block">✅ Android (Chrome, Samsung Internet, Opera)</span>
+            <span className="block">⚠️ iOS (Safari - requires manual flag enable)</span>
+            <span className="block">❌ Desktop browsers</span>
+          </p>
+        </div>
       </div>
 
       <ContactPickerModal
