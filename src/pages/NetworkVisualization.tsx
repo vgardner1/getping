@@ -15,6 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 interface NetworkPerson {
   id: string;
@@ -337,14 +338,28 @@ export default function NetworkVisualization() {
       {/* Header with Search Bar */}
       <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 via-black/60 to-transparent pb-4 md:pb-8">
         <div className="flex items-center justify-between p-3 md:p-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/network')}
-            className="text-white hover:bg-white/10 h-8 w-8 md:h-10 md:w-10"
-          >
-            <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/network')}
+              className="text-white hover:bg-white/10 h-8 w-8 md:h-10 md:w-10"
+            >
+              <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
+            </Button>
+            
+            <ToggleGroup type="single" value={isDemoMode ? 'demo' : 'real'} onValueChange={v => {
+              if (!v) return;
+              setIsDemoMode(v === 'demo');
+            }} className="bg-background/80 backdrop-blur px-1 py-1 rounded-lg border border-border flex" aria-label="View mode">
+              <ToggleGroupItem value="real" className="px-3 py-1 text-sm rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground" aria-label="My circle">
+                My circle
+              </ToggleGroupItem>
+              <ToggleGroupItem value="demo" className="px-3 py-1 text-sm rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground" aria-label="Demo">
+                Demo
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
 
           <h1 className="text-lg md:text-2xl font-bold text-white">
             {circleType === 'my' && 'my circle'}

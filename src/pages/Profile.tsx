@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StarField } from "@/components/StarField";
-import { ArrowLeft, MapPin, Building2, Edit, BarChart3, ExternalLink, Mail, Phone, Search, UserPlus, Share2, FileText, Download, Eye, Calendar } from "lucide-react";
+import { ArrowLeft, MapPin, Building2, Edit, BarChart3, ExternalLink, Mail, Phone, Search, UserPlus, Share2, FileText, Download, Eye, Calendar, Plus, Circle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
@@ -283,6 +283,12 @@ const Profile = () => {
           
           {/* Right side icon bubbles */}
           <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full w-10 h-10 backdrop-blur-sm border border-primary/20 shadow-lg" onClick={() => navigate('/network/visualize')} title="Visualize your circle">
+              <div className="relative w-5 h-5 flex items-center justify-center">
+                <Circle className="w-5 h-5 text-primary" strokeWidth={2} />
+                <Plus className="w-3 h-3 text-primary absolute" strokeWidth={2.5} />
+              </div>
+            </Button>
             <Button variant="ghost" size="icon" className="hover:scale-105 transition-transform duration-200 bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-full w-10 h-10 backdrop-blur-sm border border-primary/20 shadow-lg" onClick={() => setShowProfileEdit(true)}>
               <Edit className="w-5 h-5 text-primary" />
             </Button>

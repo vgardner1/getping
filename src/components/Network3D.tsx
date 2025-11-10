@@ -835,21 +835,6 @@ export const Network3D = ({
     }
   };
   return <div className="relative w-full h-full">
-      {/* View mode toggle */}
-      <div className="fixed top-4 right-4 z-50 animate-fade-in">
-        <ToggleGroup type="single" value={showDemoNodes ? 'demo' : 'real'} onValueChange={v => {
-        if (!v) return;
-        setShowDemoNodes(v === 'demo');
-      }} className="bg-background/80 backdrop-blur px-1 py-1 rounded-lg border border-border flex" aria-label="View mode">
-          <ToggleGroupItem value="real" className="px-3 py-1 text-sm rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground" aria-label="My circle">
-            My circle
-          </ToggleGroupItem>
-          <ToggleGroupItem value="demo" className="px-3 py-1 text-sm rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground" aria-label="Demo">
-            Demo
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
-      
       <div ref={containerRef} className="w-full h-screen" />
 
       {/* Floating profile preview */}
