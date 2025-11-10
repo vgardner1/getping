@@ -118,38 +118,38 @@ export const LeaderboardCard = ({ prioritizedNames = [] }: LeaderboardCardProps)
   };
 
   return (
-    <Card className="bg-black/80 backdrop-blur border-primary/30 p-4 md:p-5 w-full shadow-xl">
-      <div className="flex items-center gap-2 mb-3">
-        <Trophy className="h-5 w-5 text-primary" />
-        <h3 className="text-base md:text-lg font-semibold text-foreground">Most Pings</h3>
+    <Card className="bg-black/80 backdrop-blur border-primary/30 p-2 md:p-3 w-full shadow-xl">
+      <div className="flex items-center gap-1.5 mb-2">
+        <Trophy className="h-3.5 w-3.5 text-primary" />
+        <h3 className="text-xs md:text-sm font-semibold text-foreground">Most Pings</h3>
       </div>
 
       {loading ? (
-        <div className="space-y-2">
-          <div className="h-4 bg-primary/20 rounded animate-pulse" />
-          <div className="h-4 bg-primary/20 rounded animate-pulse" />
+        <div className="space-y-1">
+          <div className="h-3 bg-primary/20 rounded animate-pulse" />
+          <div className="h-3 bg-primary/20 rounded animate-pulse" />
         </div>
       ) : leaders.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No pings yet</p>
+        <p className="text-xs text-muted-foreground">No pings yet</p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-1">
           {leaders.map((leader, idx) => (
-            <div key={leader.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-primary/10">
-              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-bold">
+            <div key={leader.id} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-primary/10">
+              <div className="flex items-center justify-center w-4 h-4 rounded-full bg-primary/20 text-primary text-[10px] font-bold">
                 {idx + 1}
               </div>
-              <Avatar className="h-9 w-9 border border-primary/30">
+              <Avatar className="h-6 w-6 border border-primary/30">
                 <AvatarImage src={leader.avatar} alt={`${leader.name} avatar`} />
-                <AvatarFallback className="bg-primary/20 text-primary text-sm">
+                <AvatarFallback className="bg-primary/20 text-primary text-[10px]">
                   {leader.name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">{leader.name}</p>
+                <p className="text-xs font-medium text-foreground truncate">{leader.name}</p>
               </div>
-              <div className="flex items-center gap-1 text-primary">
-                <TrendingUp className="h-4 w-4" />
-                <span className="text-sm font-bold">{leader.pingCount}</span>
+              <div className="flex items-center gap-0.5 text-primary">
+                <TrendingUp className="h-3 w-3" />
+                <span className="text-xs font-bold">{leader.pingCount}</span>
               </div>
             </div>
           ))}

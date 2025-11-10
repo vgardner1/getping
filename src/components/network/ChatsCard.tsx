@@ -93,54 +93,53 @@ export const ChatsCard = () => {
   };
 
   return (
-    <Card className="bg-black/80 backdrop-blur border-primary/30 p-4 md:p-5 w-full md:w-[22rem] shadow-xl">
-      <div className="flex items-center gap-2 mb-3">
-        <MessageSquare className="h-5 w-5 text-primary" />
-        <h3 className="text-base md:text-lg font-semibold text-foreground">Recent Chats</h3>
+    <Card className="bg-black/80 backdrop-blur border-primary/30 p-2 md:p-3 w-full shadow-xl">
+      <div className="flex items-center gap-1.5 mb-2">
+        <MessageSquare className="h-3.5 w-3.5 text-primary" />
+        <h3 className="text-xs md:text-sm font-semibold text-foreground">Recent Chats</h3>
       </div>
 
       {loading ? (
-        <div className="space-y-2">
-          <div className="h-4 bg-primary/20 rounded animate-pulse" />
-          <div className="h-4 bg-primary/20 rounded animate-pulse" />
+        <div className="space-y-1">
+          <div className="h-3 bg-primary/20 rounded animate-pulse" />
+          <div className="h-3 bg-primary/20 rounded animate-pulse" />
         </div>
       ) : chats.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No recent chats</p>
+        <p className="text-xs text-muted-foreground">No recent chats</p>
       ) : (
-        <div className="space-y-2 max-h-[220px] md:max-h-[360px] overflow-y-auto pr-1">
-          {chats.map((chat) => (
-            <button
-              key={chat.id}
-              onClick={() => navigate(`/chat?connection=${chat.id}`)}
-              className="w-full text-left flex items-start gap-3 p-2 rounded-lg hover:bg-primary/10"
-            >
-              <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-primary/30 flex-shrink-0">
-                <AvatarImage src={chat.avatar} alt={`${chat.name} avatar`} />
-                <AvatarFallback className="bg-primary/20 text-primary text-xs md:text-sm">
-                  {chat.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-medium text-foreground truncate">{chat.name}</p>
-                  <span className="text-[10px] md:text-xs text-muted-foreground whitespace-nowrap">
-                    {formatDistanceToNow(chat.timestamp, { addSuffix: true })}
-                  </span>
+        <>
+          <div className="space-y-1 max-h-[140px] overflow-y-auto pr-1">
+            {chats.map((chat) => (
+              <button
+                key={chat.id}
+                onClick={() => navigate(`/chat?connection=${chat.id}`)}
+                className="w-full text-left flex items-start gap-2 p-1.5 rounded-lg hover:bg-primary/10"
+              >
+                <Avatar className="h-6 w-6 border border-primary/30 flex-shrink-0">
+                  <AvatarImage src={chat.avatar} alt={`${chat.name} avatar`} />
+                  <AvatarFallback className="bg-primary/20 text-primary text-[10px]">
+                    {chat.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-1">
+                    <p className="text-xs font-medium text-foreground truncate">{chat.name}</p>
+                    <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                      {formatDistanceToNow(chat.timestamp, { addSuffix: true })}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground truncate">{chat.lastMessage}</p>
                 </div>
-                <p className="text-xs text-muted-foreground truncate mt-0.5">{chat.lastMessage}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {chats.length > 0 && (
-        <button
-          onClick={() => navigate('/chat')}
-          className="mt-3 w-full rounded-md border border-primary/30 py-2 text-sm text-foreground hover:bg-primary/10"
-        >
-          View All Chats
-        </button>
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => navigate('/chat')}
+            className="mt-2 w-full rounded-md border border-primary/30 py-1 text-xs text-foreground hover:bg-primary/10"
+          >
+            View All
+          </button>
+        </>
       )}
     </Card>
   );

@@ -372,9 +372,9 @@ export default function NetworkVisualization() {
         </div>
       </div>
 
-      {/* Panels container: responsive grid, no fixed offsets */}
-      <div className="absolute inset-x-0 top-0 z-20 px-4 md:px-6 pt-28 md:pt-40">
-        <div className="mx-auto max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      {/* Compact cards grid */}
+      <div className="absolute inset-x-0 top-0 z-20 px-3 md:px-4 pt-24 md:pt-36">
+        <div className="mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
           <LeaderboardCard prioritizedNames={["me","gaspard","josh","spencer"]} />
           <ChatsCard />
         </div>
