@@ -382,7 +382,7 @@ export const Network3D = ({
       const healthColor = getHealthColor(initialScore);
 
       // Create person sphere with health-based color and pulsing glow
-      const sphereGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+      const sphereGeometry = new THREE.SphereGeometry(0.75, 16, 16);
       const sphereMaterial = new THREE.MeshPhongMaterial({
         color: 0x4ade80,
         emissive: healthColor,
