@@ -32,8 +32,8 @@ const PingerOverlay: React.FC<PingerOverlayProps> = ({
 }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [overlaySize, setOverlaySize] = useState<{ width: number; height: number }>({ 
-    width: 200, 
-    height: 140 
+    width: 288, 
+    height: 220 
   });
 
   useLayoutEffect(() => {
@@ -49,24 +49,73 @@ const PingerOverlay: React.FC<PingerOverlayProps> = ({
   let y = position.y;
   let finalPlacement: "top" | "right" | "left" = placement;
 
-  // Simple positioning: always below the clicked sphere
+  // Enhanced mobile positioning logic
   if (containerSize && overlaySize.height) {
-    const halfW = overlaySize.width / 2;
+    const isSmallScreen = containerSize.width < 768;
     
-    // Center horizontally, ensure it stays within bounds
-    x = Math.max(margin + halfW, Math.min(containerSize.width - margin - halfW, x));
-    
-    // Position below the sphere with small offset
-    y = y + 40;
-    
-    // If going off bottom, position above instead
-    if (y + overlaySize.height + margin > containerSize.height) {
-      y = position.y - 40;
+    if (isSmallScreen) {
+      // Mobile positioning logic
+      const spaceAbove = y;
+      const spaceBelow = containerSize.height - y;
+      const spaceLeft = x;
+      const spaceRight = containerSize.width - x;
+      
+      // Determine best placement based on available space
+      if (spaceBelow > overlaySize.height + margin && spaceBelow > spaceAbove) {
+        finalPlacement = "top";
+        y = Math.min(y, containerSize.height - overlaySize.height - margin);
+      } else if (spaceRight > overlaySize.width + margin) {
+        finalPlacement = "right";
+      } else if (spaceLeft > overlaySize.width + margin) {
+        finalPlacement = "left";
+      } else {
+        // Fallback positioning
+        finalPlacement = "top";
+        x = containerSize.width / 2;
+        y = spaceBelow > spaceAbove 
+          ? Math.min(y + 40, containerSize.height - overlaySize.height - margin)
+          : Math.max(y - 40, overlaySize.height + margin);
+      }
+      
+      // Ensure horizontal bounds
+      const halfW = overlaySize.width / 2;
+      x = Math.max(margin + halfW, Math.min(containerSize.width - margin - halfW, x));
+      
+    } else {
+      // Desktop positioning logic
+      if (placement === "right" || placement === "left") {
+        const halfH = overlaySize.height / 2;
+        y = Math.max(margin + halfH, Math.min(containerSize.height - margin - halfH, y));
+        const halfW = overlaySize.width / 2;
+        x = Math.max(margin + halfW, Math.min(containerSize.width - margin - halfW, x));
+      } else {
+        const halfW = overlaySize.width / 2;
+        x = Math.max(margin + halfW, Math.min(containerSize.width - margin - halfW, x));
+      }
+      
+      // Auto-resolve placement if not enough top space
+      const neededTop = overlaySize.height * 1.1 + margin;
+      if (placement === "top" && y < neededTop) {
+        finalPlacement = x > (containerSize.width / 2) ? "left" : "right";
+      }
     }
   }
 
-  // Center horizontally
-  const transform = "translate(-50%, 0)";
+  // Calculate transform based on final placement
+  const getTransform = (placementType: "top" | "right" | "left") => {
+    switch (placementType) {
+      case "top":
+        return "translate(-50%, -110%)";
+      case "right":
+        return "translate(16px, -50%)";
+      case "left":
+        return "translate(calc(-100% - 16px), -50%)";
+      default:
+        return "translate(-50%, -110%)";
+    }
+  };
+
+  const transform = getTransform(finalPlacement);
 
   return (
     <div
@@ -74,34 +123,46 @@ const PingerOverlay: React.FC<PingerOverlayProps> = ({
       className="absolute z-50"
       style={{ left: x, top: y, transform }}
     >
-      <Card className="w-48 border-border bg-popover text-popover-foreground shadow-lg rounded-lg p-2 animate-enter">
-        <div className="flex items-start justify-between mb-1.5">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+      <Card className="w-72 border-border bg-popover text-popover-foreground shadow-lg rounded-lg p-4 animate-enter">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex items-center gap-3">
             {pinger.avatarUrl ? (
               <img
                 src={pinger.avatarUrl}
                 alt={`${pinger.name} profile photo`}
-                className="w-7 h-7 rounded-full object-cover border border-border flex-shrink-0"
+                className="w-10 h-10 rounded-full object-cover border border-border"
                 loading="lazy"
               />
             ) : null}
-            <div className="min-w-0 flex-1">
-              <h3 className="font-semibold text-xs leading-tight truncate">{pinger.name}</h3>
+            <div>
+              <h3 className="font-semibold leading-none tracking-tight">{pinger.name}</h3>
               {pinger.role && (
-                <p className="text-[10px] text-muted-foreground truncate">{pinger.role}</p>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Briefcase className="w-3.5 h-3.5 text-primary" />
+                  <span>{pinger.role}</span>
+                </div>
               )}
             </div>
           </div>
           <button
             aria-label="Close"
             onClick={onClose}
-            className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 -mt-1"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
             ×
           </button>
         </div>
-        <Button onClick={onPing} size="sm" className="w-full text-xs h-7">
-          ping!
+        {pinger.city && (
+          <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+            <MapPin className="w-4 h-4 text-primary" />
+            <span>{pinger.city}</span>
+          </div>
+        )}
+        {pinger.bio && (
+          <p className="text-sm text-muted-foreground mb-4 line-clamp-3">{pinger.bio}</p>
+        )}
+        <Button onClick={onPing} className="w-full">
+          ping! them
         </Button>
       </Card>
     </div>

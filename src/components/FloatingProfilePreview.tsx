@@ -35,30 +35,20 @@ export const FloatingProfilePreview = ({
   onViewProfile,
   onMessage
 }: FloatingProfilePreviewProps) => {
-  // Mobile detection
-  const isMobile = window.innerWidth < 768;
-  
-  // For mobile: position below the circle centered
-  // For desktop: position to the side
+  // Position to the left or right of the circle, not covering it
   const positionStyles = position 
-    ? isMobile 
-      ? {
-          top: `${position.top + 60}px`, // Below the circle
-          left: `${position.left}px`,
-          transform: 'translate(-50%, 0)' // Center horizontally
-        }
-      : { 
-          top: `${position.top}px`, 
-          left: `${position.left}px`, 
-          transform: position.preferRight 
-            ? 'translate(80px, -50%)' // Position to the right
-            : 'translate(calc(-100% - 80px), -50%)' // Position to the left
-        }
+    ? { 
+        top: `${position.top}px`, 
+        left: `${position.left}px`, 
+        transform: position.preferRight 
+          ? 'translate(80px, -50%)' // Position to the right
+          : 'translate(calc(-100% - 80px), -50%)' // Position to the left
+      }
     : { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
 
   return (
     <Card 
-      className={`fixed ${isMobile ? 'w-36' : 'w-[280px]'} bg-gradient-to-br from-card via-card to-card/95 backdrop-blur-xl border-primary/30 shadow-2xl shadow-primary/20 z-50 animate-scale-in`}
+      className="fixed w-[280px] bg-gradient-to-br from-card via-card to-card/95 backdrop-blur-xl border-primary/30 shadow-2xl shadow-primary/20 z-50 animate-scale-in"
       style={positionStyles}
     >
       {/* Close button */}
@@ -66,64 +56,62 @@ export const FloatingProfilePreview = ({
         variant="ghost"
         size="icon"
         onClick={onClose}
-        className={`absolute top-1 right-1 ${isMobile ? 'h-5 w-5' : 'h-8 w-8'} text-muted-foreground hover:text-foreground z-10`}
+        className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-foreground z-10"
       >
-        <X className={isMobile ? "h-3 w-3" : "h-4 w-4"} />
+        <X className="h-4 w-4" />
       </Button>
 
-      <div className={isMobile ? "p-2 space-y-1" : "p-4 space-y-3"}>
+      <div className="p-4 space-y-3">
         {/* Avatar and name section */}
-        <div className="flex flex-col items-center text-center space-y-1">
-          <Avatar className={`${isMobile ? 'h-8 w-8' : 'h-16 w-16'} border-2 border-primary/30 shadow-lg shadow-primary/20`}>
+        <div className="flex flex-col items-center text-center space-y-2">
+          <Avatar className="h-16 w-16 border-2 border-primary/30 shadow-lg shadow-primary/20">
             <AvatarImage src={avatarUrl} alt={name} />
-            <AvatarFallback className="bg-primary/20 text-primary text-xs">
+            <AvatarFallback className="bg-primary/20 text-primary text-lg">
               {name.charAt(0)}
             </AvatarFallback>
           </Avatar>
           
           <div className="space-y-0.5">
-            <h3 className={`${isMobile ? 'text-xs' : 'text-base'} font-bold text-foreground truncate max-w-full px-1`}>{name}</h3>
-            {!isMobile && title && (
+            <h3 className="text-base font-bold text-foreground">{name}</h3>
+            {title && (
               <p className="text-xs text-muted-foreground font-medium">{title}</p>
             )}
           </div>
         </div>
 
-        {/* Contact info section - desktop only */}
-        {!isMobile && (
-          <div className="space-y-1.5 pt-1">
-            {company && (
-              <div className="flex items-center gap-2 text-xs">
-                <Building2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                <span className="text-foreground">{company}</span>
-              </div>
-            )}
-            
-            {location && (
-              <div className="flex items-center gap-2 text-xs">
-                <MapPin className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                <span className="text-foreground">{location}</span>
-              </div>
-            )}
+        {/* Contact info section */}
+        <div className="space-y-1.5 pt-1">
+          {company && (
+            <div className="flex items-center gap-2 text-xs">
+              <Building2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+              <span className="text-foreground">{company}</span>
+            </div>
+          )}
+          
+          {location && (
+            <div className="flex items-center gap-2 text-xs">
+              <MapPin className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+              <span className="text-foreground">{location}</span>
+            </div>
+          )}
 
-            {email && (
-              <div className="flex items-center gap-2 text-xs">
-                <Mail className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                <span className="text-foreground truncate">{email}</span>
-              </div>
-            )}
+          {email && (
+            <div className="flex items-center gap-2 text-xs">
+              <Mail className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+              <span className="text-foreground truncate">{email}</span>
+            </div>
+          )}
 
-            {phone && (
-              <div className="flex items-center gap-2 text-xs">
-                <Phone className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                <span className="text-foreground">{phone}</span>
-              </div>
-            )}
-          </div>
-        )}
+          {phone && (
+            <div className="flex items-center gap-2 text-xs">
+              <Phone className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+              <span className="text-foreground">{phone}</span>
+            </div>
+          )}
+        </div>
 
-        {/* AI-generated bio - desktop only */}
-        {!isMobile && (bio || isLoadingBio) && (
+        {/* AI-generated bio */}
+        {(bio || isLoadingBio) && (
           <div className="pt-2 border-t border-border/50">
             {isLoadingBio ? (
               <div className="space-y-1.5">
@@ -140,15 +128,15 @@ export const FloatingProfilePreview = ({
         )}
 
         {/* Action buttons */}
-        <div className={`flex ${isMobile ? 'flex-col gap-1' : 'gap-2 pt-1'}`}>
+        <div className="flex gap-2 pt-1">
           <Button
             onClick={onViewProfile}
             size="sm"
-            className={`flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium ${isMobile ? 'text-[10px] h-6' : 'text-xs'}`}
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-xs"
           >
             View Profile
           </Button>
-          {onMessage && !isMobile && (
+          {onMessage && (
             <Button
               onClick={onMessage}
               variant="outline"

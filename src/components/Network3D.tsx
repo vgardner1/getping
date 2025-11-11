@@ -171,17 +171,18 @@ export const Network3D = ({
     // Scene setup
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0a0a0a);
-    // Minimal tilt for top-down view
-    scene.rotation.x = -0.2;
-    scene.rotation.y = 0;
+    // Strong initial tilt so it never starts flat
+    scene.rotation.x = -0.55;
+    scene.rotation.y = 0.25;
     sceneRef.current = scene;
 
-    // Camera setup - top-down view showing all circles
+    // Camera setup - start at a high, top-down angle (~55°)
+    const CAMERA_ANGLE_RATIO = 1.4; // y = ratio * z
     const camera = new THREE.PerspectiveCamera(75, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000);
-    // Position camera high above the scene looking down
+    // Start further back on mobile to show all circles
     const isMobile = window.innerWidth < 768;
-    const initialZ = isMobile ? 32 : 25;
-    camera.position.set(0, initialZ * 0.4, initialZ);
+    const initialZ = isMobile ? 28 : 18;
+    camera.position.set(0, CAMERA_ANGLE_RATIO * initialZ, initialZ);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
@@ -223,8 +224,6 @@ export const Network3D = ({
 
 
     // Create horizontal concentric circles (torus rings) with labels
-    const innerRings: THREE.Mesh[] = [];
-    const outerRings: THREE.Mesh[] = [];
     CIRCLES_TO_USE.forEach((circle, index) => {
       const isOutermost = index === CIRCLES_TO_USE.length - 1;
       
@@ -240,10 +239,7 @@ export const Network3D = ({
         });
         const ring = new THREE.Mesh(ringGeometry, ringMaterial);
         ring.rotation.x = Math.PI / 2;
-        ring.userData.baseY = 0;
-        ring.userData.floatOffset = index * 0.2;
         scene.add(ring);
-        outerRings.push(ring);
         
         // Add green directional lights for iridescent effect
         const directionalLight1 = new THREE.DirectionalLight(0x10b981, 1.5);
@@ -262,24 +258,16 @@ export const Network3D = ({
         rimLight.position.set(-3, 0, -5);
         scene.add(rimLight);
       } else {
-        // Regular thin green rings for inner circles - with wave animation
-        const torusGeometry = new THREE.TorusGeometry(circle.radius, 0.04, 16, 100);
-        const torusMaterial = new THREE.MeshStandardMaterial({
-          color: 0x10b981,
-          emissive: 0x10b981,
-          emissiveIntensity: 0.5,
-          metalness: 0.3,
-          roughness: 0.7,
+        // Regular thin green rings for inner circles
+        const torusGeometry = new THREE.TorusGeometry(circle.radius, 0.02, 16, 100);
+        const torusMaterial = new THREE.MeshBasicMaterial({
+          color: circle.color,
           transparent: true,
-          opacity: 0.8
+          opacity: 0.4
         });
         const torus = new THREE.Mesh(torusGeometry, torusMaterial);
         torus.rotation.x = Math.PI / 2; // Make horizontal
-        torus.userData.baseY = 0;
-        torus.userData.waveOffset = index * 0.5; // Stagger the wave animation
-        torus.userData.floatOffset = index * 0.3; // Different float timing per ring
         scene.add(torus);
-        innerRings.push(torus);
       }
 
       // Create text label for each circle
@@ -542,7 +530,7 @@ export const Network3D = ({
           isZoomingRef.current = true;
           const startCameraPosition = camera.position.clone();
           const targetZ = 3; // Closer zoom
-          const targetCameraPosition = new THREE.Vector3(0, targetZ * 0.4, targetZ);
+          const targetCameraPosition = new THREE.Vector3(0, CAMERA_ANGLE_RATIO * targetZ, targetZ);
           
           let zoomProgress = 0;
           const zoomDuration = 60; // frames
@@ -596,7 +584,7 @@ export const Network3D = ({
         isZoomingRef.current = true;
         const startCameraPosition = camera.position.clone();
         const targetZ = 12; // Closer zoom level
-        const targetCameraPosition = new THREE.Vector3(0, targetZ * 0.4, targetZ);
+        const targetCameraPosition = new THREE.Vector3(0, CAMERA_ANGLE_RATIO * targetZ, targetZ);
         
         let zoomProgress = 0;
         const zoomDuration = 40; // frames for smooth animation
@@ -682,7 +670,7 @@ export const Network3D = ({
       const newZ = Math.max(3, Math.min(35, currentZ + event.deltaY * 0.015));
       
       camera.position.z = newZ;
-      camera.position.y = newZ * 0.4;
+      camera.position.y = newZ * CAMERA_ANGLE_RATIO;
       camera.lookAt(0, 0, 0);
     };
 
@@ -735,7 +723,7 @@ export const Network3D = ({
         const newZ = Math.max(3, Math.min(35, beforeZ - zoomFactor));
         
         camera.position.z = newZ;
-        camera.position.y = newZ * 0.4;
+        camera.position.y = newZ * CAMERA_ANGLE_RATIO;
         camera.lookAt(0, 0, 0);
         
         // Update stored distance for next iteration
@@ -789,29 +777,6 @@ export const Network3D = ({
         const material = sphere.material as THREE.MeshPhongMaterial;
         const baseEmissive = sphere.userData.baseEmissive || 0.5;
         material.emissiveIntensity = baseEmissive + Math.sin(time * 2) * 0.3;
-      });
-
-      // Animate ALL rings (inner and outer) with gentle levitating motion
-      [...innerRings, ...outerRings].forEach((ring, index) => {
-        const waveOffset = ring.userData.waveOffset || 0;
-        const floatOffset = ring.userData.floatOffset || 0;
-        
-        // Gentle up and down floating motion (less dramatic for outer ring)
-        const floatAmount = index >= innerRings.length ? 0.08 : 0.15; // Outer rings float less
-        ring.position.y = Math.sin(time * 0.5 + floatOffset) * floatAmount;
-        
-        // Apply wavy deformation only to inner rings
-        if (index < innerRings.length) {
-          const positions = ring.geometry.attributes.position;
-          for (let i = 0; i < positions.count; i++) {
-            const x = positions.getX(i);
-            const z = positions.getZ(i);
-            const angle = Math.atan2(z, x);
-            const wave = Math.sin(time * 1.5 + angle * 3 + waveOffset) * 0.08;
-            positions.setY(i, wave);
-          }
-          positions.needsUpdate = true;
-        }
       });
 
       // Subtle motion for background dots
