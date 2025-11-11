@@ -224,6 +224,7 @@ export const Network3D = ({
 
 
     // Create horizontal concentric circles (torus rings) with labels
+    const innerRings: THREE.Mesh[] = [];
     CIRCLES_TO_USE.forEach((circle, index) => {
       const isOutermost = index === CIRCLES_TO_USE.length - 1;
       
@@ -258,7 +259,7 @@ export const Network3D = ({
         rimLight.position.set(-3, 0, -5);
         scene.add(rimLight);
       } else {
-        // Regular thin green rings for inner circles
+        // Regular thin green rings for inner circles - with wave animation
         const torusGeometry = new THREE.TorusGeometry(circle.radius, 0.02, 16, 100);
         const torusMaterial = new THREE.MeshBasicMaterial({
           color: circle.color,
@@ -267,7 +268,11 @@ export const Network3D = ({
         });
         const torus = new THREE.Mesh(torusGeometry, torusMaterial);
         torus.rotation.x = Math.PI / 2; // Make horizontal
+        torus.userData.baseY = 0;
+        torus.userData.waveOffset = index * 0.5; // Stagger the wave animation
+        torus.userData.floatOffset = index * 0.3; // Different float timing per ring
         scene.add(torus);
+        innerRings.push(torus);
       }
 
       // Create text label for each circle
@@ -777,6 +782,26 @@ export const Network3D = ({
         const material = sphere.material as THREE.MeshPhongMaterial;
         const baseEmissive = sphere.userData.baseEmissive || 0.5;
         material.emissiveIntensity = baseEmissive + Math.sin(time * 2) * 0.3;
+      });
+
+      // Animate inner rings with wave and float effect
+      innerRings.forEach((ring, index) => {
+        const waveOffset = ring.userData.waveOffset || 0;
+        const floatOffset = ring.userData.floatOffset || 0;
+        
+        // Gentle up and down floating motion
+        ring.position.y = Math.sin(time * 0.5 + floatOffset) * 0.15;
+        
+        // Apply wavy deformation to the torus geometry
+        const positions = ring.geometry.attributes.position;
+        for (let i = 0; i < positions.count; i++) {
+          const x = positions.getX(i);
+          const z = positions.getZ(i);
+          const angle = Math.atan2(z, x);
+          const wave = Math.sin(time * 1.5 + angle * 3 + waveOffset) * 0.08;
+          positions.setY(i, wave);
+        }
+        positions.needsUpdate = true;
       });
 
       // Subtle motion for background dots
