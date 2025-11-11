@@ -171,18 +171,17 @@ export const Network3D = ({
     // Scene setup
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0a0a0a);
-    // Strong initial tilt so it never starts flat
-    scene.rotation.x = -0.55;
-    scene.rotation.y = 0.25;
+    // Minimal tilt for top-down view
+    scene.rotation.x = -0.2;
+    scene.rotation.y = 0;
     sceneRef.current = scene;
 
-    // Camera setup - start at a high, top-down angle (~55°)
-    const CAMERA_ANGLE_RATIO = 1.4; // y = ratio * z
+    // Camera setup - top-down view showing all circles
     const camera = new THREE.PerspectiveCamera(75, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000);
-    // Start further back on mobile to show all circles
+    // Position camera high above the scene looking down
     const isMobile = window.innerWidth < 768;
-    const initialZ = isMobile ? 28 : 18;
-    camera.position.set(0, CAMERA_ANGLE_RATIO * initialZ, initialZ);
+    const initialZ = isMobile ? 32 : 25;
+    camera.position.set(0, initialZ * 0.4, initialZ);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
@@ -543,7 +542,7 @@ export const Network3D = ({
           isZoomingRef.current = true;
           const startCameraPosition = camera.position.clone();
           const targetZ = 3; // Closer zoom
-          const targetCameraPosition = new THREE.Vector3(0, CAMERA_ANGLE_RATIO * targetZ, targetZ);
+          const targetCameraPosition = new THREE.Vector3(0, targetZ * 0.4, targetZ);
           
           let zoomProgress = 0;
           const zoomDuration = 60; // frames
@@ -597,7 +596,7 @@ export const Network3D = ({
         isZoomingRef.current = true;
         const startCameraPosition = camera.position.clone();
         const targetZ = 12; // Closer zoom level
-        const targetCameraPosition = new THREE.Vector3(0, CAMERA_ANGLE_RATIO * targetZ, targetZ);
+        const targetCameraPosition = new THREE.Vector3(0, targetZ * 0.4, targetZ);
         
         let zoomProgress = 0;
         const zoomDuration = 40; // frames for smooth animation
@@ -683,7 +682,7 @@ export const Network3D = ({
       const newZ = Math.max(3, Math.min(35, currentZ + event.deltaY * 0.015));
       
       camera.position.z = newZ;
-      camera.position.y = newZ * CAMERA_ANGLE_RATIO;
+      camera.position.y = newZ * 0.4;
       camera.lookAt(0, 0, 0);
     };
 
@@ -736,7 +735,7 @@ export const Network3D = ({
         const newZ = Math.max(3, Math.min(35, beforeZ - zoomFactor));
         
         camera.position.z = newZ;
-        camera.position.y = newZ * CAMERA_ANGLE_RATIO;
+        camera.position.y = newZ * 0.4;
         camera.lookAt(0, 0, 0);
         
         // Update stored distance for next iteration
