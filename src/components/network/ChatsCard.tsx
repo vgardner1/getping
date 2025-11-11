@@ -88,14 +88,22 @@ export const ChatsCard = () => {
 
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, display_name, avatar_url')
+        .select('user_id, display_name, first_name, last_name, avatar_url')
         .in('user_id', otherUserIds);
 
       const chatPreviews: ChatPreview[] = recentConversations.map(conv => {
         const otherParticipant = allParticipants?.find(p => p.conversation_id === conv.conversationId && p.user_id !== user.id);
         const profile = profiles?.find(p => p.user_id === otherParticipant?.user_id);
         const content = conv.lastMessage.content || '';
-        const displayName = profile?.display_name || profile?.user_id?.substring(0, 8) || 'User';
+        
+        // Build display name with proper fallbacks
+        let displayName = 'User';
+        if (profile?.display_name) {
+          displayName = profile.display_name;
+        } else if (profile?.first_name || profile?.last_name) {
+          displayName = [profile.first_name, profile.last_name].filter(Boolean).join(' ');
+        }
+        
         return {
           id: conv.conversationId,
           name: displayName,
