@@ -83,7 +83,7 @@ export const Network3D = ({
   const lastCameraPositionRef = useRef<THREE.Vector3 | null>(null);
   const [personBio, setPersonBio] = useState<string>('');
   const [isLoadingBio, setIsLoadingBio] = useState(false);
-  const [popupPosition, setPopupPosition] = useState<{ top: number; left: number } | undefined>();
+  const [popupPosition, setPopupPosition] = useState<{ top: number; left: number; preferRight?: boolean } | undefined>();
   const [selectedPersonProfile, setSelectedPersonProfile] = useState<any>(null);
   const navigate = useNavigate();
   useEffect(() => {
@@ -179,9 +179,9 @@ export const Network3D = ({
     // Camera setup - start at a high, top-down angle (~55°)
     const CAMERA_ANGLE_RATIO = 1.4; // y = ratio * z
     const camera = new THREE.PerspectiveCamera(75, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000);
-    // Start further back on mobile to avoid cutoff and give more room
+    // Start further back on mobile to show all circles
     const isMobile = window.innerWidth < 768;
-    const initialZ = isMobile ? 20 : 14;
+    const initialZ = isMobile ? 28 : 18;
     camera.position.set(0, CAMERA_ANGLE_RATIO * initialZ, initialZ);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
@@ -577,7 +577,36 @@ export const Network3D = ({
         const screenX = ((sphereScreenPos.x + 1) / 2) * canvasRect.width + canvasRect.left;
         const screenY = ((-sphereScreenPos.y + 1) / 2) * canvasRect.height + canvasRect.top;
         
-        setPopupPosition({ top: screenY, left: screenX });
+        // Determine if popup should be on left or right based on screen position
+        const preferRight = screenX < window.innerWidth / 2;
+        
+        // Zoom animation to the clicked sphere
+        isZoomingRef.current = true;
+        const startCameraPosition = camera.position.clone();
+        const targetZ = 12; // Closer zoom level
+        const targetCameraPosition = new THREE.Vector3(0, CAMERA_ANGLE_RATIO * targetZ, targetZ);
+        
+        let zoomProgress = 0;
+        const zoomDuration = 40; // frames for smooth animation
+        
+        const zoomAnimation = () => {
+          zoomProgress++;
+          const t = zoomProgress / zoomDuration;
+          const eased = 1 - Math.pow(1 - t, 3); // Ease out cubic
+          
+          camera.position.lerpVectors(startCameraPosition, targetCameraPosition, eased);
+          camera.lookAt(0, 0, 0);
+          
+          if (zoomProgress < zoomDuration) {
+            requestAnimationFrame(zoomAnimation);
+          } else {
+            isZoomingRef.current = false;
+          }
+        };
+        
+        zoomAnimation();
+        
+        setPopupPosition({ top: screenY, left: screenX, preferRight });
 
         // Show popup with person details
         setSelectedPerson(person);
@@ -628,43 +657,6 @@ export const Network3D = ({
           setIsLoadingBio(false);
         }
 
-        // Always zoom in while maintaining the top-down viewing angle
-        isZoomingRef.current = true;
-        const targetPosition = clickedSphere.position.clone();
-        const startCameraPosition = camera.position.clone();
-        const startSceneRotation = {
-          x: scene.rotation.x,
-          y: scene.rotation.y
-        };
-
-        // Calculate target camera position - zoom in but maintain the angle ratio
-        const targetZ = 4;
-        const targetCameraPosition = new THREE.Vector3(0, CAMERA_ANGLE_RATIO * targetZ, targetZ);
-
-        // Calculate target scene rotation to center the sphere horizontally
-        const targetSceneRotation = {
-          x: startSceneRotation.x,
-          // Keep the same tilt
-          y: -Math.atan2(targetPosition.x, targetPosition.z) // Rotate horizontally to center
-        };
-        let progress = 0;
-        const duration = 1000;
-        const startTime = Date.now();
-        const animateZoom = () => {
-          const elapsed = Date.now() - startTime;
-          progress = Math.min(elapsed / duration, 1);
-          const eased = 1 - Math.pow(1 - progress, 3);
-          camera.position.lerpVectors(startCameraPosition, targetCameraPosition, eased);
-          camera.lookAt(0, 0, 0);
-          scene.rotation.x = startSceneRotation.x;
-          scene.rotation.y = startSceneRotation.y + (targetSceneRotation.y - startSceneRotation.y) * eased;
-          if (progress < 1) {
-            requestAnimationFrame(animateZoom);
-          } else {
-            isZoomingRef.current = false;
-          }
-        };
-        animateZoom();
         if (onPersonClick) {
           onPersonClick(person);
         }
@@ -673,9 +665,9 @@ export const Network3D = ({
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
       
-      // Store current position for stable zooming
+      // Store current position for stable zooming - wider range for better control
       const currentZ = camera.position.z;
-      const newZ = Math.max(5, Math.min(20, currentZ + event.deltaY * 0.01));
+      const newZ = Math.max(3, Math.min(35, currentZ + event.deltaY * 0.015));
       
       camera.position.z = newZ;
       camera.position.y = newZ * CAMERA_ANGLE_RATIO;
@@ -726,9 +718,9 @@ export const Network3D = ({
         // Store the current camera position before zoom
         const beforeZ = camera.position.z;
         
-        // Apply zoom with smoother scaling
-        const zoomFactor = delta * 0.02;
-        const newZ = Math.max(5, Math.min(20, beforeZ - zoomFactor));
+        // Apply zoom with smoother scaling - wider range for better control
+        const zoomFactor = delta * 0.025;
+        const newZ = Math.max(3, Math.min(35, beforeZ - zoomFactor));
         
         camera.position.z = newZ;
         camera.position.y = newZ * CAMERA_ANGLE_RATIO;

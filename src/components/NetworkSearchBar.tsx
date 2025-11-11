@@ -200,7 +200,7 @@ export const NetworkSearchBar = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setShowResults(true)}
-            placeholder="grow your circle ⭕"
+            placeholder="grow your circle"
             className="pl-12 pr-4 py-6 bg-black/90 backdrop-blur-xl border-2 border-primary/40 rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-4 focus:ring-primary/30 transition-all duration-300 shadow-2xl shadow-primary/20 relative"
             style={{
               boxShadow: '0 8px 32px rgba(0, 255, 102, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.1)',
