@@ -24,6 +24,7 @@ interface Network3DProps {
   circleType?: 'my' | 'industry' | 'event';
   industries?: string[];
   events?: string[];
+  isDemoMode?: boolean;
 }
 const CIRCLES = [{
   id: 'family',
@@ -62,7 +63,8 @@ export const Network3D = ({
   personHealth,
   circleType = 'my',
   industries,
-  events
+  events,
+  isDemoMode = false
 }: Network3DProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -77,7 +79,6 @@ export const Network3D = ({
   const touchDistanceRef = useRef<number | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<NetworkPerson | null>(null);
   const [showMenu, setShowMenu] = useState(false);
-  const [showDemoNodes, setShowDemoNodes] = useState(false);
   const isZoomingRef = useRef(false);
   const zoomTargetRef = useRef<THREE.Vector3 | null>(null);
   const lastCameraPositionRef = useRef<THREE.Vector3 | null>(null);
@@ -109,9 +110,9 @@ export const Network3D = ({
       CIRCLES_TO_USE = CIRCLES;
     }
 
-    // Add demo people to outer circles if showDemoNodes is enabled
+    // Add demo people to outer circles if isDemoMode is enabled
     const demoPeople: NetworkPerson[] = [];
-    if (showDemoNodes) {
+    if (isDemoMode) {
       if (circleType === 'industry' && industries) {
         // Populate each industry circle with demo people
         industries.forEach((industry, circleIndex) => {
@@ -814,7 +815,7 @@ export const Network3D = ({
       containerRef.current?.removeChild(renderer.domElement);
       renderer.dispose();
     };
-  }, [people, onPersonClick, personHealth, showDemoNodes]);
+  }, [people, onPersonClick, personHealth, isDemoMode]);
 
   // Update node colors live when health scores change
   useEffect(() => {
@@ -837,21 +838,6 @@ export const Network3D = ({
     }
   };
   return <div className="relative w-full h-full">
-      {/* View mode toggle */}
-      <div className="fixed top-4 right-4 z-50 animate-fade-in">
-        <ToggleGroup type="single" value={showDemoNodes ? 'demo' : 'real'} onValueChange={v => {
-        if (!v) return;
-        setShowDemoNodes(v === 'demo');
-      }} className="bg-background/80 backdrop-blur px-1 py-1 rounded-lg border border-border flex" aria-label="View mode">
-          <ToggleGroupItem value="real" className="px-3 py-1 text-sm rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground" aria-label="My circle">
-            My circle
-          </ToggleGroupItem>
-          <ToggleGroupItem value="demo" className="px-3 py-1 text-sm rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground" aria-label="Demo">
-            Demo
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
-      
       <div ref={containerRef} className="w-full h-screen" />
 
       {/* Floating profile preview */}

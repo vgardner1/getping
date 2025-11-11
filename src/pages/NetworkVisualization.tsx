@@ -459,6 +459,42 @@ export default function NetworkVisualization() {
         </Sheet>
       </div>
 
+      {/* Demo Mode Toggle - Bottom Right */}
+      <div className="absolute right-0 bottom-24 md:bottom-28 z-20">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button 
+              variant="outline" 
+              size="icon"
+              className="rounded-l-lg rounded-r-none border-r-0 bg-black/80 backdrop-blur border-primary/30 hover:bg-primary/20 h-8 w-8"
+            >
+              <Users className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-64 p-4 bg-black/95 backdrop-blur border-primary/30">
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-foreground">View Mode</h3>
+              <div className="flex flex-col gap-2">
+                <Button
+                  variant={!isDemoMode ? "default" : "outline"}
+                  onClick={() => setIsDemoMode(false)}
+                  className="w-full justify-start"
+                >
+                  My Circle
+                </Button>
+                <Button
+                  variant={isDemoMode ? "default" : "outline"}
+                  onClick={() => setIsDemoMode(true)}
+                  className="w-full justify-start"
+                >
+                  Demo
+                </Button>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
       {/* Bottom Chats Drawer */}
       <div 
         className={`fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-primary/30 shadow-2xl transition-all duration-300 z-40 ${
@@ -504,6 +540,7 @@ export default function NetworkVisualization() {
         circleType={circleType}
         industries={circleType === 'industry' ? industries : undefined}
         events={circleType === 'event' ? userEvents.map(e => e.name) : undefined}
+        isDemoMode={isDemoMode}
       />
     </div>
   );
