@@ -14,10 +14,9 @@ interface Contact {
 
 interface ManualInviteInputProps {
   onBack: () => void;
-  skipSuccessNavigation?: boolean;
 }
 
-export default function ManualInviteInput({ onBack, skipSuccessNavigation = false }: ManualInviteInputProps) {
+export default function ManualInviteInput({ onBack }: ManualInviteInputProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -58,18 +57,7 @@ export default function ManualInviteInput({ onBack, skipSuccessNavigation = fals
     const success = await createPendingInvites(contacts);
     
     if (success) {
-      toast({
-        title: "Invites Sent!",
-        description: `Successfully sent ${contacts.length} invite${contacts.length > 1 ? 's' : ''}`,
-      });
-      
-      if (!skipSuccessNavigation) {
-        navigate(`/onboarding/success?method=manual&count=${contacts.length}`);
-      } else {
-        // Reset for next use
-        setContacts([]);
-        setCurrentInput('');
-      }
+      navigate(`/onboarding/success?method=manual&count=${contacts.length}`);
     } else {
       toast({
         title: "Error",
@@ -80,16 +68,16 @@ export default function ManualInviteInput({ onBack, skipSuccessNavigation = fals
   };
 
   return (
-    <div className="min-h-[400px] bg-transparent px-6 py-6">
+    <div className="min-h-screen bg-background px-6 py-4">
       <button 
         onClick={onBack}
-        className="text-primary text-base mb-4 hover:text-primary/80"
+        className="text-primary text-base mb-4"
       >
         ← Back
       </button>
 
       <h2 className="text-2xl font-bold text-foreground mb-6">
-        Add Contacts
+        Add to Circle
       </h2>
 
       <div className="mb-6">

@@ -9,8 +9,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { NetworkSearchBar } from '@/components/NetworkSearchBar';
 import { LeaderboardCard } from '@/components/network/LeaderboardCard';
 import { ChatsCard } from '@/components/network/ChatsCard';
-import { InviteContactsDrawer } from '@/components/network/InviteContactsDrawer';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import MessagesInvite from '@/components/onboarding/MessagesInvite';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -454,7 +454,7 @@ export default function NetworkVisualization() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-80 p-0 bg-black/95 backdrop-blur border-primary/30 overflow-y-auto">
-            <InviteContactsDrawer />
+            <MessagesInvite onBack={() => {}} skipSuccessNavigation />
           </SheetContent>
         </Sheet>
       </div>
