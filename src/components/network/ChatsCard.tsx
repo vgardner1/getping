@@ -63,6 +63,11 @@ export const ChatsCard = () => {
         .order('created_at', { ascending: false })
         .limit(100);
 
+      if (!messages || messages.length === 0) {
+        setLoading(false);
+        return;
+      }
+
       const conversationMessages = new Map<string, any[]>();
       messages?.forEach(msg => {
         if (!conversationMessages.has(msg.conversation_id)) {
@@ -79,12 +84,24 @@ export const ChatsCard = () => {
         .sort((a, b) => new Date(b.lastMessage.created_at).getTime() - new Date(a.lastMessage.created_at).getTime())
         .slice(0, 3);
 
-      const { data: allParticipants } = await supabase
-        .from('conversation_participants')
-        .select('conversation_id, user_id')
-        .in('conversation_id', recentConversations.map(c => c.conversationId));
+      // Get other user IDs from message sender_ids (not from participants table due to RLS)
+      const otherUserIds = Array.from(
+        new Set(
+          recentConversations
+            .map(conv => {
+              // Find any message in this conversation that's NOT from the current user
+              const msgs = conversationMessages.get(conv.conversationId) || [];
+              const otherUserMsg = msgs.find(m => m.sender_id !== user.id);
+              return otherUserMsg?.sender_id;
+            })
+            .filter(Boolean)
+        )
+      );
 
-      const otherUserIds = Array.from(new Set(allParticipants?.filter(p => p.user_id !== user.id).map(p => p.user_id) || []));
+      if (otherUserIds.length === 0) {
+        setLoading(false);
+        return;
+      }
 
       const { data: profiles } = await supabase
         .from('profiles')
@@ -92,8 +109,10 @@ export const ChatsCard = () => {
         .in('user_id', otherUserIds);
 
       const chatPreviews: ChatPreview[] = recentConversations.map(conv => {
-        const otherParticipant = allParticipants?.find(p => p.conversation_id === conv.conversationId && p.user_id !== user.id);
-        const profile = profiles?.find(p => p.user_id === otherParticipant?.user_id);
+        const msgs = conversationMessages.get(conv.conversationId) || [];
+        const otherUserMsg = msgs.find(m => m.sender_id !== user.id);
+        const otherUserId = otherUserMsg?.sender_id;
+        const profile = profiles?.find(p => p.user_id === otherUserId);
         const content = conv.lastMessage.content || '';
         
         // Build display name with proper fallbacks
