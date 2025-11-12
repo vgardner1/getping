@@ -149,14 +149,14 @@ const Landing = () => {
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="lg" className="shimmer bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-all duration-200 px-12 py-6 text-xl font-semibold">
-                  get ping! - $9.99
+                  presale @ $19.99
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle className="text-2xl font-bold iridescent-text">get ping! - $9.99</DialogTitle>
+                  <DialogTitle className="text-2xl font-bold iridescent-text">presale @ $19.99</DialogTitle>
                   <DialogDescription className="text-muted-foreground">
-                    one-time payment - instant access to ping!
+                    presale pricing - instant access to ping!
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleWaitlistSubmit} className="space-y-4 mt-4">
@@ -176,7 +176,7 @@ const Landing = () => {
                   </div>
 
                   <Button type="submit" size="lg" disabled={isSubmitting} className="shimmer w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 px-8 py-4 text-lg font-semibold">
-                    {isSubmitting ? 'processing...' : 'buy now - $9.99'}
+                    {isSubmitting ? 'processing...' : 'buy now - $19.99'}
                   </Button>
                 </form>
               </DialogContent>

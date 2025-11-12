@@ -42,10 +42,10 @@ serve(async (req) => {
           price_data: {
             currency: "usd",
             product_data: { 
-              name: "ping! - One-Time Purchase",
-              description: "Instant access to ping!"
+              name: "ping! - Presale",
+              description: "Presale access to ping!"
             },
-            unit_amount: 999, // $9.99 one-time
+            unit_amount: 1999, // $19.99 presale
           },
           quantity: 1,
         },

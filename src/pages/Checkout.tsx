@@ -100,7 +100,7 @@ const Checkout = () => {
               <div className="border-t border-border pt-2 mt-4">
                 <div className="flex justify-between items-center text-sm">
                   <span className="iridescent-text">upfront cost</span>
-                  <span className="iridescent-text">$9.99</span>
+                  <span className="iridescent-text">$19.99</span>
                 </div>
                 <div className="flex justify-between items-center text-sm mt-1">
                   <span className="iridescent-text">then $2.99/month</span>
@@ -115,7 +115,7 @@ const Checkout = () => {
               <div className="border-t border-border pt-4 mt-4">
                 <div className="flex justify-between items-center text-lg font-bold">
                   <span className="iridescent-text">due today</span>
-                  <span className="iridescent-text">$9.99</span>
+                  <span className="iridescent-text">$19.99</span>
                 </div>
               </div>
             </div>
@@ -148,7 +148,7 @@ const Checkout = () => {
                 disabled={loading}
                 className="w-full shimmer bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105 transition-transform duration-200 py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "processing..." : "get ping! today - $9.99"}
+                {loading ? "processing..." : "get ping! presale - $19.99"}
               </Button>
               
               
