@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-inter: 'Inter', system-ui, sans-serif;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-bg text-text antialiased;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-bg;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-grid rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-ring-soft;
+  }
+}
+
+@layer components {
+  /* Custom range slider styling */
+  .slider-input::-webkit-slider-thumb {
+    @apply appearance-none w-6 h-6 rounded-full bg-ring cursor-pointer;
+    @apply shadow-lg shadow-ring/50 border-2 border-bg;
+  }
+
+  .slider-input::-moz-range-thumb {
+    @apply appearance-none w-6 h-6 rounded-full bg-ring cursor-pointer;
+    @apply shadow-lg shadow-ring/50 border-2 border-bg;
+  }
+
+  /* Focus visible for accessibility */
+  .focus-visible:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-bg;
+  }
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px #16ff88);
+  }
+  50% {
+    opacity: 0.7;
+    filter: drop-shadow(0 0 16px #16ff88);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Selection styling */
+::selection {
+  @apply bg-ring/30 text-text;
+}
