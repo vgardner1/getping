@@ -149,7 +149,7 @@ const Landing = () => {
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="lg" className="shimmer bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-all duration-200 px-12 py-6 text-xl font-semibold">
-                  presale @ $19.99
+                  presale -19.99
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
