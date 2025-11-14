@@ -62,6 +62,14 @@ export const ContactRequestModal = ({
         description: `${profileName || "They"} will be notified of your interest to connect`,
       });
 
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        message: ""
+      });
+
       onClose();
     } catch (error) {
       console.error("Error submitting contact request:", error);
