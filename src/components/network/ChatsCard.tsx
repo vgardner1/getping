@@ -159,7 +159,7 @@ export const ChatsCard = () => {
           {chats.map((chat) => (
             <button
               key={chat.id}
-              onClick={() => navigate(`/chat?connection=${chat.id}`)}
+              onClick={() => navigate(`/chat/${chat.id}`)}
               className="w-full text-left flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 bg-black/40 transition-colors"
             >
               <Avatar className="h-8 w-8 border border-primary/20">
