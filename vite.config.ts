@@ -25,6 +25,8 @@ export default defineConfig(({ mode }) => ({
         theme_color: '#000000',
         background_color: '#000000',
         display: 'standalone',
+        start_url: '/',
+        scope: '/',
         icons: [
           {
             src: '/pwa-192x192.png',
@@ -75,6 +77,13 @@ export default defineConfig(({ mode }) => ({
             }
           }
         ]
+      },
+      injectManifest: {
+        injectionPoint: undefined,
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module',
       }
     })
   ].filter(Boolean),
