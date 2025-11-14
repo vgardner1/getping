@@ -672,6 +672,36 @@ export type Database = {
           },
         ]
       }
+      profile_contact_requests: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          profile_user_id: string
+          visitor_email: string | null
+          visitor_name: string
+          visitor_phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          profile_user_id: string
+          visitor_email?: string | null
+          visitor_name: string
+          visitor_phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          profile_user_id?: string
+          visitor_email?: string | null
+          visitor_name?: string
+          visitor_phone?: string | null
+        }
+        Relationships: []
+      }
       profile_processing_jobs: {
         Row: {
           created_at: string
