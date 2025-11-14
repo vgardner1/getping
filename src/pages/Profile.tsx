@@ -17,6 +17,8 @@ import SMSModal from "@/components/SMSModal";
 import ShareModal from "@/components/ShareModal";
 import { getPublicProfileUrl, isProduction } from "@/lib/environment";
 import { ContactSyncButton } from "@/components/ContactSyncButton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ResumeViewer } from "@/components/ResumeViewer";
 
 // Normalize URLs to ensure external links open correctly
 const normalizeUrl = (url: string) => {
@@ -44,6 +46,7 @@ const Profile = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+  const [showResume, setShowResume] = useState(false);
 
   // Redirect if not authenticated - but only after loading is complete
   useEffect(() => {
@@ -402,6 +405,59 @@ const Profile = () => {
                 </Card>;
           })}
           </div>
+
+          {/* Resume Section */}
+          {profile?.resume_url && (
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-primary" />
+                Resume
+              </h3>
+              <Card className="bg-card border-border p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium iridescent-text">
+                        {profile.resume_filename || 'Resume.pdf'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        PDF Document
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowResume(true)}
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      View
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = profile.resume_url;
+                        link.setAttribute('download', profile.resume_filename || 'resume.pdf');
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        toast({ title: "Downloading resume..." });
+                      }}
+                    >
+                      <Download className="w-4 h-4 mr-1" />
+                      Download
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          )}
         </div>
 
         {/* Share Profile Button - Bottom of page */}
@@ -439,6 +495,36 @@ const Profile = () => {
       
       {/* Global Search */}
       <GlobalSearch isOpen={showSearch} onClose={() => setShowSearch(false)} />
+
+      {/* Resume Viewer Dialog */}
+      <Dialog open={showResume} onOpenChange={setShowResume}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Resume</DialogTitle>
+          </DialogHeader>
+          {profile?.resume_url && (
+            <ResumeViewer
+              url={profile.resume_url}
+              fileName={profile.resume_filename || 'resume'}
+              height={640}
+            />
+          )}
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setShowResume(false)}>Close</Button>
+            <Button onClick={() => {
+              const link = document.createElement('a');
+              link.href = profile.resume_url;
+              link.setAttribute('download', profile.resume_filename || 'resume.pdf');
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              toast({ title: "Downloading resume..." });
+            }} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Download className="w-4 h-4 mr-2" /> Download
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>;
 };
 export default Profile;
