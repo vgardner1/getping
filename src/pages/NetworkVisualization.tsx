@@ -460,39 +460,44 @@ export default function NetworkVisualization() {
       </div>
 
       {/* Demo Mode Toggle - Bottom Right */}
-      <div className="absolute right-0 bottom-24 md:bottom-28 z-20">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button 
-              variant="outline" 
+      <div className="absolute right-4 bottom-24 md:bottom-28 z-20">
+        <div className="bg-black/90 backdrop-blur border border-primary/30 rounded-lg p-3 w-48">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-semibold text-foreground">Try Demo</h3>
+            <Button
+              variant="ghost"
               size="icon"
-              className="rounded-l-lg rounded-r-none border-r-0 bg-black/80 backdrop-blur border-primary/30 hover:bg-primary/20 h-8 w-8"
+              onClick={() => setIsDemoMode(!isDemoMode)}
+              className="h-6 w-6"
             >
-              <Users className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+              <Users className="h-3 w-3 text-primary" />
             </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-64 p-4 bg-black/95 backdrop-blur border-primary/30">
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-foreground">View Mode</h3>
-              <div className="flex flex-col gap-2">
-                <Button
-                  variant={!isDemoMode ? "default" : "outline"}
-                  onClick={() => setIsDemoMode(false)}
-                  className="w-full justify-start"
-                >
-                  My Circle
-                </Button>
-                <Button
-                  variant={isDemoMode ? "default" : "outline"}
-                  onClick={() => setIsDemoMode(true)}
-                  className="w-full justify-start"
-                >
-                  Demo
-                </Button>
+          </div>
+          
+          {/* Clickable Fake Profile */}
+          <button
+            onClick={() => navigate('/u/demo-user')}
+            className="w-full p-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-all border border-primary/20 hover:border-primary/40"
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-xs font-bold">
+                JD
+              </div>
+              <div className="text-left flex-1">
+                <p className="text-xs font-semibold text-foreground">Jane Doe</p>
+                <p className="text-[10px] text-muted-foreground">Demo Profile</p>
               </div>
             </div>
-          </SheetContent>
-        </Sheet>
+          </button>
+          
+          <Button
+            variant={isDemoMode ? "default" : "outline"}
+            onClick={() => setIsDemoMode(!isDemoMode)}
+            className="w-full mt-2 h-7 text-xs"
+          >
+            {isDemoMode ? 'Exit Demo' : 'Enter Demo'}
+          </Button>
+        </div>
       </div>
 
       {/* Bottom Chats Drawer */}
