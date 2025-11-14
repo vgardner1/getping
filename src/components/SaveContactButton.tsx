@@ -47,7 +47,7 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
     }
 
     try {
-      const displayName = (profile.display_name || profile.full_name || '').trim();
+      const displayName = (profile.display_name || profile.full_name || profile.first_name || '').trim();
       
       if (!displayName) {
         toast({
@@ -67,8 +67,25 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
         ? profile.social_links.linkedin 
         : profile.social_links?.linkedin?.url || '';
 
+      console.log('Attempting to save contact:', { displayName, email: userEmail, phone });
+
+      // First check if contact already exists
+      const { data: existingContacts } = await supabase
+        .from('contacts')
+        .select('id, name')
+        .eq('user_id', user.id)
+        .or(`email.eq.${userEmail || 'null'},phone.eq.${phone || 'null'},name.eq.${displayName}`);
+
+      if (existingContacts && existingContacts.length > 0) {
+        toast({
+          title: 'Already saved',
+          description: `${displayName} is already in your contacts.`,
+        });
+        return;
+      }
+
       // Save to Supabase contacts table
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('contacts')
         .insert({
           user_id: user.id,
@@ -83,29 +100,24 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
           profile_photo_url: profile.avatar_url || null,
           source: 'ping_profile',
           first_contact_date: new Date().toISOString().split('T')[0],
-        });
+        })
+        .select();
 
       if (error) {
-        // Check if contact already exists
-        if (error.code === '23505') {
-          toast({
-            title: 'Already saved',
-            description: `${displayName} is already in your contacts.`,
-          });
-        } else {
-          throw error;
-        }
-      } else {
-        toast({
-          title: 'Contact saved!',
-          description: `${displayName} has been added to your contacts.`,
-        });
+        console.error('Error saving contact:', error);
+        throw error;
       }
-    } catch (error) {
+
+      console.log('Contact saved successfully:', data);
+      toast({
+        title: 'Contact saved!',
+        description: `${displayName} has been added to your contacts.`,
+      });
+    } catch (error: any) {
       console.error('Error saving contact:', error);
       toast({
         title: 'Error',
-        description: 'Failed to save contact. Please try again.',
+        description: error?.message || 'Failed to save contact. Please try again.',
         variant: 'destructive',
       });
     }
