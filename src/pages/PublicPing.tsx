@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { createChatWithUser } from "@/utils/chatUtils";
 import { useToast } from "@/hooks/use-toast";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { ContactRequestModal } from "@/components/ContactRequestModal";
 
 interface PublicProfile {
   user_id: string;
@@ -52,6 +53,7 @@ const PublicPing = () => {
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [generatedQuestion, setGeneratedQuestion] = useState('');
   const [copied, setCopied] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(true);
 
   useEffect(() => {
     if (userId) {
@@ -617,6 +619,13 @@ const PublicPing = () => {
         onClose={() => setShowShareModal(false)}
         userId={userId || ''}
         displayName={displayName}
+      />
+
+      <ContactRequestModal
+        isOpen={showContactModal}
+        onClose={() => setShowContactModal(false)}
+        profileUserId={userId || ''}
+        profileName={profile?.display_name}
       />
     </div>
   );
