@@ -69,3 +69,34 @@ export const setupMessageNotifications = (userId: string, supabase: any) => {
 
   return channel;
 };
+
+export const setupContactRequestNotifications = (userId: string, supabase: any) => {
+  // Request permission first
+  requestNotificationPermission();
+
+  // Set up real-time subscription for contact requests
+  const channel = supabase
+    .channel('contact-request-notifications')
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${userId}`
+      },
+      async (payload: any) => {
+        const notification = payload.new;
+        
+        // Show browser notification
+        showNotification(notification.title, {
+          body: notification.message,
+          tag: `notification-${notification.id}`,
+          requireInteraction: false,
+        });
+      }
+    )
+    .subscribe();
+
+  return channel;
+};
