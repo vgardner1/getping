@@ -57,18 +57,13 @@ const PublicPing = () => {
     if (userId) {
       fetchPublicProfile();
       
-      // Check if this is an NFC tap (detect ?source=nfc query parameter)
-      const urlParams = new URLSearchParams(window.location.search);
-      const isNfcTap = urlParams.get('source') === 'nfc';
-      
-      if (isNfcTap) {
-        // Show "You just got pinged!" notification
-        toast({
-          title: "You just got pinged! 🎉",
-          description: "Someone tapped your ring to view your profile",
-          duration: 5000,
-        });
-      }
+      // Show "You just got pinged!" notification for all public profile visits
+      // (since public profiles are only accessed via NFC ring taps)
+      toast({
+        title: "You just got pinged! 🎉",
+        description: "Someone tapped your ring to view your profile",
+        duration: 5000,
+      });
     }
   }, [userId, toast]);
 

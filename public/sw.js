@@ -13,8 +13,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   
-  // Check if this is a ping URL with NFC source
-  if (url.pathname.startsWith('/ping/') && url.searchParams.get('source') === 'nfc') {
+  // Show notification for all /ping/* URLs (NFC ring taps)
+  if (url.pathname.startsWith('/ping/') && event.request.mode === 'navigate') {
     // Show notification when NFC ring is tapped
     event.waitUntil(
       self.registration.showNotification('You just got pinged! 🎉', {
