@@ -25,24 +25,35 @@ export default defineConfig(({ mode }) => ({
         theme_color: '#000000',
         background_color: '#000000',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/?source=pwa',
         scope: '/',
+        id: '/',
+        categories: ['social', 'networking'],
+        orientation: 'portrait-primary',
         icons: [
           {
             src: '/pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: '/pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
           },
           {
             src: '/pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: '/pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
+            src: '/pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ],
         share_target: {
@@ -64,6 +75,8 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg}'],
         maximumFileSizeToCacheInBytes: 15 * 1024 * 1024, // 15MB
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
@@ -74,6 +87,13 @@ export default defineConfig(({ mode }) => ({
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 // 24 hours
               }
+            }
+          },
+          {
+            urlPattern: /\/ping\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'ping-pages',
             }
           }
         ]
