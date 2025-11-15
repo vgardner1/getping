@@ -76,23 +76,49 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
 
       console.log('Attempting to save contact:', { displayName, email: userEmail, phone });
 
-      // Open native contact card immediately via vCard (non-blocking)
+      // Open native contact card immediately via vCard without download prompt
       try {
-        const params = new URLSearchParams();
-        params.set('fullName', displayName);
-        if (profile.job_title) params.set('title', profile.job_title);
-        if (profile.company) params.set('company', profile.company);
-        if (userEmail) params.set('email', userEmail);
-        if (phone) params.set('phone', phone);
-        if (profile.website_url) params.set('website', profile.website_url);
-        if (profile.bio) params.set('notes', profile.bio);
-        const vcardUrl = `https://ahksxziueqkacyaqtgeu.functions.supabase.co/vcard?${params.toString()}`;
+        const parts = displayName.split(/\s+/).filter(Boolean);
+        const first = parts[0] || '';
+        const last = parts.length > 1 ? parts.slice(1).join(' ') : '';
+        const esc = (s?: string) => String(s ?? '')
+          .replace(/\\/g, "\\\\")
+          .replace(/\n/g, "\\n")
+          .replace(/,/g, "\\,")
+          .replace(/;/g, "\\;");
+
+        const lines = [
+          'BEGIN:VCARD',
+          'VERSION:3.0',
+          `N:${esc(last)};${esc(first)};;;`,
+          `FN:${esc(displayName)}`,
+          profile.job_title ? `TITLE:${esc(profile.job_title)}` : '',
+          profile.company ? `ORG:${esc(profile.company)}` : '',
+          userEmail ? `EMAIL;TYPE=INTERNET:${esc(userEmail)}` : '',
+          phone ? `TEL;TYPE=CELL:${esc(phone)}` : '',
+          profile.website_url ? `URL;TYPE=WORK:${esc(profile.website_url)}` : '',
+          linkedinUrl ? `URL;TYPE=LinkedIn:${esc(linkedinUrl)}` : '',
+          profile.bio ? `NOTE:${esc(profile.bio)}` : '',
+          'END:VCARD',
+        ].filter(Boolean);
+
+        const vcardText = lines.join('\r\n');
         if (typeof window !== 'undefined') {
-          window.location.href = vcardUrl; // open in same tab for strongest iOS handling
+          const blob = new Blob([vcardText], { type: 'text/vcard;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.target = '_self'; // open in same tab to trigger native sheet
+          a.rel = 'noopener';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 2000);
         }
       } catch (e) {
-        console.warn('vCard open skipped:', e);
+        console.warn('Inline vCard open skipped:', e);
       }
+
 
       // Robust duplicate check without .or() to avoid special-char issues
       let alreadyExists = false;
