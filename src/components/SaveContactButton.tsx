@@ -76,6 +76,24 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
 
       console.log('Attempting to save contact:', { displayName, email: userEmail, phone });
 
+      // Open native contact card immediately via vCard (non-blocking)
+      try {
+        const params = new URLSearchParams();
+        params.set('fullName', displayName);
+        if (profile.job_title) params.set('title', profile.job_title);
+        if (profile.company) params.set('company', profile.company);
+        if (userEmail) params.set('email', userEmail);
+        if (phone) params.set('phone', phone);
+        if (profile.website_url) params.set('website', profile.website_url);
+        if (profile.bio) params.set('notes', profile.bio);
+        const vcardUrl = `https://ahksxziueqkacyaqtgeu.functions.supabase.co/vcard?${params.toString()}`;
+        if (typeof window !== 'undefined') {
+          window.open(vcardUrl, '_blank');
+        }
+      } catch (e) {
+        console.warn('vCard open skipped:', e);
+      }
+
       // Robust duplicate check without .or() to avoid special-char issues
       let alreadyExists = false;
 
@@ -143,7 +161,7 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
           where_met: 'Saved from Ping! profile',
           context_notes: profile.bio || null,
           profile_photo_url: profile.avatar_url || null,
-          source: 'ping_profile',
+          // source omitted to satisfy DB check constraint
           first_contact_date: new Date().toISOString().split('T')[0],
         })
         .select()
