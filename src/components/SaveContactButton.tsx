@@ -88,7 +88,7 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
         if (profile.bio) params.set('notes', profile.bio);
         const vcardUrl = `https://ahksxziueqkacyaqtgeu.functions.supabase.co/vcard?${params.toString()}`;
         if (typeof window !== 'undefined') {
-          window.open(vcardUrl, '_blank');
+          window.location.href = vcardUrl; // open in same tab for strongest iOS handling
         }
       } catch (e) {
         console.warn('vCard open skipped:', e);
