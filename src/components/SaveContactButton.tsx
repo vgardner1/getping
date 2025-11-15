@@ -31,15 +31,15 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
     if (!profile) {
       toast({
         title: 'Profile not loaded',
-        description: 'Please wait for the profile to load before saving.',
+        description: 'Please wait for the profile to load.',
         variant: 'destructive',
       });
       return;
     }
 
-    if (!user) {
+    if (!user?.id) {
       toast({
-        title: 'Not logged in',
+        title: 'Authentication required',
         description: 'Please log in to save contacts.',
         variant: 'destructive',
       });
@@ -146,11 +146,27 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
           source: 'ping_profile',
           first_contact_date: new Date().toISOString().split('T')[0],
         })
-        .select();
+        .select()
+        .single();
 
       if (error) {
-        console.error('Error saving contact:', error);
-        throw error;
+        console.error('Supabase error saving contact:', error);
+        toast({
+          title: 'Failed to save',
+          description: 'Unable to save contact. Please check your connection and try again.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!data) {
+        console.error('No data returned from contact insert');
+        toast({
+          title: 'Save incomplete',
+          description: 'Contact may not have been saved properly.',
+          variant: 'destructive',
+        });
+        return;
       }
 
       console.log('Contact saved successfully:', data);
@@ -159,10 +175,10 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
         description: `${displayName} has been added to your contacts.`,
       });
     } catch (error: any) {
-      console.error('Error saving contact:', error);
+      console.error('Unexpected error saving contact:', error);
       toast({
         title: 'Error',
-        description: error?.message || 'Failed to save contact. Please try again.',
+        description: 'An unexpected error occurred. Please try again.',
         variant: 'destructive',
       });
     }

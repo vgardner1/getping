@@ -203,27 +203,14 @@ export default function Home() {
           isDemoMode={isDemoMode}
         />
 
-        {/* Profile Health Modal */}
-        {selectedPerson && selectedPerson.userId !== 'current-user' && user && (
-          <ProfileHealthModal
-            person={selectedPerson}
-            isOpen={showHealthModal}
-            onClose={() => {
-              setShowHealthModal(false);
-              setSelectedPerson(null);
-            }}
-            userId={user.id}
-            position={(selectedPerson as any).screenPosition}
-          />
-        )}
-
-        {/* Floating Profile Popup for current user */}
-        {selectedPerson && selectedPerson.userId === 'current-user' && user && (
+        {/* Floating Profile Popup for all users */}
+        {selectedPerson && selectedPerson.userId && user && (
           <FloatingProfilePopup
-            userId={user.id}
-            isOpen={showProfilePopup}
+            userId={selectedPerson.userId === 'current-user' ? user.id : selectedPerson.userId}
+            isOpen={showProfilePopup || showHealthModal}
             onClose={() => {
               setShowProfilePopup(false);
+              setShowHealthModal(false);
               setSelectedPerson(null);
             }}
           />
