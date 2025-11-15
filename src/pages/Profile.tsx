@@ -265,7 +265,7 @@ const Profile = () => {
       <header className="border-b border-border p-2 relative z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-2">
           <button 
-            onClick={() => navigate('/')} 
+            onClick={() => navigate('/network/visualize')} 
             className="text-lg font-bold iridescent-text hover:scale-105 transition-transform cursor-pointer"
           >
             ping!
