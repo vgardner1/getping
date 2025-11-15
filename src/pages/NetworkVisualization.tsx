@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Circle, Trophy, MessageCircle, ChevronUp, ChevronDown, Users, UserPlus, User } from 'lucide-react';
-import { Network3D } from '@/components/Network3D';
+import { Network3DWithSphere } from '@/components/Network3DWithSphere';
 import { RelationshipHealthPanel } from '@/components/RelationshipHealthPanel';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -409,6 +409,6 @@ export default function NetworkVisualization() {
       </div>
 
       {/* 3D Network Visualization */}
-      <Network3D people={people} onPersonClick={handlePersonClick} personHealth={personHealth} circleType={circleType} industries={circleType === 'industry' ? industries : undefined} events={circleType === 'event' ? userEvents.map(e => e.name) : undefined} isDemoMode={isDemoMode} />
+      <Network3DWithSphere people={people} onPersonClick={handlePersonClick} personHealth={personHealth} circleType={circleType} isDemoMode={isDemoMode} />
     </div>;
 }
