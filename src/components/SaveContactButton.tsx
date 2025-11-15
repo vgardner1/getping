@@ -47,7 +47,14 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
     }
 
     try {
-      const displayName = (profile.display_name || profile.full_name || profile.first_name || '').trim();
+      const displayName = (
+        profile.display_name ||
+        profile.full_name ||
+        (profile.first_name && profile.last_name
+          ? `${profile.first_name} ${profile.last_name}`
+          : profile.first_name) ||
+        ''
+      ).trim();
       
       if (!displayName) {
         toast({
@@ -69,14 +76,52 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
 
       console.log('Attempting to save contact:', { displayName, email: userEmail, phone });
 
-      // First check if contact already exists
-      const { data: existingContacts } = await supabase
-        .from('contacts')
-        .select('id, name')
-        .eq('user_id', user.id)
-        .or(`email.eq.${userEmail || 'null'},phone.eq.${phone || 'null'},name.eq.${displayName}`);
+      // Robust duplicate check without .or() to avoid special-char issues
+      let alreadyExists = false;
 
-      if (existingContacts && existingContacts.length > 0) {
+      // Check by email
+      if (userEmail) {
+        const { data: byEmail, error: byEmailErr } = await supabase
+          .from('contacts')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('email', userEmail)
+          .limit(1);
+        if (byEmailErr) {
+          console.warn('Duplicate check (email) skipped due to error:', byEmailErr);
+        }
+        alreadyExists = !!(byEmail && byEmail.length);
+      }
+
+      // Check by phone if not found
+      if (!alreadyExists && phone) {
+        const { data: byPhone, error: byPhoneErr } = await supabase
+          .from('contacts')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('phone', phone)
+          .limit(1);
+        if (byPhoneErr) {
+          console.warn('Duplicate check (phone) skipped due to error:', byPhoneErr);
+        }
+        alreadyExists = !!(byPhone && byPhone.length);
+      }
+
+      // Check by exact name if not found (last resort)
+      if (!alreadyExists && displayName) {
+        const { data: byName, error: byNameErr } = await supabase
+          .from('contacts')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('name', displayName)
+          .limit(1);
+        if (byNameErr) {
+          console.warn('Duplicate check (name) skipped due to error:', byNameErr);
+        }
+        alreadyExists = !!(byName && byName.length);
+      }
+
+      if (alreadyExists) {
         toast({
           title: 'Already saved',
           description: `${displayName} is already in your contacts.`,
