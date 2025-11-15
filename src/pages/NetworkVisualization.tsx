@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Circle, Trophy, MessageCircle, ChevronUp, ChevronDown, Users, UserPlus } from 'lucide-react';
+import { Circle, Trophy, MessageCircle, ChevronUp, ChevronDown, Users, UserPlus, User } from 'lucide-react';
 import { Network3D } from '@/components/Network3D';
 import { RelationshipHealthPanel } from '@/components/RelationshipHealthPanel';
 import { supabase } from '@/integrations/supabase/client';
@@ -301,46 +301,38 @@ export default function NetworkVisualization() {
             visualize my circle
           </h1>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="rounded-full h-7 w-7 md:h-9 md:w-9 border bg-black/50 border-primary/30 text-white hover:bg-white/10">
-                <Circle className="h-3 w-3 md:h-4 md:w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-card/95 backdrop-blur z-[100]" align="end">
-              <DropdownMenuItem onClick={() => {
-              setCircleType('my');
-              setSelectedIndustry(null);
-              setSelectedEvent(null);
-              if (!isDemoMode) {
-                loadRealConnections();
-              }
-            }}>
-                my circle
-              </DropdownMenuItem>
-              
-              <DropdownMenuItem onClick={() => {
-              setCircleType('industry');
-              setSelectedEvent(null);
-              const defaultIndustry = industries[0];
-              setSelectedIndustry(defaultIndustry);
-              loadIndustryConnections(defaultIndustry);
-            }}>
-                industry circle
-              </DropdownMenuItem>
-              
-              <DropdownMenuItem onClick={() => {
-              setCircleType('event');
-              setSelectedIndustry(null);
-              setSelectedEvent(null);
-              if (userEvents.length > 0) {
-                loadEventAttendees();
-              }
-            }}>
-                event circle
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigate('/profile')}
+              aria-label="Open my profile"
+              className="rounded-full h-7 w-7 md:h-9 md:w-9 border bg-black/50 border-primary/30 text-white hover:bg-white/10"
+            >
+              <User className="h-3 w-3 md:h-4 md:w-4" />
+            </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="rounded-full h-7 w-7 md:h-9 md:w-9 border bg-black/50 border-primary/30 text-white hover:bg-white/10">
+                  <Circle className="h-3 w-3 md:h-4 md:w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-card/95 backdrop-blur z-[100]" align="end">
+                <DropdownMenuItem onClick={() => { setCircleType('my'); setSelectedIndustry(null); setSelectedEvent(null); if (!isDemoMode) { loadRealConnections(); } }}>
+                  my circle
+                </DropdownMenuItem>
+                
+                <DropdownMenuItem onClick={() => { setCircleType('industry'); setSelectedEvent(null); const defaultIndustry = industries[0]; setSelectedIndustry(defaultIndustry); loadIndustryConnections(defaultIndustry); }}>
+                  industry circle
+                </DropdownMenuItem>
+                
+                <DropdownMenuItem onClick={() => { setCircleType('event'); setSelectedIndustry(null); setSelectedEvent(null); if (userEvents.length > 0) { loadEventAttendees(); } }}>
+                  event circle
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
 
