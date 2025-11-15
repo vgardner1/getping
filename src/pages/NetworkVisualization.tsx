@@ -293,7 +293,7 @@ export default function NetworkVisualization() {
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/80 via-black/40 to-transparent pb-2">
         <div className="flex items-center justify-between p-2 md:p-3">
-          <Button variant="ghost" onClick={() => navigate('/home')} className="text-white hover:bg-white/10 h-7 px-3 md:h-9 md:px-4 font-bold text-xs md:text-sm">
+          <Button variant="ghost" onClick={() => user ? navigate('/network/visualize') : navigate('/')} className="text-white hover:bg-white/10 h-7 px-3 md:h-9 md:px-4 font-bold text-xs md:text-sm">
             ping!
           </Button>
 
