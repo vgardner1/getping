@@ -28,21 +28,8 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
   const { user } = useAuth();
 
   const saveContact = async () => {
-    if (!profile) {
-      toast({
-        title: 'Profile not loaded',
-        description: 'Please wait for the profile to load.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!user?.id) {
-      toast({
-        title: 'Authentication required',
-        description: 'Please log in to save contacts.',
-        variant: 'destructive',
-      });
+    if (!profile || !user?.id) {
+      console.warn('Cannot save contact: profile or user not available');
       return;
     }
 
@@ -57,11 +44,7 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
       ).trim();
       
       if (!displayName) {
-        toast({
-          title: 'Missing name',
-          description: 'This profile doesn\'t have a name set.',
-          variant: 'destructive',
-        });
+        console.warn('Cannot save contact: no name available');
         return;
       }
 
@@ -166,10 +149,7 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
       }
 
       if (alreadyExists) {
-        toast({
-          title: 'Already saved',
-          description: `${displayName} is already in your contacts.`,
-        });
+        console.log('Contact already exists, skipping duplicate save');
         return;
       }
 
@@ -195,36 +175,17 @@ export const SaveContactButton = ({ profile, userEmail }: SaveContactButtonProps
 
       if (error) {
         console.error('Supabase error saving contact:', error);
-        toast({
-          title: 'Failed to save',
-          description: 'Unable to save contact. Please check your connection and try again.',
-          variant: 'destructive',
-        });
         return;
       }
 
       if (!data) {
         console.error('No data returned from contact insert');
-        toast({
-          title: 'Save incomplete',
-          description: 'Contact may not have been saved properly.',
-          variant: 'destructive',
-        });
         return;
       }
 
       console.log('Contact saved successfully:', data);
-      toast({
-        title: 'Contact saved!',
-        description: `${displayName} has been added to your contacts.`,
-      });
     } catch (error: any) {
       console.error('Unexpected error saving contact:', error);
-      toast({
-        title: 'Error',
-        description: 'An unexpected error occurred. Please try again.',
-        variant: 'destructive',
-      });
     }
   };
 
